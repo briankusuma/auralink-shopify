@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AuraLink - Loading Screen (Preloader)
+   AuraLink - Loading Screen (Preloader with Ambient Ripple Effect)
    ========================================================================== */
 
 :root {
@@ -56,7 +56,7 @@ body.loading-screen-active {
 }
 
 /* --------------------------------------------------------------------------
-   Center: Rolling Scrambled Text Logo
+   Center: Ambient Ripple Waves & Logo
    -------------------------------------------------------------------------- */
 .loading-screen__center {
   position: absolute;
@@ -72,14 +72,71 @@ body.loading-screen-active {
   align-items: center;
 }
 
+/* Ripple Rings behind Logo */
+.loading-screen__ripple-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(200px, 28vw, 360px);
+  height: clamp(200px, 28vw, 360px);
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-screen__ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--loading-accent, #707070);
+  opacity: 0;
+  transform: scale(0.35);
+  animation: loading-screen-ripple 2.8s cubic-bezier(0.2, 0.7, 0.35, 1) infinite;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.02);
+}
+
+.loading-screen__ripple--1 {
+  animation-delay: 0s;
+}
+
+.loading-screen__ripple--2 {
+  animation-delay: 0.9s;
+}
+
+.loading-screen__ripple--3 {
+  animation-delay: 1.8s;
+}
+
+@keyframes loading-screen-ripple {
+  0% {
+    transform: scale(0.35);
+    opacity: 0.55;
+    border-width: 1.5px;
+  }
+  40% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+    border-width: 0.5px;
+  }
+}
+
+/* Logo Typography & Letter Ripple Wave */
 .loading-screen__logo {
+  position: relative;
+  z-index: 1;
   margin: 0;
   padding: 0;
   font-family: inherit;
-  font-size: clamp(2rem, 5.5vw, 4.25rem);
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
   font-weight: 700;
   line-height: 1.1;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--loading-text, #121212);
   display: inline-flex;
@@ -88,21 +145,34 @@ body.loading-screen-active {
 }
 
 .loading-screen__logo-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.24em;
+}
+
+/* Gentle undulating ripple wave traveling through letters */
+.loading-screen__letter {
   display: inline-block;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.2em;
+  will-change: transform, opacity;
+  animation: loading-letter-ripple 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation-delay: calc(var(--letter-index, 0) * 0.085s);
 }
 
-.loading-screen__char--scrambled {
-  color: var(--loading-accent, #707070);
-  opacity: 0.65;
-}
-
-.loading-screen__char--resolved {
-  color: var(--loading-text, #121212);
-  opacity: 1;
-  transition: color 0.12s ease, opacity 0.12s ease;
+@keyframes loading-letter-ripple {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.75;
+  }
+  25% {
+    transform: translateY(-5px) scale(1.05);
+    opacity: 1;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.06));
+  }
+  50% {
+    transform: translateY(1.5px) scale(0.98);
+    opacity: 0.8;
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -182,6 +252,17 @@ body.loading-screen-active {
   .loading-screen {
     transition: opacity 0.2s ease !important;
     transform: none !important;
+  }
+
+  .loading-screen__ripple {
+    animation: none !important;
+    display: none !important;
+  }
+
+  .loading-screen__letter {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
 
   .loading-screen__bar {

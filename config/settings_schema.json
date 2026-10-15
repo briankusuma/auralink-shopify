@@ -252,7 +252,7 @@
         "id": "loading_screen_text",
         "label": "Text logo",
         "default": "AURALINK",
-        "info": "Text logo centered on screen with rolling scramble animation."
+        "info": "Text logo centered on screen with ambient ripple wave animation."
       },
       {
         "type": "text",

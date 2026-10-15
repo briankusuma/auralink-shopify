@@ -1,15 +1,13 @@
 /**
  * AuraLink - Loading Screen Controller
  * Features:
- * - Scramble / rolling text logo resolving from 0% to 100%
+ * - Ambient ripple wave text logo (clean, non-scrambled, fluid acoustic ripple)
  * - Bottom-left count up from 0% to 100%
  * - Schema settings integration (label, duration, text logo, session memory)
  * - Pure vanilla JavaScript adhering to Shopify Theme Store guidelines
  */
 (function () {
   'use strict';
-
-  const GLYPHS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#@*&~<>';
 
   function initLoadingScreen() {
     const screen = document.getElementById('AuraLoadingScreen');
@@ -45,6 +43,28 @@
 
     document.body.classList.add('loading-screen-active');
 
+    // Ensure letters have --letter-index for staggered ripple wave
+    if (logoTextEl && logoTextEl.children.length === 0) {
+      const chars = Array.from(targetText);
+      logoTextEl.innerHTML = '';
+      chars.forEach(function (char, idx) {
+        const span = document.createElement('span');
+        span.className = 'loading-screen__letter';
+        span.style.setProperty('--letter-index', idx);
+        span.innerHTML = char === ' ' ? '&nbsp;' : escapeHtml(char);
+        logoTextEl.appendChild(span);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function dismissScreen() {
       screen.classList.add('loading-screen--done');
       document.body.classList.remove('loading-screen-active');
@@ -65,7 +85,6 @@
     if (prefersReducedMotion) {
       if (numberEl) numberEl.textContent = '100';
       if (barEl) barEl.style.width = '100%';
-      if (logoTextEl) logoTextEl.textContent = targetText;
       setTimeout(dismissScreen, 200);
       return;
     }
@@ -73,44 +92,6 @@
     let startTime = null;
     let lastPercent = -1;
     let frameId = null;
-
-    function renderScramble(progressRatio) {
-      if (!logoTextEl) return;
-      if (progressRatio >= 1) {
-        logoTextEl.textContent = targetText;
-        return;
-      }
-
-      const totalLen = targetText.length;
-      const resolvedCount = Math.floor(progressRatio * totalLen);
-      let html = '';
-
-      for (let i = 0; i < totalLen; i++) {
-        const char = targetText[i];
-        if (char === ' ') {
-          html += ' ';
-          continue;
-        }
-
-        if (i < resolvedCount) {
-          html += '<span class="loading-screen__char--resolved">' + escapeHtml(char) + '</span>';
-        } else {
-          const randGlyph = GLYPHS.charAt(Math.floor(Math.random() * GLYPHS.length));
-          html += '<span class="loading-screen__char--scrambled">' + randGlyph + '</span>';
-        }
-      }
-
-      logoTextEl.innerHTML = html;
-    }
-
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
 
     function easeOutCubic(t) {
       return 1 - Math.pow(1 - t, 3);
@@ -134,17 +115,14 @@
         }
       }
 
-      renderScramble(easedProgress);
-
       if (rawProgress < 1) {
         frameId = requestAnimationFrame(tick);
       } else {
         // Guaranteed 100% completion
         if (numberEl) numberEl.textContent = '100';
         if (barEl) barEl.style.width = '100%';
-        if (logoTextEl) logoTextEl.textContent = targetText;
 
-        // Brief hold so user sees full logo & 100% before transition
+        // Hold briefly at 100% so user sees full load before smooth entrance
         setTimeout(dismissScreen, 220);
       }
     }

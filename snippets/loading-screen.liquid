@@ -30,15 +30,28 @@
     "
   >
     <div class="loading-screen__inner">
-      {%- comment -%} Center: rolling scrambled text logo {%- endcomment -%}
+      {%- comment -%} Center: ambient ripple waves & undulating text logo {%- endcomment -%}
       <div class="loading-screen__center">
+        <div class="loading-screen__ripple-container" aria-hidden="true">
+          <div class="loading-screen__ripple loading-screen__ripple--1"></div>
+          <div class="loading-screen__ripple loading-screen__ripple--2"></div>
+          <div class="loading-screen__ripple loading-screen__ripple--3"></div>
+        </div>
+
         <h1
           class="loading-screen__logo"
           id="LoadingScreenLogo"
           data-target-text="{{ logo_text | escape }}"
           aria-label="{{ logo_text | escape }}"
         >
-          <span class="loading-screen__logo-text" aria-hidden="true">{{ logo_text | escape }}</span>
+          <span class="loading-screen__logo-text" id="LoadingScreenLogoText" aria-hidden="true">
+            {%- assign chars = logo_text | split: '' -%}
+            {%- for char in chars -%}
+              <span class="loading-screen__letter" style="--letter-index: {{ forloop.index0 }};">
+                {%- if char == ' ' -%}&nbsp;{%- else -%}{{ char | escape }}{%- endif -%}
+              </span>
+            {%- endfor -%}
+          </span>
         </h1>
       </div>
 
