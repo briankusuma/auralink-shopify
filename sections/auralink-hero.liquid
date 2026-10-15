@@ -23,17 +23,19 @@
     {% comment %} Left: Content (Headline, Subhead, CTA, Badges) - Figma Node 2899:1084 {% endcomment %}
     <div class="auralink-hero-content">
       <div class="auralink-hero-lead">
-        {%- if section.settings.heading != blank -%}
-          <h1 class="auralink-hero-title" data-reveal="text">
-            {{ section.settings.heading | escape | newline_to_br }}
-          </h1>
-        {%- endif -%}
+        <div class="liquid-text-base">
+          {%- if section.settings.heading != blank -%}
+            <h1 class="auralink-hero-title" data-reveal="text">
+              {{ section.settings.heading | escape | newline_to_br }}
+            </h1>
+          {%- endif -%}
 
-        {%- if section.settings.subheading != blank -%}
-          <p class="auralink-hero-subtitle" data-reveal="text">
-            {{ section.settings.subheading | escape }}
-          </p>
-        {%- endif -%}
+          {%- if section.settings.subheading != blank -%}
+            <p class="auralink-hero-subtitle" data-reveal="text">
+              {{ section.settings.subheading | escape }}
+            </p>
+          {%- endif -%}
+        </div>
 
         {%- if section.settings.button_label != blank -%}
           <a href="{{ section.settings.button_link | default: routes.all_products_collection_url }}" class="auralink-hero-cta-btn" data-reveal="fade">

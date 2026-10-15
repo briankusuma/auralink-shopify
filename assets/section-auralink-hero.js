@@ -398,6 +398,18 @@
 
     getGooDefsSvg(); // Ensure #goo-feather-overlay exists in DOM
 
+    // Ensure base text wrapper .liquid-text-base is present
+    let baseTextWrapper = leadEl.querySelector('.liquid-text-base');
+    if (!baseTextWrapper && titleEl) {
+      baseTextWrapper = document.createElement('div');
+      baseTextWrapper.className = 'liquid-text-base';
+      titleEl.parentNode.insertBefore(baseTextWrapper, titleEl);
+      baseTextWrapper.appendChild(titleEl);
+      if (subtitleEl) {
+        baseTextWrapper.appendChild(subtitleEl);
+      }
+    }
+
     let overlayEl = leadEl.querySelector('.auralink-hero-liquid-overlay');
     if (!overlayEl) {
       overlayEl = document.createElement('div');
