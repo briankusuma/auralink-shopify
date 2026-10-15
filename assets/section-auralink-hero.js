@@ -78,8 +78,8 @@
 
   // SVG namespace & helpers from bleibtgleich.dev
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const DUR_L = 1200; // 1.2s (bleibtgleich.dev var(--dur-l))
-  const STAGGER = 90; // 0.09s stagger between lines
+  const DUR_L = 2400; // 2.4s slow viscous liquid reveal
+  const STAGGER = 160; // 0.16s stagger between lines
   const MATRIX_VALUES = function (amp, off) {
     return '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ' + amp + ' ' + off;
   };
@@ -204,8 +204,8 @@
           feBlur.setAttribute('stdDeviation', currentStdDev.toFixed(2));
         }
 
-        // 2. feColorMatrix alpha threshold: amp: 20 -> 1, off: -8 -> 0 in last 35% of duration
-        const matrixThreshold = 0.65;
+        // 2. feColorMatrix alpha threshold: amp: 20 -> 1, off: -8 -> 0 in last 25% of duration
+        const matrixThreshold = 0.75;
         if (t >= matrixThreshold) {
           const matrixT = Math.min((t - matrixThreshold) / (1 - matrixThreshold), 1);
           const currentAmp = 20 + (1 - 20) * matrixT;
@@ -674,18 +674,18 @@
         if (subtitleEl) subtitleEl.style.visibility = 'visible';
 
         // 1. Run title text reveal (initial blur 48 -> mercury drops merge & condense into letters)
-        runTextRevealAnimation(titleLines, 48, 50, function () {
+        runTextRevealAnimation(titleLines, 48, 80, function () {
           if (syncOverlay) syncOverlay();
         });
 
         // 2. Run subtitle text reveal (initial blur 24, staggered right after title)
-        const subDelay = Math.max(280, titleLines.length * STAGGER + 120);
+        const subDelay = Math.max(500, titleLines.length * STAGGER + 200);
         runTextRevealAnimation(subtitleLines, 24, subDelay, function () {
           if (syncOverlay) syncOverlay();
         });
 
         // 3. Run fade reveal for CTA button & badges
-        const fadeDelay = subDelay + (subtitleLines.length * STAGGER) + 80;
+        const fadeDelay = subDelay + (subtitleLines.length * STAGGER) + 160;
         runFadeRevealAnimation(fadeElements, fadeDelay);
       }
 

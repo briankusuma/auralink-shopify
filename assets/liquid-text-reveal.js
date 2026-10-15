@@ -14,8 +14,9 @@
     return '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ' + l + ' ' + c;
   };
 
+  // Gentle viscous liquid easing: lets the melted droplet/mercury stage linger noticeably
   function easeOut(e) {
-    return 1 - Math.pow(1 - e, 3);
+    return 1 - Math.pow(1 - e, 2.0);
   }
 
   function getGlobalDefsSvg() {
@@ -69,8 +70,8 @@
   }
 
   function runTextRevealAnimation(lineElements, baseStdDev, duration, staggerDelay, onComplete) {
-    const dur = typeof duration === 'number' ? duration : 1000;
-    const stagger = typeof staggerDelay === 'number' ? staggerDelay : 60;
+    const dur = typeof duration === 'number' ? duration : 2200;
+    const stagger = typeof staggerDelay === 'number' ? staggerDelay : 140;
     let completedCount = 0;
 
     lineElements.forEach(function (lineEl, lineIndex) {
@@ -103,7 +104,7 @@
           feBlur.setAttribute('stdDeviation', currentStdDev.toFixed(2));
         }
 
-        const matrixThreshold = 0.65;
+        const matrixThreshold = 0.75;
         if (t >= matrixThreshold) {
           const matrixT = Math.min((t - matrixThreshold) / (1 - matrixThreshold), 1);
           const currentAmp = 20 + (1 - 20) * matrixT;
@@ -190,10 +191,16 @@
 
   function getAnimationDuration(el) {
     const tag = el.tagName.toLowerCase();
-    if (/^h[1-3]$/.test(tag) || el.classList.contains('h1') || el.classList.contains('h2')) {
-      return 1100;
+    if (/^h[1-3]$/.test(tag) || el.classList.contains('h1') || el.classList.contains('h2') || el.classList.contains('h0')) {
+      return 2400;
     }
-    return 900;
+    if (/^h[4-6]$/.test(tag) || el.classList.contains('h3') || el.classList.contains('h4')) {
+      return 2100;
+    }
+    if (tag === 'p' || el.classList.contains('rte')) {
+      return 1900;
+    }
+    return 1700;
   }
 
   function initSingleLiquidReveal(el) {
@@ -228,7 +235,7 @@
     function triggerReveal() {
       if (revealTriggered) return;
       revealTriggered = true;
-      runTextRevealAnimation(lines, baseStdDev, duration, 60);
+      runTextRevealAnimation(lines, baseStdDev, duration, 140);
     }
 
     function resetReveal() {
