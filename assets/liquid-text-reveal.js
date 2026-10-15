@@ -1,6 +1,6 @@
 /**
  * AuraLink Theme - Global Liquid Gooey Text Reveal on Scroll
- * 1.5s Smooth Viscous Liquid Reveal (Replicating bleibtgleich.dev SVG Goo filter)
+ * Exact 1.0s Smooth Liquid Reveal across all h, p, and span text elements.
  * Triggers precisely when text scrolls into view; resets when scrolled back up.
  * NOTE: Hover liquid ripple is strictly excluded here (used only in Hero/Header).
  */
@@ -8,7 +8,7 @@
   'use strict';
 
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const EXACT_DURATION = 1500; // Exactly 1.5s duration as requested
+  const EXACT_DURATION = 1000; // Exactly 1.0s duration as requested
 
   const MATRIX_VALUES = function (l, c) {
     return '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ' + l + ' ' + c;
@@ -16,7 +16,7 @@
 
   // Smooth ease-out curve for natural liquid condensation
   function easeOut(t) {
-    return 1 - Math.pow(1 - t, 2.4);
+    return 1 - Math.pow(1 - t, 2.5);
   }
 
   function getGlobalDefsSvg() {
@@ -32,7 +32,7 @@
   }
 
   function attachGooFilter(el, initialStdDev) {
-    const s = typeof initialStdDev === 'number' ? initialStdDev : 8;
+    const s = typeof initialStdDev === 'number' ? initialStdDev : 6;
     const l = 6;
     const c = -1.5;
 
@@ -80,8 +80,8 @@
   }
 
   function runTextRevealAnimation(lineElements, baseStdDev, onComplete) {
-    const dur = EXACT_DURATION; // 1.5s
-    const stagger = 80; // 0.08s stagger between lines
+    const dur = EXACT_DURATION; // 1000ms = 1s
+    const stagger = 60; // 0.06s stagger between lines
     let completedCount = 0;
 
     lineElements.forEach(function (lineEl, lineIndex) {
@@ -116,8 +116,8 @@
           feBlur.setAttribute('stdDeviation', currentStdDev.toFixed(2));
         }
 
-        // feColorMatrix transitions to 1 0 in the second half of duration (from t=0.55 to 1.0)
-        const matrixThreshold = 0.55;
+        // feColorMatrix transitions to 1 0 in second half of the 1s duration
+        const matrixThreshold = 0.5;
         if (t >= matrixThreshold) {
           const matrixT = Math.min((t - matrixThreshold) / (1 - matrixThreshold), 1);
           const currentAmp = 6 + (1 - 6) * matrixT;
@@ -134,7 +134,7 @@
         if (t < 1) {
           requestAnimationFrame(renderFrame);
         } else {
-          // Finished: clear filter so text is 100% crisp vector sharpness
+          // Finished: clear filter for 100% crisp vector sharpness
           lineEl.style.filter = '';
           lineEl.style.visibility = 'visible';
           lineEl.style.opacity = '1';
@@ -152,7 +152,7 @@
         lineEl.style.filter = '';
         lineEl.style.visibility = 'visible';
         lineEl.style.opacity = '1';
-      }, dur + lineDelay + 200);
+      }, dur + lineDelay + 150);
     });
   }
 
@@ -288,13 +288,81 @@
     }
   }
 
+  function isEligibleText(el) {
+    if (!el || el.nodeType !== 1) return false;
+    if (el.dataset.liquidRevealInit === 'true') return false;
+
+    // Exclude header, footer, navigation, cart drawer, modals
+    if (el.closest('header, footer, .header-wrapper, .footer, [id*="shopify-section-header"], [id*="shopify-section-footer"], .header-drawer, .menu-drawer, cart-drawer, .drawer, .modal, .popup, .localization-form')) {
+      return false;
+    }
+
+    // Exclude hero text lead (which has hover ripple)
+    if (el.closest('.auralink-hero-lead')) return false;
+
+    // Exclude form controls, scripts, styles, SVGs, hidden elements
+    if (el.closest('button, input, select, textarea, label, fieldset, svg, .svg-wrapper, .icon, [aria-hidden="true"], .visually-hidden, script, style, noscript')) {
+      return false;
+    }
+
+    // Skip if an ancestor is already initialized or is an h1..h6 or p
+    if (el.parentElement && el.parentElement.closest('[data-liquid-reveal-init="true"], .split-line, .split-line-mask, .split-line-h1, .split-line-h1-mask, h1, h2, h3, h4, h5, h6, p')) {
+      return false;
+    }
+
+    // Must have non-empty text content
+    const text = el.textContent ? el.textContent.trim() : '';
+    if (text.length === 0) return false;
+
+    // Explicitly marked
+    if (el.matches('[data-liquid-reveal="text"], [data-reveal="text"]')) {
+      return true;
+    }
+
+    const tag = el.tagName.toLowerCase();
+
+    // Headings (h1..h6)
+    if (/^h[1-6]$/.test(tag)) {
+      return true;
+    }
+
+    // Paragraphs
+    if (tag === 'p') {
+      return true;
+    }
+
+    // Standalone content spans
+    if (tag === 'span') {
+      // Must not contain block elements
+      if (el.querySelector('div, p, h1, h2, h3, h4, h5, h6, ul, ol, li')) return false;
+      // Must not be an inline icon or caret
+      if (el.classList.contains('svg-wrapper') || el.classList.contains('icon') || el.classList.contains('circle-divider') || el.classList.contains('auralink-pill__dot')) {
+        return false;
+      }
+      return true;
+    }
+
+    return false;
+  }
+
   function initAllLiquidReveals(container) {
     const root = container || document;
 
-    // Target all explicitly marked text elements in sections (headings, paragraphs, spans)
+    // 1. Target all explicitly marked text elements in sections (headings, paragraphs, spans)
     const targets = root.querySelectorAll('[data-liquid-reveal="text"], [data-reveal="text"]');
     targets.forEach(function (el) {
       initSingleLiquidReveal(el);
+    });
+
+    // 2. Discover all other h, p, and standalone span text elements in main content sections
+    const contentAreas = root.querySelectorAll('main, #MainContent, .main-content');
+    contentAreas.forEach(function (area) {
+      const candidates = area.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span');
+      candidates.forEach(function (el) {
+        if (isEligibleText(el)) {
+          initSingleLiquidReveal(el);
+        }
+      });
     });
   }
 
