@@ -43,6 +43,9 @@
 }
 
 .auralink-hero-lead {
+  --bubble-x: -500px;
+  --bubble-y: -500px;
+  --bubble-r: 0px;
   display: flex;
   flex-direction: column;
   gap: 36px;
@@ -61,6 +64,7 @@
   color: var(--auralink-color-dark, #000000);
   margin: 0;
   word-break: break-word;
+  cursor: pointer;
 }
 
 .auralink-hero-subtitle {
@@ -70,6 +74,7 @@
   color: rgba(0, 0, 0, 0.7);
   max-width: 416px;
   margin: 0;
+  cursor: pointer;
 }
 
 /* CTA Pill Button (Figma Node 2899:1054) */
@@ -214,6 +219,49 @@
   overflow: visible;
 }
 
+/* --------------------------------------------------------------------------
+   Seamless, Invisible-Edge Radial Falloff Mask for Liquid Text Ripple
+   - No hard clip-path circles, no visible borders or outlines.
+   - Smooth multi-stop radial gradient attenuates naturally to 0% at perimeter.
+   -------------------------------------------------------------------------- */
+.auralink-hero-liquid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+  will-change: mask-image, -webkit-mask-image, filter;
+  filter: url(#goo-feather-overlay);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+
+  -webkit-mask-image: radial-gradient(
+    circle var(--bubble-r, 110px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 30%,
+    rgba(0, 0, 0, 0.4) 65%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    circle var(--bubble-r, 110px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 30%,
+    rgba(0, 0, 0, 0.4) 65%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.auralink-hero-lead.is-liquid-active .auralink-hero-liquid-overlay {
+  opacity: 1;
+}
+
 /* CTA Icon rotation on hover */
 .auralink-hero-cta-btn:hover .auralink-cta-icon-circle {
   transform: rotate(45deg);
@@ -238,6 +286,10 @@
   filter: none !important;
 }
 
+.no-js .auralink-hero-liquid-overlay {
+  display: none !important;
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   [data-reveal],
@@ -252,6 +304,10 @@
     filter: none !important;
     animation: none !important;
     transition: none !important;
+  }
+
+  .auralink-hero-liquid-overlay {
+    display: none !important;
   }
 }
 

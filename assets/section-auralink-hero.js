@@ -94,6 +94,21 @@
       svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;';
       document.body.prepend(svg);
     }
+
+    if (!document.getElementById('goo-feather-overlay')) {
+      const filter = document.createElementNS(SVG_NS, 'filter');
+      filter.setAttribute('id', 'goo-feather-overlay');
+      filter.setAttribute('x', '-25%');
+      filter.setAttribute('y', '-25%');
+      filter.setAttribute('width', '150%');
+      filter.setAttribute('height', '150%');
+      filter.setAttribute('color-interpolation-filters', 'sRGB');
+      filter.innerHTML =
+        '<feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="blur"></feGaussianBlur>' +
+        '<feColorMatrix in="blur" mode="matrix" values="' + MATRIX_VALUES(19, -7) + '" result="goo"></feColorMatrix>';
+      svg.appendChild(filter);
+    }
+
     return svg;
   }
 
@@ -352,6 +367,139 @@
   }
 
   // =========================================================================
+  // Seamless, Invisible-Edge Radial Falloff Mask for Liquid Text Ripple
+  // - No hard clip-path circles, no visible borders or outlines.
+  // - Smooth multi-stop radial gradient attenuates naturally to 0% at perimeter.
+  // =========================================================================
+  function setupSeamlessLiquidRipple(leadEl, titleEl, subtitleEl) {
+    if (!leadEl || leadEl.dataset.seamlessLiquidInit === 'true') return null;
+    leadEl.dataset.seamlessLiquidInit = 'true';
+
+    getGooDefsSvg(); // Ensure #goo-feather-overlay exists in DOM
+
+    let overlayEl = leadEl.querySelector('.auralink-hero-liquid-overlay');
+    if (!overlayEl) {
+      overlayEl = document.createElement('div');
+      overlayEl.className = 'auralink-hero-liquid-overlay';
+      overlayEl.setAttribute('aria-hidden', 'true');
+      leadEl.appendChild(overlayEl);
+    }
+
+    function syncOverlayContent() {
+      overlayEl.innerHTML = '';
+      const cloneTitle = titleEl.cloneNode(true);
+      cloneTitle.removeAttribute('id');
+      cloneTitle.removeAttribute('data-reveal');
+      cloneTitle.setAttribute('aria-hidden', 'true');
+      cloneTitle.style.visibility = 'visible';
+      cloneTitle.style.opacity = '1';
+      cloneTitle.style.filter = '';
+      cloneTitle.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
+      cloneTitle.querySelectorAll('*').forEach(function (n) {
+        n.style.visibility = 'visible';
+        n.style.opacity = '1';
+        n.style.filter = '';
+      });
+      overlayEl.appendChild(cloneTitle);
+
+      if (subtitleEl) {
+        const cloneSub = subtitleEl.cloneNode(true);
+        cloneSub.removeAttribute('id');
+        cloneSub.removeAttribute('data-reveal');
+        cloneSub.setAttribute('aria-hidden', 'true');
+        cloneSub.style.visibility = 'visible';
+        cloneSub.style.opacity = '1';
+        cloneSub.style.filter = '';
+        cloneSub.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
+        cloneSub.querySelectorAll('*').forEach(function (n) {
+          n.style.visibility = 'visible';
+          n.style.opacity = '1';
+          n.style.filter = '';
+        });
+        overlayEl.appendChild(cloneSub);
+      }
+    }
+
+    syncOverlayContent();
+
+    let targetX = -500;
+    let targetY = -500;
+    let currentX = -500;
+    let currentY = -500;
+    let targetRadius = 0;
+    let currentRadius = 0;
+    let isHovered = false;
+    let rafId = null;
+
+    const MAX_RADIUS = 110; // Exact radius specified in design
+
+    function updateLoop() {
+      const lerpPos = 0.28;
+      const lerpRad = 0.18;
+
+      currentX += (targetX - currentX) * lerpPos;
+      currentY += (targetY - currentY) * lerpPos;
+      currentRadius += (targetRadius - currentRadius) * lerpRad;
+
+      leadEl.style.setProperty('--bubble-x', currentX.toFixed(1) + 'px');
+      leadEl.style.setProperty('--bubble-y', currentY.toFixed(1) + 'px');
+      leadEl.style.setProperty('--bubble-r', currentRadius.toFixed(1) + 'px');
+
+      if (isHovered || currentRadius > 0.5) {
+        rafId = requestAnimationFrame(updateLoop);
+      } else {
+        currentRadius = 0;
+        leadEl.style.setProperty('--bubble-r', '0px');
+        leadEl.classList.remove('is-liquid-active');
+        rafId = null;
+      }
+    }
+
+    function onPointerEnter(e) {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const rect = leadEl.getBoundingClientRect();
+      targetX = e.clientX - rect.left;
+      targetY = e.clientY - rect.top;
+      if (currentX < -200) {
+        currentX = targetX;
+        currentY = targetY;
+      }
+      targetRadius = MAX_RADIUS;
+      isHovered = true;
+      leadEl.classList.add('is-liquid-active');
+      if (!rafId) {
+        rafId = requestAnimationFrame(updateLoop);
+      }
+    }
+
+    function onPointerMove(e) {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const rect = leadEl.getBoundingClientRect();
+      targetX = e.clientX - rect.left;
+      targetY = e.clientY - rect.top;
+      if (!isHovered) {
+        isHovered = true;
+        targetRadius = MAX_RADIUS;
+        leadEl.classList.add('is-liquid-active');
+        if (!rafId) {
+          rafId = requestAnimationFrame(updateLoop);
+        }
+      }
+    }
+
+    function onPointerLeave() {
+      isHovered = false;
+      targetRadius = 0;
+    }
+
+    leadEl.addEventListener('pointerenter', onPointerEnter);
+    leadEl.addEventListener('pointermove', onPointerMove);
+    leadEl.addEventListener('pointerleave', onPointerLeave);
+
+    return syncOverlayContent;
+  }
+
+  // =========================================================================
   // Master Hero Section Orchestration
   // =========================================================================
   function initHeroGooeySection() {
@@ -362,6 +510,7 @@
       if (container.dataset.bleibtGooInitialized === 'true') return;
       container.dataset.bleibtGooInitialized = 'true';
 
+      const leadEl = container.querySelector('.auralink-hero-lead');
       const titleEl = container.querySelector('.auralink-hero-title[data-reveal="text"]');
       const subtitleEl = container.querySelector('.auralink-hero-subtitle[data-reveal="text"]');
       const fadeElements = Array.from(container.querySelectorAll('[data-reveal="fade"]'));
@@ -371,7 +520,6 @@
       // Split text into lines
       const titleLines = splitTextLines(titleEl);
       const subtitleLines = subtitleEl ? splitTextLines(subtitleEl) : [];
-      const allLines = titleLines.concat(subtitleLines);
 
       // Check prefers-reduced-motion
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -392,12 +540,11 @@
         attachGooFilter(line, 24);
       });
 
-      // Attach interactive liquid melting hover effect to each line
-      allLines.forEach(function (line) {
-        line.addEventListener('mouseenter', function () {
-          triggerLineLiquidMelt(line);
-        });
-      });
+      // Initialize seamless feathered radial falloff mask ripple on cursor hover
+      let syncOverlay = null;
+      if (leadEl) {
+        syncOverlay = setupSeamlessLiquidRipple(leadEl, titleEl, subtitleEl);
+      }
 
       let revealTriggered = false;
 
@@ -410,11 +557,15 @@
         if (subtitleEl) subtitleEl.style.visibility = 'visible';
 
         // 1. Run title text reveal (initial blur 48 -> mercury drops merge & condense into letters)
-        runTextRevealAnimation(titleLines, 48, 50);
+        runTextRevealAnimation(titleLines, 48, 50, function () {
+          if (syncOverlay) syncOverlay();
+        });
 
         // 2. Run subtitle text reveal (initial blur 24, staggered right after title)
         const subDelay = Math.max(280, titleLines.length * STAGGER + 120);
-        runTextRevealAnimation(subtitleLines, 24, subDelay);
+        runTextRevealAnimation(subtitleLines, 24, subDelay, function () {
+          if (syncOverlay) syncOverlay();
+        });
 
         // 3. Run fade reveal for CTA button & badges
         const fadeDelay = subDelay + (subtitleLines.length * STAGGER) + 80;
