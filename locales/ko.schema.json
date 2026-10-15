@@ -3187,7 +3187,8 @@
           "label": "열"
         },
         "paragraph__1": {
-          "content": "[Search & Discovery 앱](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)에서 관련 제품을 관리할 수 있습니다"
+          "content": "[Search & Discovery 앱](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)에서 관련 제품을 관리할 수 있습니다",
+          "default": "회원님이 좋아할 만한 추천 제품"
         },
         "header__2": {
           "content": "제품 카드"

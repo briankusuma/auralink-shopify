@@ -3187,7 +3187,8 @@
           "label": "คอลัมน์"
         },
         "paragraph__1": {
-          "content": "สามารถจัดการสินค้าที่เกี่ยวข้องได้ใน [แอป Search & Discovery](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)"
+          "content": "สามารถจัดการสินค้าที่เกี่ยวข้องได้ใน [แอป Search & Discovery](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)",
+          "default": "สินค้าที่คุณอาจจะชอบ"
         },
         "header__2": {
           "content": "บัตรสินค้า"

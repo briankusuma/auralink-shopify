@@ -3187,7 +3187,8 @@
           "label": "列"
         },
         "paragraph__1": {
-          "content": "関連商品は [Search & Discoveryアプリ] で管理できます](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)"
+          "content": "関連商品は [Search & Discoveryアプリ] で管理できます](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)",
+          "default": "おすすめ"
         },
         "header__2": {
           "content": "商品カード"

@@ -3187,7 +3187,8 @@
           "label": "Sarakkeet"
         },
         "paragraph__1": {
-          "content": "Liittyviä tuotteita voi hallinnoida [Search & Discovery ‑sovelluksessa](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)"
+          "content": "Liittyviä tuotteita voi hallinnoida [Search & Discovery ‑sovelluksessa](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)",
+          "default": "Saatat pitää myös näistä"
         },
         "header__2": {
           "content": "Tuotekortti"

@@ -3187,7 +3187,8 @@
           "label": "Sütunlar"
         },
         "paragraph__1": {
-          "content": "İlgili ürünler [Search & Discovery uygulamasında](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations) yönetilebilir"
+          "content": "İlgili ürünler [Search & Discovery uygulamasında](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations) yönetilebilir",
+          "default": "Şu ürünler de hoşunuza gidebilir:"
         },
         "header__2": {
           "content": "Ürün kartı"

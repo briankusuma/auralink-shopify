@@ -3187,7 +3187,8 @@
           "label": "Colonnes"
         },
         "paragraph__1": {
-          "content": "Les produits associés peuvent être gérés dans l’[application Search & Discovery](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)"
+          "content": "Les produits associés peuvent être gérés dans l’[application Search & Discovery](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)",
+          "default": "Vous aimerez peut-être aussi"
         },
         "header__2": {
           "content": "Carte de produit"

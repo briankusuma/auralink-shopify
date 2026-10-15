@@ -3187,7 +3187,8 @@
           "label": "欄"
         },
         "paragraph__1": {
-          "content": "可使用 [Search & Discovery 應用程式](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)管理相關商品"
+          "content": "可使用 [Search & Discovery 應用程式](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)管理相關商品",
+          "default": "您也可能喜歡"
         },
         "header__2": {
           "content": "商品卡片"

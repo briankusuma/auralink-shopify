@@ -3187,7 +3187,8 @@
           "label": "Kolumny"
         },
         "paragraph__1": {
-          "content": "Powiązanymi produktami można zarządzać w [aplikacji Search & Discovery](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)"
+          "content": "Powiązanymi produktami można zarządzać w [aplikacji Search & Discovery](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)",
+          "default": "Może Ci się spodobać również"
         },
         "header__2": {
           "content": "Karta produktów"

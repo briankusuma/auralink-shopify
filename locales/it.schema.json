@@ -3187,7 +3187,8 @@
           "label": "Colonne"
         },
         "paragraph__1": {
-          "content": "I prodotti correlati possono essere gestiti nell'[app Search & Discovery](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)"
+          "content": "I prodotti correlati possono essere gestiti nell'[app Search & Discovery](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)",
+          "default": "Potrebbero interessarti anche"
         },
         "header__2": {
           "content": "Scheda prodotto"

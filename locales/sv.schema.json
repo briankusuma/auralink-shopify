@@ -3187,7 +3187,8 @@
           "label": "Kolumner"
         },
         "paragraph__1": {
-          "content": "Relaterade produkter kan hanteras i [Search & Discovery-appen](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)"
+          "content": "Relaterade produkter kan hanteras i [Search & Discovery-appen](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)",
+          "default": "Du kanske också gillar"
         },
         "header__2": {
           "content": "Produktkort"

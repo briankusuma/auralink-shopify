@@ -3187,7 +3187,8 @@
           "label": "Kolommen"
         },
         "paragraph__1": {
-          "content": "Gerelateerde producten kunnen worden beheerd in de [Search & Discovery-app](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)"
+          "content": "Gerelateerde producten kunnen worden beheerd in de [Search & Discovery-app](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations)",
+          "default": "Wellicht vind je dit ook leuk"
         },
         "header__2": {
           "content": "Productkaart"

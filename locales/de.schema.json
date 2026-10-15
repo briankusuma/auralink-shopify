@@ -3187,7 +3187,8 @@
           "label": "Spalten"
         },
         "paragraph__1": {
-          "content": "Ergänzende Produkte können in der [Search & Discovery-App](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations) verwaltet werden"
+          "content": "Ergänzende Produkte können in der [Search & Discovery-App](https://help.shopify.com/manual/online-store/search-and-discovery/product-recommendations) verwaltet werden",
+          "default": "Das könnte dir auch gefallen"
         },
         "header__2": {
           "content": "Produktkarte"
