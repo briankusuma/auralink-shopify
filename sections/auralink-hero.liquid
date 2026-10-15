@@ -1,4 +1,5 @@
 {{ 'section-auralink-hero.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'section-auralink-hero.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
   .section-{{ section.id }}-padding {
@@ -19,6 +20,23 @@
     id="AuraLinkHero-{{ section.id }}" 
     class="auralink-hero-container color-{{ section.settings.color_scheme }} gradient"
   >
+    {% comment %} Liquid Wave Text Reveal SVG Defs (Inspired by bleibtgleich.dev) {% endcomment %}
+    <svg class="auralink-fluid-defs" aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;">
+      <defs>
+        <filter id="auralink-liquid-filter-{{ section.id }}" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence id="auralink-turbulence-{{ section.id }}" type="fractalNoise" baseFrequency="0.018 0.038" numOctaves="2" result="noise" seed="3" />
+          <feDisplacementMap id="auralink-disp-{{ section.id }}" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+
+        <clipPath id="auralink-title-wave-clip-{{ section.id }}" clipPathUnits="objectBoundingBox">
+          <path id="auralink-title-wave-path-{{ section.id }}" d="M 0 1.25 L 1 1.25 L 1 1.25 L 0 1.25 Z" />
+        </clipPath>
+
+        <clipPath id="auralink-sub-wave-clip-{{ section.id }}" clipPathUnits="objectBoundingBox">
+          <path id="auralink-sub-wave-path-{{ section.id }}" d="M 0 1.25 L 1 1.25 L 1 1.25 L 0 1.25 Z" />
+        </clipPath>
+      </defs>
+    </svg>
     
     {% comment %} Left: Content (Headline, Subhead, CTA, Badges) - Figma Node 2899:1084 {% endcomment %}
     <div class="auralink-hero-content">

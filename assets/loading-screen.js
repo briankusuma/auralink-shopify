@@ -68,6 +68,8 @@
     function dismissScreen() {
       screen.classList.add('loading-screen--done');
       document.body.classList.remove('loading-screen-active');
+      window.auralinkLoadingDone = true;
+      document.dispatchEvent(new CustomEvent('auralink:loading:done'));
 
       if (!isDesignMode && isFirstVisitOnly) {
         try {

@@ -238,3 +238,89 @@
     padding-top: 0;
   }
 }
+
+/* ==========================================================================
+   Fluid / Liquid Wave Text Reveal (Inspired by bleibtgleich.dev)
+   ========================================================================== */
+
+/* While waiting for liquid wave reveal */
+.auralink-hero-lead[data-liquid-ready="true"] .auralink-hero-title {
+  opacity: 0;
+  transform: translateY(32px);
+  will-change: transform, opacity, clip-path, filter;
+}
+
+.auralink-hero-lead[data-liquid-ready="true"] .auralink-hero-subtitle {
+  opacity: 0;
+  transform: translateY(22px);
+  will-change: transform, opacity, clip-path, filter;
+}
+
+.auralink-hero-lead[data-liquid-ready="true"] .auralink-hero-cta-btn {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.2s ease;
+}
+
+.auralink-hero-content[data-liquid-ready="true"] .auralink-hero-tags {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* While actively animating */
+.auralink-hero-lead[data-liquid-animating="true"] .auralink-hero-title,
+.auralink-hero-lead[data-liquid-animating="true"] .auralink-hero-subtitle {
+  opacity: 1;
+}
+
+/* Fully settled post-reveal state */
+.auralink-hero-lead[data-liquid-done="true"] .auralink-hero-title,
+.auralink-hero-lead[data-liquid-done="true"] .auralink-hero-subtitle {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  filter: none !important;
+}
+
+.auralink-hero-lead[data-liquid-done="true"] .auralink-hero-cta-btn {
+  opacity: 1;
+  transform: none;
+}
+
+.auralink-hero-content[data-liquid-done="true"] .auralink-hero-tags {
+  opacity: 1;
+  transform: none;
+}
+
+/* Progressive enhancement: when JavaScript is disabled */
+.no-js .auralink-hero-title,
+.no-js .auralink-hero-subtitle,
+.no-js .auralink-hero-cta-btn,
+.no-js .auralink-hero-tags {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+  -webkit-clip-path: none !important;
+  filter: none !important;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .auralink-hero-title,
+  .auralink-hero-subtitle,
+  .auralink-hero-cta-btn,
+  .auralink-hero-tags {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    -webkit-clip-path: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+}
+
