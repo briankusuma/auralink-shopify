@@ -79,12 +79,14 @@
     return filterId;
   }
 
-  function runTextRevealAnimation(lineElements, baseStdDev, onComplete) {
+  function runTextRevealAnimation(lineElements, baseStdDev, startOffset, onComplete) {
     const dur = EXACT_DURATION; // 1000ms = 1s
     const stagger = 60; // 0.06s stagger between lines
+    const offset = typeof startOffset === 'number' ? startOffset : 0;
     let completedCount = 0;
 
     lineElements.forEach(function (lineEl, lineIndex) {
+      const lineAnimId = (lineEl._liquidAnimId = (lineEl._liquidAnimId || 0) + 1);
       const filterId = attachGooFilter(lineEl, baseStdDev);
       const feBlur = document.querySelector('#' + filterId + ' feGaussianBlur');
       const feMatrix = document.querySelector('#' + filterId + ' feColorMatrix');
@@ -95,10 +97,12 @@
       lineEl.style.visibility = 'visible';
       lineEl.style.opacity = '1';
 
-      const lineDelay = lineIndex * stagger;
+      const lineDelay = offset + (lineIndex * stagger);
       let startTime = null;
 
       function renderFrame(now) {
+        if (lineEl._liquidAnimId !== lineAnimId) return;
+
         if (!startTime) startTime = now;
         const elapsed = now - startTime;
 
@@ -149,6 +153,7 @@
 
       // Failsafe timeout: guarantee text is never permanently hidden or blurred
       setTimeout(function () {
+        if (lineEl._liquidAnimId !== lineAnimId) return;
         lineEl.style.filter = '';
         lineEl.style.visibility = 'visible';
         lineEl.style.opacity = '1';
@@ -211,6 +216,27 @@
     return 3;
   }
 
+  function getSlideElementOffset(el) {
+    const slide = el.closest('.auralink-testimonials__slide, .auralink-slider__slide');
+    if (!slide) return 0;
+    const candidates = Array.from(
+      slide.querySelectorAll(
+        '[data-liquid-reveal="text"], [data-reveal="text"], [data-liquid-reveal-init="true"]'
+      )
+    );
+    const unique = candidates.filter(function (item, index) {
+      return (
+        candidates.indexOf(item) === index &&
+        !item.classList.contains('split-line') &&
+        !item.classList.contains('split-line-mask') &&
+        !item.classList.contains('split-line-h1-mask') &&
+        !item.classList.contains('split-line-h1')
+      );
+    });
+    const idx = unique.indexOf(el);
+    return idx >= 0 ? idx * 40 : 0;
+  }
+
   function initSingleLiquidReveal(el) {
     if (!el || el.dataset.liquidRevealInit === 'true') return;
 
@@ -243,20 +269,40 @@
 
     let revealTriggered = false;
 
-    function triggerReveal() {
-      if (revealTriggered) return;
+    function triggerReveal(force, startOffset) {
+      if (!force) {
+        // If inside an inactive slide and not forced, wait until that slide becomes active
+        const slide = el.closest('.auralink-testimonials__slide, .auralink-slider__slide');
+        if (slide) {
+          const isTestimonialInactive =
+            slide.classList.contains('auralink-testimonials__slide') &&
+            !slide.classList.contains('is-active');
+          const isSliderInactive =
+            slide.classList.contains('auralink-slider__slide') &&
+            slide.getAttribute('data-slot') !== 'center';
+          if (isTestimonialInactive || isSliderInactive) {
+            return;
+          }
+        }
+        if (revealTriggered) return;
+      }
+
       revealTriggered = true;
-      runTextRevealAnimation(lines, baseStdDev);
+      const offset = typeof startOffset === 'number' ? startOffset : getSlideElementOffset(el);
+      runTextRevealAnimation(lines, baseStdDev, offset);
     }
 
     function resetReveal() {
-      if (!revealTriggered) return;
       revealTriggered = false;
       lines.forEach(function (line) {
+        line._liquidAnimId = (line._liquidAnimId || 0) + 1;
         line.style.visibility = 'hidden';
         attachGooFilter(line, baseStdDev);
       });
     }
+
+    el._liquidRevealTrigger = triggerReveal;
+    el._liquidRevealReset = resetReveal;
 
     // Immediate check: if already in viewport, trigger right away
     const rect = el.getBoundingClientRect();
@@ -365,6 +411,49 @@
       });
     });
   }
+
+  function replayLiquidReveal(container) {
+    if (!container) return;
+
+    // Ensure all target elements within container are initialized
+    initAllLiquidReveals(container);
+
+    const candidates = Array.from(container.querySelectorAll('[data-liquid-reveal-init="true"]'));
+    const unique = candidates.filter(function (item, index) {
+      return (
+        candidates.indexOf(item) === index &&
+        !item.classList.contains('split-line') &&
+        !item.classList.contains('split-line-mask') &&
+        !item.classList.contains('split-line-h1-mask') &&
+        !item.classList.contains('split-line-h1')
+      );
+    });
+
+    if (unique.length > 0) {
+      unique.forEach(function (el, elementIndex) {
+        if (typeof el._liquidRevealTrigger === 'function') {
+          const elOffset = elementIndex * 40;
+          el._liquidRevealTrigger(true, elOffset);
+        }
+      });
+    } else if (typeof container._liquidRevealTrigger === 'function') {
+      container._liquidRevealTrigger(true, 0);
+    }
+  }
+
+  // Expose global controller for carousel/slider transitions and manual triggering
+  window.AuraLinkLiquidReveal = {
+    replay: replayLiquidReveal,
+    initSingle: initSingleLiquidReveal,
+    initAll: initAllLiquidReveals
+  };
+
+  // Replay animation whenever an active slide is broadcast
+  document.addEventListener('auralink:slide:active', function (e) {
+    if (e.target) {
+      replayLiquidReveal(e.target);
+    }
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {

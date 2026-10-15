@@ -225,6 +225,16 @@ if (!customElements.get('auralink-slider')) {
           });
         }
       });
+
+      if (!immediate) {
+        const activeSlide = this.slides[current];
+        if (activeSlide) {
+          if (window.AuraLinkLiquidReveal && typeof window.AuraLinkLiquidReveal.replay === 'function') {
+            window.AuraLinkLiquidReveal.replay(activeSlide);
+          }
+          activeSlide.dispatchEvent(new CustomEvent('auralink:slide:active', { bubbles: true }));
+        }
+      }
     }
   }
 

@@ -153,6 +153,15 @@ if (!customElements.get('auralink-testimonials')) {
         dot.classList.toggle('is-active', isActive);
         dot.setAttribute('aria-current', isActive ? 'true' : 'false');
       });
+
+      // Replay 1.0s liquid text reveal animation on the incoming active slide
+      const activeSlide = this.slides[this.currentIndex];
+      if (activeSlide) {
+        if (window.AuraLinkLiquidReveal && typeof window.AuraLinkLiquidReveal.replay === 'function') {
+          window.AuraLinkLiquidReveal.replay(activeSlide);
+        }
+        activeSlide.dispatchEvent(new CustomEvent('auralink:slide:active', { bubbles: true }));
+      }
     }
 
     disconnectedCallback() {
