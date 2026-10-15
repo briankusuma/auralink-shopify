@@ -442,26 +442,43 @@
         });
       }
 
+      function resetBentoReveal() {
+        if (!revealTriggered) return;
+        revealTriggered = false;
+
+        titleLines.forEach(function (line) {
+          line.style.visibility = 'hidden';
+          attachGooFilter(line, 48);
+        });
+
+        subtitleLines.forEach(function (line) {
+          line.style.visibility = 'hidden';
+          attachGooFilter(line, 24);
+        });
+      }
+
       if ('IntersectionObserver' in window) {
         const observer = new IntersectionObserver(
           function (entries) {
-            if (entries[0].isIntersecting) {
-              observer.disconnect();
-              triggerBentoReveal();
-            }
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                triggerBentoReveal();
+              } else if (entry.boundingClientRect.top > 0) {
+                // Reset when scrolled back above, so it re-triggers when scrolling down into view
+                resetBentoReveal();
+              }
+            });
           },
-          { threshold: 0.15 }
+          {
+            root: null,
+            rootMargin: '0px 0px -15% 0px',
+            threshold: 0.15
+          }
         );
         observer.observe(header);
       } else {
         triggerBentoReveal();
       }
-
-      setTimeout(function () {
-        if (!revealTriggered) {
-          triggerBentoReveal();
-        }
-      }, 3500);
     });
   }
 
