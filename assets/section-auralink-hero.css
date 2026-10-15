@@ -85,9 +85,34 @@
   text-decoration: none;
   width: fit-content;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
   position: relative;
+  overflow: hidden;
   z-index: 3;
+}
+
+/* Water ripple sheen radiating from cursor on CTA button */
+.auralink-hero-cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: -60%;
+  background: radial-gradient(
+    circle at var(--cta-mouse-x, 50%) var(--cta-mouse-y, 50%),
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.35) 35%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.6);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  mix-blend-mode: overlay;
+  z-index: 1;
+}
+
+.auralink-hero-cta-btn:hover::before {
+  opacity: 1;
+  transform: scale(1.15);
 }
 
 .auralink-hero-cta-btn:hover {
@@ -105,6 +130,8 @@
   font-weight: 400;
   letter-spacing: 0.01em;
   color: var(--auralink-color-dark, #000000);
+  position: relative;
+  z-index: 2;
 }
 
 .auralink-cta-icon-circle {
@@ -117,6 +144,8 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.2s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .auralink-hero-cta-btn:hover .auralink-cta-icon-circle {
@@ -295,6 +324,32 @@
 .auralink-hero-content[data-liquid-done="true"] .auralink-hero-tags {
   opacity: 1;
   transform: none;
+}
+
+/* ==========================================================================
+   Interactive Hover Ripple (Wrap Text & Button)
+   ========================================================================== */
+
+.auralink-hero-lead {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auralink-hero-lead[data-liquid-hover="true"] {
+  will-change: filter, transform;
+}
+
+.auralink-hero-lead[data-liquid-hover="true"] .auralink-hero-title,
+.auralink-hero-lead[data-liquid-hover="true"] .auralink-hero-subtitle {
+  transform: translate3d(var(--ripple-wave-x, 0px), var(--ripple-wave-y, 0px), 0);
+  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.auralink-hero-lead[data-liquid-hover="true"] .auralink-hero-cta-btn {
+  transform: translate3d(calc(var(--ripple-wave-x, 0px) * 0.4), calc(var(--ripple-wave-y, 0px) * 0.4), 0);
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
 }
 
 /* Progressive enhancement: when JavaScript is disabled */
