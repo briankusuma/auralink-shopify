@@ -1,28 +1,69 @@
 /**
- * AuraLink - Hero Section Liquid Goo Text Reveal (Inspired by bleibtgleich.dev)
+ * AuraLink - Hero Section Liquid Goo Text Reveal
+ * 100% Exact Replication of bleibtgleich.dev `animateTextReveal()`
  *
- * Initial screen load:
- * Text emerges organically through an SVG liquid/gooey morph filter
- * (feGaussianBlur + feColorMatrix alpha threshold) with vertical masked line slide,
- * rising from fluid ink/water droplets and coalescing into crisp, razor-sharp typography.
- *
- * No rolling text, no text hover effects — pure, elegant initial load reveal.
+ * SVG Gooey / Metaball Filter technique:
+ * - Letters start as melted liquid blobs / mercury droplets that merge together
+ *   using <feGaussianBlur> (stdDeviation: 50) and high-contrast <feColorMatrix> (alpha threshold: 20 -8).
+ * - The blur animates down to 0 with cubic-bezier(0.25, 1, 0.5, 1) ease, causing the liquid
+ *   blobs to condense, solidify, and resolve into razor-sharp typography.
+ * - In the final 35% of the duration, the color matrix alpha threshold interpolates back
+ *   from 20 -8 to 1 0.
+ * - Finally, the filter is completely detached (filter: "") so the text remains
+ *   100% sharp, crisp, and selectable.
  */
 
 (function () {
   'use strict';
 
-  // Cubic bezier ease-out approximation: cubic-bezier(0.16, 1, 0.3, 1)
-  function easeOutExpo(t) {
-    return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  // Exact cubic-bezier(0.25, 1, 0.5, 1) solver (matches bleibtgleich.dev easeOut)
+  function createBezier(x1, y1, x2, y2) {
+    const cx = 3 * x1;
+    const bx = 3 * (x2 - x1) - cx;
+    const ax = 1 - cx - bx;
+    const cy = 3 * y1;
+    const by = 3 * (y2 - y1) - cy;
+    const ay = 1 - cy - by;
+
+    function sampleCurveX(t) { return ((ax * t + bx) * t + cx) * t; }
+    function sampleCurveY(t) { return ((ay * t + by) * t + cy) * t; }
+    function sampleCurveDerivativeX(t) { return (3 * ax * t + 2 * bx) * t + cx; }
+
+    function solveCurveX(x) {
+      let t2 = x;
+      for (let i = 0; i < 8; i++) {
+        const x2 = sampleCurveX(t2) - x;
+        if (Math.abs(x2) < 1e-4) return t2;
+        const d2 = sampleCurveDerivativeX(t2);
+        if (Math.abs(d2) < 1e-4) break;
+        t2 -= x2 / d2;
+      }
+      return t2;
+    }
+
+    return function (t) {
+      if (t <= 0) return 0;
+      if (t >= 1) return 1;
+      return sampleCurveY(solveCurveX(t));
+    };
   }
 
-  // Ensure persistent SVG filter defs container in DOM
+  const easeOut = createBezier(0.25, 1, 0.5, 1);
+
+  // SVG namespace & helper from bleibtgleich.dev
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const DUR_L = 1200; // 1.2s (bleibtgleich.dev var(--dur-l))
+  const STAGGER = 90; // 0.09s stagger between lines
+  const MATRIX_VALUES = function (amp, off) {
+    return '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ' + amp + ' ' + off;
+  };
+
+  // Ensure persistent SVG filter defs container in DOM (o() in bleibtgleich.dev)
   function getGooDefsSvg() {
-    let svg = document.getElementById('auralink-goo-defs');
+    let svg = document.getElementById('goo-defs');
     if (!svg) {
-      svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('id', 'auralink-goo-defs');
+      svg = document.createElementNS(SVG_NS, 'svg');
+      svg.setAttribute('id', 'goo-defs');
       svg.setAttribute('aria-hidden', 'true');
       svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;';
       document.body.prepend(svg);
@@ -30,15 +71,14 @@
     return svg;
   }
 
-  // Create dedicated gooey SVG filter for an animated text line
-  function createLineGooFilter(lineEl, initialBlur) {
-    const svg = getGooDefsSvg();
+  // Attach individual gooey SVG filter to an element (i(e) in bleibtgleich.dev)
+  function attachGooFilter(el, initialStdDev) {
+    if (el.dataset.filterId) return el.dataset.filterId;
     const filterId = 'goo-' + Math.random().toString(36).substr(2, 9);
-    lineEl.dataset.filterId = filterId;
+    el.dataset.filterId = filterId;
 
-    const blurVal = typeof initialBlur === 'number' ? initialBlur : 34;
-
-    const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+    const svg = getGooDefsSvg();
+    const filter = document.createElementNS(SVG_NS, 'filter');
     filter.setAttribute('id', filterId);
     filter.setAttribute('x', '-25%');
     filter.setAttribute('y', '-25%');
@@ -46,102 +86,139 @@
     filter.setAttribute('height', '150%');
     filter.setAttribute('color-interpolation-filters', 'sRGB');
 
+    const s = typeof initialStdDev === 'number' ? initialStdDev : 50;
+    const l = 20;
+    const c = -8;
+
     filter.innerHTML =
-      '<feGaussianBlur in="SourceGraphic" stdDeviation="' + blurVal + '" result="blur"></feGaussianBlur>' +
-      '<feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo"></feColorMatrix>';
+      '<feGaussianBlur in="SourceGraphic" stdDeviation="' + s + '" result="blur"></feGaussianBlur>' +
+      '<feColorMatrix in="blur" mode="matrix" values="' + MATRIX_VALUES(l, c) + '" result="goo"></feColorMatrix>';
 
     svg.appendChild(filter);
-    lineEl.style.filter = 'url(#' + filterId + ')';
+    el.style.filter = 'url(#' + filterId + ')';
     return filterId;
   }
 
-  // Animate SVG goo filter & masked transform (pure Vanilla JS requestAnimationFrame)
-  function runLineGooReveal(lineEl, filterId, options) {
-    options = options || {};
-    const duration = options.duration || 1150;
-    const delay = options.delay || 0;
-    const startBlur = options.startBlur || 34;
-    const startAmp = 20;
-    const startOff = -8;
-    const onComplete = options.onComplete;
+  // Exact replication of animateTextReveal() timeline execution from bleibtgleich.dev
+  function runTextRevealAnimation(lineElements, baseStdDev, delayOffset) {
+    const startDelay = typeof delayOffset === 'number' ? delayOffset : 0;
 
-    const feBlur = document.querySelector('#' + filterId + ' feGaussianBlur');
-    const feMatrix = document.querySelector('#' + filterId + ' feColorMatrix');
+    lineElements.forEach(function (lineEl, lineIndex) {
+      const filterId = attachGooFilter(lineEl, baseStdDev);
+      const feBlur = document.querySelector('#' + filterId + ' feGaussianBlur');
+      const feMatrix = document.querySelector('#' + filterId + ' feColorMatrix');
 
-    let startTime = null;
-    let animId = null;
+      // Set initial state matching case "initial"
+      if (feBlur) feBlur.setAttribute('stdDeviation', baseStdDev);
+      if (feMatrix) feMatrix.setAttribute('values', MATRIX_VALUES(20, -8));
+      lineEl.style.filter = 'url(#' + filterId + ')';
+      lineEl.style.visibility = 'visible';
 
-    function frame(now) {
-      if (!startTime) startTime = now;
-      const elapsed = now - startTime;
+      const lineDelay = startDelay + (lineIndex * STAGGER);
+      let startTime = null;
 
-      if (elapsed < delay) {
-        animId = requestAnimationFrame(frame);
-        return;
+      function renderFrame(now) {
+        if (!startTime) startTime = now;
+        const elapsed = now - startTime;
+
+        if (elapsed < lineDelay) {
+          requestAnimationFrame(renderFrame);
+          return;
+        }
+
+        const t = Math.min((elapsed - lineDelay) / DUR_L, 1);
+        const easedProgress = easeOut(t);
+
+        // 1. feGaussianBlur stdDeviation: baseStdDev -> 0 with ease: Out
+        const currentStdDev = Math.max(0, baseStdDev * (1 - easedProgress));
+        if (feBlur) {
+          feBlur.setAttribute('stdDeviation', currentStdDev.toFixed(2));
+        }
+
+        // 2. feColorMatrix alpha threshold: amp: 20 -> 1, off: -8 -> 0 in last 35% of duration
+        // (matches: t.to(g, {amp: 1, off: 0, duration: 0.35 * durL, ease: "none"}, ">-" + 0.35 * durL))
+        const matrixThreshold = 0.65; // Starts at 65% of durL
+        if (t >= matrixThreshold) {
+          const matrixT = Math.min((t - matrixThreshold) / (1 - matrixThreshold), 1);
+          const currentAmp = 20 + (1 - 20) * matrixT;
+          const currentOff = -8 + (0 - -8) * matrixT;
+
+          if (feMatrix) {
+            feMatrix.setAttribute(
+              'values',
+              MATRIX_VALUES(currentAmp.toFixed(2), currentOff.toFixed(2))
+            );
+          }
+        }
+
+        if (t < 1) {
+          requestAnimationFrame(renderFrame);
+        } else {
+          // OnComplete: matrix is reset to 1 0, filter is detached so text is 100% crisp & selectable
+          if (feMatrix) {
+            feMatrix.setAttribute('values', MATRIX_VALUES(1, 0));
+          }
+          lineEl.style.filter = '';
+        }
       }
 
-      const rawProgress = Math.min((elapsed - delay) / duration, 1);
-      const eased = easeOutExpo(rawProgress);
-
-      // 1. Transform: 105% -> 0%
-      const currentY = (1 - eased) * 105;
-      lineEl.style.transform = 'translate3d(0, ' + currentY.toFixed(2) + '%, 0)';
-      lineEl.style.opacity = Math.min(rawProgress * 2.8, 1).toFixed(2);
-
-      // 2. Blur: startBlur -> 0
-      const currentBlur = Math.max(0, (1 - eased) * startBlur);
-      if (feBlur) {
-        feBlur.setAttribute('stdDeviation', currentBlur.toFixed(2));
-      }
-
-      // 3. Matrix alpha threshold: (startAmp -> 1), (startOff -> 0)
-      const matrixProgress = Math.min(rawProgress * 1.3, 1);
-      const matrixEased = easeOutExpo(matrixProgress);
-      const currentAmp = startAmp + (1 - startAmp) * matrixEased;
-      const currentOff = startOff + (0 - startOff) * matrixEased;
-
-      if (feMatrix) {
-        feMatrix.setAttribute(
-          'values',
-          '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ' + currentAmp.toFixed(2) + ' ' + currentOff.toFixed(2)
-        );
-      }
-
-      if (rawProgress < 1) {
-        animId = requestAnimationFrame(frame);
-      } else {
-        // Animation complete: remove filter for crystal-clear, pixel-crisp typography
-        lineEl.style.transform = '';
-        lineEl.style.opacity = '1';
-        lineEl.style.filter = '';
-        if (onComplete) onComplete();
-      }
-    }
-
-    animId = requestAnimationFrame(frame);
-    return function cancel() {
-      if (animId) cancelAnimationFrame(animId);
-      lineEl.style.transform = '';
-      lineEl.style.opacity = '1';
-      lineEl.style.filter = '';
-    };
+      requestAnimationFrame(renderFrame);
+    });
   }
 
-  // =========================================================================
-  // Text Splitting: Clean Masked Lines (no roll chars, no duplicate layers)
-  // =========================================================================
-  function splitElementIntoMaskedLines(element) {
-    if (!element || element.dataset.linesSplit === 'true') {
-      return Array.from(element.querySelectorAll('.auralink-reveal-line'));
+  // Exact replication of animateDivReveal() / data-reveal="fade" from bleibtgleich.dev
+  function runFadeRevealAnimation(fadeElements, delayOffset) {
+    const startDelay = typeof delayOffset === 'number' ? delayOffset : 350;
+
+    fadeElements.forEach(function (el, idx) {
+      el.style.opacity = '0';
+      el.style.filter = 'blur(20px)';
+      el.style.visibility = 'visible';
+
+      const delay = startDelay + (idx * 100);
+      const duration = 1000;
+      let startTime = null;
+
+      function renderFrame(now) {
+        if (!startTime) startTime = now;
+        const elapsed = now - startTime;
+
+        if (elapsed < delay) {
+          requestAnimationFrame(renderFrame);
+          return;
+        }
+
+        const t = Math.min((elapsed - delay) / duration, 1);
+        const eased = easeOut(t);
+
+        el.style.opacity = (eased).toFixed(3);
+        el.style.filter = 'blur(' + ((1 - eased) * 20).toFixed(2) + 'px)';
+
+        if (t < 1) {
+          requestAnimationFrame(renderFrame);
+        } else {
+          el.style.opacity = '1';
+          el.style.filter = '';
+        }
+      }
+
+      requestAnimationFrame(renderFrame);
+    });
+  }
+
+  // Split text into line elements (preserving words & <br>)
+  function splitTextLines(el) {
+    if (!el || el.dataset.splitDone === 'true') {
+      return Array.from(el.querySelectorAll('.split-line-h1, .split-line'));
     }
-    element.dataset.linesSplit = 'true';
+    el.dataset.splitDone = 'true';
 
-    const originalText = element.textContent.trim();
-    element.setAttribute('aria-label', originalText);
+    const originalText = el.textContent.trim();
+    el.setAttribute('aria-label', originalText);
 
-    // Group child nodes into lines separated by <BR> tags
+    // Group child nodes into lines by <BR>
     const lineBuckets = [[]];
-    Array.from(element.childNodes).forEach(function (node) {
+    Array.from(el.childNodes).forEach(function (node) {
       if (node.nodeName === 'BR') {
         lineBuckets.push([]);
       } else {
@@ -149,164 +226,113 @@
       }
     });
 
-    element.innerHTML = '';
-    const lines = [];
+    el.innerHTML = '';
+    const lineElements = [];
+    const isHeading = el.classList.contains('auralink-hero-title');
 
     lineBuckets.forEach(function (bucket) {
       if (!bucket.length) return;
 
-      const lineMask = document.createElement('span');
-      lineMask.className = 'auralink-reveal-line-mask';
-      lineMask.setAttribute('aria-hidden', 'true');
+      const maskWrap = document.createElement('span');
+      maskWrap.className = isHeading ? 'split-line-h1-mask' : 'split-line-mask';
+      maskWrap.setAttribute('aria-hidden', 'true');
 
-      const lineInner = document.createElement('span');
-      lineInner.className = 'auralink-reveal-line';
-      lineInner.setAttribute('aria-hidden', 'true');
+      const lineSpan = document.createElement('span');
+      lineSpan.className = isHeading ? 'split-line-h1' : 'split-line';
+      lineSpan.setAttribute('aria-hidden', 'true');
 
       bucket.forEach(function (node) {
-        lineInner.appendChild(node.cloneNode(true));
+        lineSpan.appendChild(node.cloneNode(true));
       });
 
-      lineMask.appendChild(lineInner);
-      element.appendChild(lineMask);
-      lines.push(lineInner);
+      maskWrap.appendChild(lineSpan);
+      el.appendChild(maskWrap);
+      lineElements.push(lineSpan);
     });
 
-    return lines;
+    return lineElements;
   }
 
   // =========================================================================
-  // Main Section Initialization
+  // Master Hero Section Orchestration
   // =========================================================================
-  function initHeroSection() {
+  function initHeroGooeySection() {
     const heroContainers = document.querySelectorAll('.auralink-hero-container');
     if (!heroContainers.length) return;
 
     heroContainers.forEach(function (container) {
-      if (container.dataset.heroInit === 'true') return;
-      container.dataset.heroInit = 'true';
+      if (container.dataset.bleibtGooInitialized === 'true') return;
+      container.dataset.bleibtGooInitialized = 'true';
 
-      const leadEl = container.querySelector('.auralink-hero-lead');
-      const contentEl = container.querySelector('.auralink-hero-content');
-      const titleEl = container.querySelector('.auralink-hero-title');
-      const subtitleEl = container.querySelector('.auralink-hero-subtitle');
-      const ctaEl = container.querySelector('.auralink-hero-cta-btn');
-      const tagsEl = container.querySelector('.auralink-hero-tags');
+      const titleEl = container.querySelector('.auralink-hero-title[data-reveal="text"]');
+      const subtitleEl = container.querySelector('.auralink-hero-subtitle[data-reveal="text"]');
+      const fadeElements = Array.from(container.querySelectorAll('[data-reveal="fade"]'));
 
-      if (!leadEl || !titleEl) return;
+      if (!titleEl) return;
 
-      // 1. Split title and subtitle into clean masked lines
-      const titleLines = splitElementIntoMaskedLines(titleEl);
-      const subtitleLines = subtitleEl ? splitElementIntoMaskedLines(subtitleEl) : [];
+      // Split text into lines
+      const titleLines = splitTextLines(titleEl);
+      const subtitleLines = subtitleEl ? splitTextLines(subtitleEl) : [];
 
-      // Check for prefers-reduced-motion
+      // Check prefers-reduced-motion
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReducedMotion) {
-        settleAnimation();
+        container.querySelectorAll('[data-reveal]').forEach(function (el) {
+          el.style.visibility = 'visible';
+          el.style.opacity = '1';
+          el.style.filter = '';
+        });
         return;
       }
 
-      // Mark ready state (displaced below mask)
-      leadEl.setAttribute('data-liquid-ready', 'true');
-      if (contentEl) contentEl.setAttribute('data-liquid-ready', 'true');
-
-      // Create SVG filters for each line
-      const lineFilters = [];
+      // Pre-attach SVG filters in initial state (melted mercury droplets)
       titleLines.forEach(function (line) {
-        const filterId = createLineGooFilter(line, 36);
-        lineFilters.push({ line: line, filterId: filterId, blur: 36 });
+        attachGooFilter(line, 48);
       });
-
       subtitleLines.forEach(function (line) {
-        const filterId = createLineGooFilter(line, 22);
-        lineFilters.push({ line: line, filterId: filterId, blur: 22 });
+        attachGooFilter(line, 24);
       });
 
-      let revealStarted = false;
+      let revealTriggered = false;
 
-      function startLiquidReveal() {
-        if (revealStarted) return;
-        revealStarted = true;
+      function triggerHeroReveal() {
+        if (revealTriggered) return;
+        revealTriggered = true;
 
-        // Cascade each line with organic gooey fluid morph
-        let maxDelay = 0;
-        const lineStagger = 130;
+        // Make elements visible & start gooey coalescence
+        if (titleEl) titleEl.style.visibility = 'visible';
+        if (subtitleEl) subtitleEl.style.visibility = 'visible';
 
-        lineFilters.forEach(function (item, idx) {
-          const delay = idx * lineStagger;
-          maxDelay = Math.max(maxDelay, delay + 1150);
+        // 1. Run title text reveal (initial blur 48 -> mercury drops merge & condense into letters)
+        runTextRevealAnimation(titleLines, 48, 50);
 
-          runLineGooReveal(item.line, item.filterId, {
-            duration: 1150,
-            delay: delay,
-            startBlur: item.blur
-          });
-        });
+        // 2. Run subtitle text reveal (initial blur 24, staggered right after title)
+        const subDelay = Math.max(280, titleLines.length * STAGGER + 120);
+        runTextRevealAnimation(subtitleLines, 24, subDelay);
 
-        // CTA button & tags lift smoothly
-        const ctaDelay = Math.max(500, lineFilters.length * lineStagger + 100);
-        setTimeout(function () {
-          if (ctaEl) {
-            ctaEl.style.opacity = '1';
-            ctaEl.style.transform = 'translateY(0)';
-          }
-          if (tagsEl) {
-            tagsEl.style.opacity = '1';
-            tagsEl.style.transform = 'translateY(0)';
-          }
-        }, ctaDelay);
-
-        // Once all lines finish coalescing, settle
-        setTimeout(function () {
-          settleAnimation();
-        }, maxDelay + 100);
+        // 3. Run fade reveal for CTA button & badges
+        const fadeDelay = subDelay + (subtitleLines.length * STAGGER) + 80;
+        runFadeRevealAnimation(fadeElements, fadeDelay);
       }
 
-      function settleAnimation() {
-        leadEl.removeAttribute('data-liquid-ready');
-        leadEl.setAttribute('data-liquid-done', 'true');
-        if (contentEl) contentEl.setAttribute('data-liquid-done', 'true');
-
-        titleLines.forEach(function (line) {
-          line.style.transform = '';
-          line.style.opacity = '1';
-          line.style.filter = '';
-        });
-
-        subtitleLines.forEach(function (line) {
-          line.style.transform = '';
-          line.style.opacity = '1';
-          line.style.filter = '';
-        });
-
-        if (ctaEl) {
-          ctaEl.style.opacity = '1';
-          ctaEl.style.transform = '';
-        }
-        if (tagsEl) {
-          tagsEl.style.opacity = '1';
-          tagsEl.style.transform = '';
-        }
-      }
-
-      // Check if loading screen is active on first load
+      // Sync with theme loading screen if present
       const loadingScreen = document.getElementById('AuraLoadingScreen');
-      const isScreenActive = Boolean(
+      const isLoadingActive = Boolean(
         loadingScreen &&
         !loadingScreen.classList.contains('loading-screen--done') &&
         !window.auralinkLoadingDone
       );
 
-      if (isScreenActive) {
+      if (isLoadingActive) {
         const onLoadingDone = function () {
           document.removeEventListener('auralink:loading:done', onLoadingDone);
-          setTimeout(startLiquidReveal, 60);
+          setTimeout(triggerHeroReveal, 80);
         };
         document.addEventListener('auralink:loading:done', onLoadingDone);
 
-        // Fallback timer in case event is missed
+        // Fallback safety timeout
         setTimeout(function () {
-          if (!revealStarted) startLiquidReveal();
+          if (!revealTriggered) triggerHeroReveal();
         }, 3200);
       } else {
         if ('IntersectionObserver' in window) {
@@ -314,37 +340,37 @@
             function (entries) {
               if (entries[0].isIntersecting) {
                 observer.disconnect();
-                startLiquidReveal();
+                triggerHeroReveal();
               }
             },
-            { threshold: 0.12 }
+            { threshold: 0.1 }
           );
           observer.observe(container);
         } else {
-          startLiquidReveal();
+          triggerHeroReveal();
         }
       }
 
-      // Safety fallback: never leave text hidden
+      // Absolute guarantee: never leave text hidden under any circumstance
       setTimeout(function () {
-        if (!leadEl.getAttribute('data-liquid-done')) {
-          settleAnimation();
+        if (!revealTriggered) {
+          triggerHeroReveal();
         }
-      }, 4200);
+      }, 4000);
     });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHeroSection);
+    document.addEventListener('DOMContentLoaded', initHeroGooeySection);
   } else {
-    initHeroSection();
+    initHeroGooeySection();
   }
 
-  // Shopify Theme Editor support
+  // Shopify Theme Editor design mode support
   if (window.Shopify && window.Shopify.designMode) {
     document.addEventListener('shopify:section:load', function (e) {
       if (e.target.classList.contains('section-auralink-hero')) {
-        initHeroSection();
+        initHeroGooeySection();
       }
     });
   }

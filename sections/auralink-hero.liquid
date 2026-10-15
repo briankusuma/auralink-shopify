@@ -24,19 +24,19 @@
     <div class="auralink-hero-content">
       <div class="auralink-hero-lead">
         {%- if section.settings.heading != blank -%}
-          <h1 class="auralink-hero-title">
+          <h1 class="auralink-hero-title" data-reveal="text">
             {{ section.settings.heading | escape | newline_to_br }}
           </h1>
         {%- endif -%}
 
         {%- if section.settings.subheading != blank -%}
-          <p class="auralink-hero-subtitle">
+          <p class="auralink-hero-subtitle" data-reveal="text">
             {{ section.settings.subheading | escape }}
           </p>
         {%- endif -%}
 
         {%- if section.settings.button_label != blank -%}
-          <a href="{{ section.settings.button_link | default: routes.all_products_collection_url }}" class="auralink-hero-cta-btn">
+          <a href="{{ section.settings.button_link | default: routes.all_products_collection_url }}" class="auralink-hero-cta-btn" data-reveal="fade">
             <span class="auralink-cta-text">{{ section.settings.button_label | escape }}</span>
             <span class="auralink-cta-icon-circle" aria-hidden="true">
               {%- render 'icon-arrow-top-right' -%}
@@ -46,7 +46,7 @@
       </div>
 
       {% comment %} Bottom Left: Feature Badges (Smart, Safe, Secure) - Figma Node 2899:1069 {% endcomment %}
-      <div class="auralink-hero-tags" role="list">
+      <div class="auralink-hero-tags" role="list" data-reveal="fade">
         {%- if section.settings.tag_1 != blank -%}
           <span class="auralink-tag-pill" role="listitem">{{ section.settings.tag_1 | escape }}</span>
         {%- endif -%}
