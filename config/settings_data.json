@@ -23,7 +23,7 @@
     "enable_loading_screen": true,
     "loading_screen_first_visit_only": false,
     "loading_screen_text": "AURALINK",
-    "loading_screen_label": "Loading",
+    "loading_screen_label": "Wait a minutes..",
     "loading_screen_duration": 2,
     "loading_screen_bg_color": "#F5F3F0",
     "loading_screen_text_color": "#121212",
