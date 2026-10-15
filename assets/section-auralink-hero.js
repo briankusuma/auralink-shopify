@@ -95,18 +95,39 @@
       document.body.prepend(svg);
     }
 
-    if (!document.getElementById('goo-feather-overlay')) {
+    if (!document.getElementById('liquid-bubble-filter')) {
       const filter = document.createElementNS(SVG_NS, 'filter');
-      filter.setAttribute('id', 'goo-feather-overlay');
-      filter.setAttribute('x', '-25%');
-      filter.setAttribute('y', '-25%');
-      filter.setAttribute('width', '150%');
-      filter.setAttribute('height', '150%');
+      filter.setAttribute('id', 'liquid-bubble-filter');
+      filter.setAttribute('x', '-40%');
+      filter.setAttribute('y', '-40%');
+      filter.setAttribute('width', '180%');
+      filter.setAttribute('height', '180%');
       filter.setAttribute('color-interpolation-filters', 'sRGB');
       filter.innerHTML =
-        '<feGaussianBlur in="SourceGraphic" stdDeviation="5.5" result="blur"></feGaussianBlur>' +
-        '<feColorMatrix in="blur" mode="matrix" values="' + MATRIX_VALUES(19, -7) + '" result="goo"></feColorMatrix>';
+        '<feTurbulence id="bubble-turb" type="turbulence" baseFrequency="0.016 0.022" numOctaves="3" result="wave" seed="2"></feTurbulence>' +
+        '<feDisplacementMap in="SourceGraphic" in2="wave" scale="42" xChannelSelector="R" yChannelSelector="G" result="displaced"></feDisplacementMap>' +
+        '<feGaussianBlur in="displaced" stdDeviation="3.2" result="blurred"></feGaussianBlur>' +
+        '<feColorMatrix in="blurred" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -7.5" result="gooey"></feColorMatrix>' +
+        '<feBlend in="displaced" in2="gooey" mode="multiply"></feBlend>';
       svg.appendChild(filter);
+    }
+
+    // Backwards-compatible alias for goo-feather-overlay
+    if (!document.getElementById('goo-feather-overlay')) {
+      const filterLegacy = document.createElementNS(SVG_NS, 'filter');
+      filterLegacy.setAttribute('id', 'goo-feather-overlay');
+      filterLegacy.setAttribute('x', '-40%');
+      filterLegacy.setAttribute('y', '-40%');
+      filterLegacy.setAttribute('width', '180%');
+      filterLegacy.setAttribute('height', '180%');
+      filterLegacy.setAttribute('color-interpolation-filters', 'sRGB');
+      filterLegacy.innerHTML =
+        '<feTurbulence type="turbulence" baseFrequency="0.016 0.022" numOctaves="3" result="wave" seed="2"></feTurbulence>' +
+        '<feDisplacementMap in="SourceGraphic" in2="wave" scale="42" xChannelSelector="R" yChannelSelector="G" result="displaced"></feDisplacementMap>' +
+        '<feGaussianBlur in="displaced" stdDeviation="3.2" result="blurred"></feGaussianBlur>' +
+        '<feColorMatrix in="blurred" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -7.5" result="gooey"></feColorMatrix>' +
+        '<feBlend in="displaced" in2="gooey" mode="multiply"></feBlend>';
+      svg.appendChild(filterLegacy);
     }
 
     return svg;
@@ -431,19 +452,33 @@
     let isHovered = false;
     let rafId = null;
 
-    const MAX_RADIUS = 110; // Exact radius specified in design
+    const MAX_RADIUS = 120; // Expanded radius for thick chunky waves
+    const turbEl = document.getElementById('bubble-turb');
+    let frameTick = 0;
 
     function updateLoop() {
       const lerpPos = 0.28;
       const lerpRad = 0.18;
 
-      currentX += (targetX - currentX) * lerpPos;
-      currentY += (targetY - currentY) * lerpPos;
+      const dx = targetX - currentX;
+      const dy = targetY - currentY;
+      const speed = Math.sqrt(dx * dx + dy * dy);
+
+      currentX += dx * lerpPos;
+      currentY += dy * lerpPos;
       currentRadius += (targetRadius - currentRadius) * lerpRad;
 
       leadEl.style.setProperty('--bubble-x', currentX.toFixed(1) + 'px');
       leadEl.style.setProperty('--bubble-y', currentY.toFixed(1) + 'px');
       leadEl.style.setProperty('--bubble-r', currentRadius.toFixed(1) + 'px');
+
+      // Modulate chunky water waves dynamically while cursor sweeps across text
+      if (turbEl && speed > 0.4) {
+        frameTick += 0.05;
+        const baseFreqX = (0.016 + Math.sin(frameTick) * 0.002).toFixed(4);
+        const baseFreqY = (0.022 + Math.cos(frameTick * 0.8) * 0.002).toFixed(4);
+        turbEl.setAttribute('baseFrequency', baseFreqX + ' ' + baseFreqY);
+      }
 
       if (isHovered || currentRadius > 0.5) {
         rafId = requestAnimationFrame(updateLoop);

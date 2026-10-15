@@ -236,19 +236,19 @@
   flex-direction: column;
   gap: inherit;
   will-change: mask-image, -webkit-mask-image, filter;
-  filter: url(#goo-feather-overlay);
+  filter: url(#liquid-bubble-filter);
   opacity: 0;
   transition: opacity 0.25s ease;
 
   -webkit-mask-image: radial-gradient(
-    circle var(--bubble-r, 110px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
+    circle var(--bubble-r, 120px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
     rgba(0, 0, 0, 1) 0%,
     rgba(0, 0, 0, 0.85) 30%,
     rgba(0, 0, 0, 0.4) 65%,
     rgba(0, 0, 0, 0) 100%
   );
   mask-image: radial-gradient(
-    circle var(--bubble-r, 110px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
+    circle var(--bubble-r, 120px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
     rgba(0, 0, 0, 1) 0%,
     rgba(0, 0, 0, 0.85) 30%,
     rgba(0, 0, 0, 0.4) 65%,
