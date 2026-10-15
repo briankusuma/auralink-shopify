@@ -91,30 +91,6 @@
   z-index: 3;
 }
 
-/* Water ripple sheen radiating from cursor on CTA button */
-.auralink-hero-cta-btn::before {
-  content: '';
-  position: absolute;
-  inset: -60%;
-  background: radial-gradient(
-    circle at var(--cta-mouse-x, 50%) var(--cta-mouse-y, 50%),
-    rgba(255, 255, 255, 0.95) 0%,
-    rgba(255, 255, 255, 0.35) 35%,
-    rgba(255, 255, 255, 0) 70%
-  );
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.6);
-  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  mix-blend-mode: overlay;
-  z-index: 1;
-}
-
-.auralink-hero-cta-btn:hover::before {
-  opacity: 1;
-  transform: scale(1.15);
-}
-
 .auralink-hero-cta-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
@@ -211,7 +187,7 @@
 }
 
 /* ==========================================================================
-   bleibtgleich.dev Liquid Goo Reveal & Interactive Rolling Text Hover
+   bleibtgleich.dev Liquid Goo Reveal (Initial Screen Load Only)
    ========================================================================== */
 
 /* Masked line container */
@@ -226,53 +202,6 @@
   display: block;
   will-change: transform, opacity, filter;
   transform-origin: 50% 100%;
-}
-
-.auralink-word {
-  display: inline-block;
-  white-space: nowrap;
-  position: relative;
-  cursor: default;
-}
-
-/* Character Mask & Rolling Inner */
-.auralink-char-mask {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: baseline;
-  position: relative;
-  line-height: inherit;
-  will-change: transform;
-}
-
-.auralink-char-inner {
-  display: inline-flex;
-  flex-direction: column;
-  position: relative;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  transition: transform 0.46s cubic-bezier(0.16, 1, 0.3, 1);
-  transition-delay: var(--roll-delay, 0ms);
-}
-
-.auralink-char-label {
-  display: inline-block;
-  line-height: inherit;
-}
-
-.auralink-char-shadow {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  display: inline-block;
-  line-height: inherit;
-  opacity: 0.9;
-}
-
-/* Word Hover: Rolling flip per character like bleibtgleich.dev animateLink */
-.auralink-word:hover .auralink-char-inner,
-.auralink-hero-cta-btn:hover .auralink-char-inner {
-  transform: translate3d(0, -100%, 0);
 }
 
 /* CTA Icon rotation on hover */
@@ -320,39 +249,10 @@
   transform: none;
 }
 
-/* --------------------------------------------------------------------------
-   Hover: Fluid Water Ripple Directly across Text Characters
-   -------------------------------------------------------------------------- */
-.auralink-char-mask.char--wave-hit {
-  transform: translate3d(var(--wave-x, 0px), var(--wave-y, -6px), 0) scale(var(--wave-scale, 1.1));
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
-  transition: transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1),
-              filter 0.14s ease;
-}
-
-.auralink-char-mask.char--wave-calm {
-  transform: translate3d(0, 0, 0) scale(1);
-  filter: none;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.5s ease;
-}
-
-/* CTA Button responsive wave bounce */
-.auralink-hero-cta-btn.cta--wave-hit {
-  transform: translate3d(var(--btn-wave-x, 0px), var(--btn-wave-y, -3px), 0) scale(var(--btn-scale, 1.03));
-  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.auralink-hero-cta-btn.cta--wave-calm {
-  transform: translate3d(0, 0, 0) scale(1);
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
 /* Progressive enhancement: when JavaScript is disabled */
 .no-js .auralink-hero-title,
 .no-js .auralink-hero-subtitle,
 .no-js .auralink-reveal-line,
-.no-js .auralink-char-inner,
 .no-js .auralink-hero-cta-btn,
 .no-js .auralink-hero-tags {
   opacity: 1 !important;
@@ -365,8 +265,6 @@
   .auralink-hero-title,
   .auralink-hero-subtitle,
   .auralink-reveal-line,
-  .auralink-char-inner,
-  .auralink-char-mask,
   .auralink-hero-cta-btn,
   .auralink-hero-tags {
     opacity: 1 !important;
