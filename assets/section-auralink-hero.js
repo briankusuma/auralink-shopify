@@ -136,40 +136,6 @@
       svg.appendChild(filterLegacy);
     }
 
-    // 2. Blob Feather Filter
-    if (!document.getElementById('blob-feather')) {
-      const featherFilter = document.createElementNS(SVG_NS, 'filter');
-      featherFilter.setAttribute('id', 'blob-feather');
-      featherFilter.setAttribute('x', '-30%');
-      featherFilter.setAttribute('y', '-30%');
-      featherFilter.setAttribute('width', '160%');
-      featherFilter.setAttribute('height', '160%');
-      featherFilter.innerHTML = '<feGaussianBlur stdDeviation="16"></feGaussianBlur>';
-      svg.appendChild(featherFilter);
-    }
-
-    // 3. MASK 1: Liquid Ripple Overlay Mask (White blob on Black background)
-    if (!document.getElementById('liquid-blob-overlay-mask')) {
-      const maskOverlay = document.createElementNS(SVG_NS, 'mask');
-      maskOverlay.setAttribute('id', 'liquid-blob-overlay-mask');
-      maskOverlay.setAttribute('maskUnits', 'userSpaceOnUse');
-      maskOverlay.innerHTML =
-        '<rect x="-2000" y="-2000" width="10000" height="10000" fill="black"></rect>' +
-        '<path id="blob-path-overlay" fill="white" filter="url(#blob-feather)" d=""></path>';
-      svg.appendChild(maskOverlay);
-    }
-
-    // 4. MASK 2: Inverted Base Static Text Mask (Black blob on White background - cuts the hole)
-    if (!document.getElementById('liquid-blob-base-mask')) {
-      const maskBase = document.createElementNS(SVG_NS, 'mask');
-      maskBase.setAttribute('id', 'liquid-blob-base-mask');
-      maskBase.setAttribute('maskUnits', 'userSpaceOnUse');
-      maskBase.innerHTML =
-        '<rect x="-2000" y="-2000" width="10000" height="10000" fill="white"></rect>' +
-        '<path id="blob-path-base" fill="black" filter="url(#blob-feather)" d=""></path>';
-      svg.appendChild(maskBase);
-    }
-
     return svg;
   }
 
@@ -428,40 +394,17 @@
   }
 
   // =========================================================================
-  // Closed Catmull-Rom Spline to Cubic Bezier Converter for Smooth Amoeba Blob
-  // =========================================================================
-  function pointsToClosedCatmullRom(pts) {
-    const len = pts.length;
-    if (len < 3) return '';
-    let d = 'M ' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
-    for (let i = 0; i < len; i++) {
-      const p0 = pts[(i - 1 + len) % len];
-      const p1 = pts[i];
-      const p2 = pts[(i + 1) % len];
-      const p3 = pts[(i + 2) % len];
-      const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
-      const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
-      d += ' C ' + cp1x.toFixed(1) + ' ' + cp1y.toFixed(1) + ', ' +
-           cp2x.toFixed(1) + ' ' + cp2y.toFixed(1) + ', ' +
-           p2.x.toFixed(1) + ' ' + p2.y.toFixed(1);
-    }
-    d += ' Z';
-    return d;
-  }
-
-  // =========================================================================
   // Seamless, Organic Dynamic Morphing Amoeba Liquid Blob Mask
-  // - Replaces rigid circular masks with an undulating 8-point spline amoeba.
+  // - 5-Lobe Metaball Cluster: Center body + 4 undulating satellite lobes.
   // - Dynamic sine/cosine undulation + velocity squish & stretch.
-  // - Softly feathered edges for seamless blending into static text.
+  // - Soft multi-stop feathered gradient falloff guarantees seamless blending.
+  // - Base static text is 100% visible & unmasked by default (never disappears).
   // =========================================================================
   function setupSeamlessLiquidRipple(leadEl, titleEl, subtitleEl) {
     if (!leadEl || leadEl.dataset.seamlessLiquidInit === 'true') return null;
     leadEl.dataset.seamlessLiquidInit = 'true';
 
-    getGooDefsSvg(); // Ensure SVG masks and filters exist in DOM
+    getGooDefsSvg(); // Ensure SVG filters exist in DOM
 
     // Ensure base text wrapper .liquid-text-base is present
     let baseTextWrapper = leadEl.querySelector('.liquid-text-base');
@@ -520,17 +463,6 @@
 
     syncOverlayContent();
 
-    let pathOverlay = document.getElementById('blob-path-overlay');
-    let pathBase = document.getElementById('blob-path-base');
-
-    function ensureBlobPaths() {
-      if (!pathOverlay || !pathBase) {
-        getGooDefsSvg();
-        pathOverlay = document.getElementById('blob-path-overlay');
-        pathBase = document.getElementById('blob-path-base');
-      }
-    }
-
     let targetX = -500;
     let targetY = -500;
     let currentX = -500;
@@ -564,47 +496,56 @@
       leadEl.style.setProperty('--bubble-y', currentY.toFixed(1) + 'px');
       leadEl.style.setProperty('--bubble-r', currentRadius.toFixed(1) + 'px');
 
-      ensureBlobPaths();
-
       if (currentRadius > 1) {
         animTime += 0.038;
-        const numPoints = 8;
-        const pts = [];
-        const wobbleAmp = currentRadius * 0.18;
-        const stretch = Math.min(speed * 0.015, 0.38);
+        const stretch = Math.min(speed * 0.015, 0.40);
         const moveAngle = Math.atan2(dy, dx);
         const cosA = Math.cos(moveAngle);
         const sinA = Math.sin(moveAngle);
 
-        for (let i = 0; i < numPoints; i++) {
-          const angle = (i * 2 * Math.PI) / numPoints;
-          // Asymmetrical dynamic undulation formula
-          const r = currentRadius +
-                    Math.sin(animTime * 2.2 + i * 1.4) * wobbleAmp +
-                    Math.cos(animTime * 1.7 - i * 0.8) * (wobbleAmp * 0.6);
+        // 1. Base static text cutout hole (scaled with squish & stretch)
+        const baseCutR = (currentRadius * (1 + stretch * 0.42) * 1.08).toFixed(1) + 'px';
+        leadEl.style.setProperty('--base-cut-r', baseCutR);
 
-          let px = r * Math.cos(angle);
-          let py = r * Math.sin(angle);
+        // 2. Center main blob body (Lobe 0)
+        const r0 = currentRadius * 0.92 + Math.sin(animTime * 2.2) * (currentRadius * 0.10);
+        leadEl.style.setProperty('--blob-x0', currentX.toFixed(1) + 'px');
+        leadEl.style.setProperty('--blob-y0', currentY.toFixed(1) + 'px');
+        leadEl.style.setProperty('--blob-r0', Math.max(0, r0).toFixed(1) + 'px');
+
+        // 3. Four asymmetrical undulating satellite lobes (Lobes 1 to 4)
+        for (let i = 0; i < 4; i++) {
+          const angle = (i * Math.PI / 2) + animTime * 0.25;
+          const dist = currentRadius * 0.46 +
+                       Math.sin(animTime * 2.2 + i * 1.4) * (currentRadius * 0.16) +
+                       Math.cos(animTime * 1.7 - i * 0.8) * (currentRadius * 0.09);
+          const rLobe = currentRadius * 0.60 +
+                        Math.sin(animTime * 1.9 - i * 1.1) * (currentRadius * 0.12);
+
+          let lx = dist * Math.cos(angle);
+          let ly = dist * Math.sin(angle);
 
           // Velocity-based squish & stretch along movement vector
           if (speed > 0.5 && stretch > 0.01) {
-            const rx = px * cosA + py * sinA;
-            const ry = -px * sinA + py * cosA;
+            const rx = lx * cosA + ly * sinA;
+            const ry = -lx * sinA + ly * cosA;
             const sx = rx * (1 + stretch);
-            const sy = ry * (1 - stretch * 0.5);
-            px = sx * cosA - sy * sinA;
-            py = sx * sinA + sy * cosA;
+            const sy = ry * (1 - stretch * 0.45);
+            lx = sx * cosA - sy * sinA;
+            ly = sx * sinA + sy * cosA;
           }
 
-          pts.push({ x: currentX + px, y: currentY + py });
+          leadEl.style.setProperty('--blob-x' + (i + 1), (currentX + lx).toFixed(1) + 'px');
+          leadEl.style.setProperty('--blob-y' + (i + 1), (currentY + ly).toFixed(1) + 'px');
+          leadEl.style.setProperty('--blob-r' + (i + 1), Math.max(0, rLobe).toFixed(1) + 'px');
         }
-
-        const d = pointsToClosedCatmullRom(pts);
-        if (pathOverlay) pathOverlay.setAttribute('d', d);
-        if (pathBase) pathBase.setAttribute('d', d);
       } else {
-        if (pathOverlay) pathOverlay.setAttribute('d', '');
-        if (pathBase) pathBase.setAttribute('d', '');
+        leadEl.style.setProperty('--base-cut-r', '0px');
+        leadEl.style.setProperty('--blob-r0', '0px');
+        leadEl.style.setProperty('--blob-r1', '0px');
+        leadEl.style.setProperty('--blob-r2', '0px');
+        leadEl.style.setProperty('--blob-r3', '0px');
+        leadEl.style.setProperty('--blob-r4', '0px');
       }
 
       // Modulate chunky water waves dynamically while cursor sweeps across text
@@ -620,9 +561,13 @@
       } else {
         currentRadius = 0;
         leadEl.style.setProperty('--bubble-r', '0px');
+        leadEl.style.setProperty('--base-cut-r', '0px');
+        leadEl.style.setProperty('--blob-r0', '0px');
+        leadEl.style.setProperty('--blob-r1', '0px');
+        leadEl.style.setProperty('--blob-r2', '0px');
+        leadEl.style.setProperty('--blob-r3', '0px');
+        leadEl.style.setProperty('--blob-r4', '0px');
         leadEl.classList.remove('is-liquid-active');
-        if (pathOverlay) pathOverlay.setAttribute('d', '');
-        if (pathBase) pathBase.setAttribute('d', '');
         rafId = null;
       }
     }

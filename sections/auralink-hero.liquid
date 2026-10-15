@@ -45,28 +45,6 @@
             </span>
           </a>
         {%- endif -%}
-
-        {% comment %} Organic Dynamic Morphing Liquid Blob Masks {% endcomment %}
-        <svg style="position:absolute; width:0; height:0; pointer-events:none;" aria-hidden="true">
-          <defs>
-            <!-- Filter to feather the blob edges without destroying its organic contour -->
-            <filter id="blob-feather" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="16"></feGaussianBlur>
-            </filter>
-
-            <!-- MASK 1: For the Liquid Ripple Overlay (White blob on Black background) -->
-            <mask id="liquid-blob-overlay-mask" maskUnits="userSpaceOnUse">
-              <rect x="-2000" y="-2000" width="10000" height="10000" fill="black"></rect>
-              <path id="blob-path-overlay" fill="white" filter="url(#blob-feather)" d=""></path>
-            </mask>
-
-            <!-- MASK 2: Inverted for the Base Static Text (Black blob on White background - cuts the hole) -->
-            <mask id="liquid-blob-base-mask" maskUnits="userSpaceOnUse">
-              <rect x="-2000" y="-2000" width="10000" height="10000" fill="white"></rect>
-              <path id="blob-path-base" fill="black" filter="url(#blob-feather)" d=""></path>
-            </mask>
-          </defs>
-        </svg>
       </div>
 
       {% comment %} Bottom Left: Feature Badges (Smart, Safe, Secure) - Figma Node 2899:1069 {% endcomment %}
