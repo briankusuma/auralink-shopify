@@ -186,7 +186,7 @@
   user-select: none;
 }
 
-/* Right: Device Media (Figma Node 2899:1059 - x: 469, y: 0, width: 875, height: 883, mepet ke kanan & di atas title) */
+/* Right: Device Media (Figma Node 2899:1059) */
 .auralink-hero-media {
   position: absolute;
   top: 0;
@@ -208,6 +208,153 @@
   object-fit: contain;
   object-position: right center;
   display: block;
+}
+
+/* ==========================================================================
+   Per-Character Water Droplet Coalescence & Radial Ripple
+   ========================================================================== */
+
+.auralink-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.auralink-char {
+  display: inline-block;
+  position: relative;
+  will-change: transform, opacity, filter;
+  transform-origin: 50% 80%;
+}
+
+/* Initial state on first-load: blurred droplet blob */
+.auralink-hero-lead[data-liquid-ready="true"] .auralink-char {
+  opacity: 0;
+  transform: translateY(22px) scale(0.18);
+  filter: blur(8px);
+}
+
+.auralink-hero-lead[data-liquid-ready="true"] .auralink-hero-cta-btn {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease;
+}
+
+.auralink-hero-content[data-liquid-ready="true"] .auralink-hero-tags {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Droplet Coalescence Animation (Bercak air membentuk huruf) */
+.auralink-char.char--droplet-coalesce {
+  animation: auralink-droplet-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--char-delay, 0ms);
+}
+
+@keyframes auralink-droplet-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.18);
+    filter: blur(8px);
+  }
+  30% {
+    opacity: 0.88;
+    transform: translateY(-6px) scale(1.3, 1.25);
+    filter: blur(2.5px) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.12));
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(3px) scale(0.92, 0.95);
+    filter: blur(0.5px);
+  }
+  75% {
+    transform: translateY(-1.5px) scale(1.03, 1.02);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: none;
+  }
+}
+
+/* Once fully revealed and settled */
+.auralink-hero-lead[data-liquid-done="true"] .auralink-char {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              filter 0.4s ease;
+}
+
+.auralink-hero-lead[data-liquid-done="true"] .auralink-hero-cta-btn,
+.auralink-hero-content[data-liquid-done="true"] .auralink-hero-tags {
+  opacity: 1;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   Hover: Radial Concentric Water Ripple from Cursor Point
+   -------------------------------------------------------------------------- */
+.auralink-hero-lead {
+  position: relative;
+  z-index: 1;
+}
+
+/* Character wave impact state */
+.auralink-char.char--wave-hit {
+  transform: translate3d(var(--wave-x, 0px), var(--wave-y, -6px), 0) scale(var(--wave-scale, 1.15));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
+  transition: transform 0.14s cubic-bezier(0.2, 0.8, 0.2, 1),
+              filter 0.14s ease;
+}
+
+/* Character wave settling back to resting calm */
+.auralink-char.char--wave-calm {
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: none;
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.55s ease;
+}
+
+/* CTA Button responsive bounce during radial ripple */
+.auralink-hero-cta-btn.cta--wave-hit {
+  transform: translate3d(var(--btn-wave-x, 0px), var(--btn-wave-y, -3px), 0) scale(var(--btn-scale, 1.03));
+  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.auralink-hero-cta-btn.cta--wave-calm {
+  transform: translate3d(0, 0, 0) scale(1);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Progressive enhancement: when JavaScript is disabled */
+.no-js .auralink-hero-title,
+.no-js .auralink-hero-subtitle,
+.no-js .auralink-char,
+.no-js .auralink-hero-cta-btn,
+.no-js .auralink-hero-tags {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .auralink-hero-title,
+  .auralink-hero-subtitle,
+  .auralink-char,
+  .auralink-hero-cta-btn,
+  .auralink-hero-tags {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 /* Responsive Queries */
@@ -267,115 +414,3 @@
     padding-top: 0;
   }
 }
-
-/* ==========================================================================
-   Fluid / Liquid Wave Text Reveal (Inspired by bleibtgleich.dev)
-   ========================================================================== */
-
-/* While waiting for liquid wave reveal */
-.auralink-hero-lead[data-liquid-ready="true"] .auralink-hero-title {
-  opacity: 0;
-  transform: translateY(32px);
-  will-change: transform, opacity, clip-path, filter;
-}
-
-.auralink-hero-lead[data-liquid-ready="true"] .auralink-hero-subtitle {
-  opacity: 0;
-  transform: translateY(22px);
-  will-change: transform, opacity, clip-path, filter;
-}
-
-.auralink-hero-lead[data-liquid-ready="true"] .auralink-hero-cta-btn {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.2s ease;
-}
-
-.auralink-hero-content[data-liquid-ready="true"] .auralink-hero-tags {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* While actively animating */
-.auralink-hero-lead[data-liquid-animating="true"] .auralink-hero-title,
-.auralink-hero-lead[data-liquid-animating="true"] .auralink-hero-subtitle {
-  opacity: 1;
-}
-
-/* Fully settled post-reveal state */
-.auralink-hero-lead[data-liquid-done="true"] .auralink-hero-title,
-.auralink-hero-lead[data-liquid-done="true"] .auralink-hero-subtitle {
-  opacity: 1 !important;
-  transform: none !important;
-  clip-path: none !important;
-  -webkit-clip-path: none !important;
-  filter: none !important;
-}
-
-.auralink-hero-lead[data-liquid-done="true"] .auralink-hero-cta-btn {
-  opacity: 1;
-  transform: none;
-}
-
-.auralink-hero-content[data-liquid-done="true"] .auralink-hero-tags {
-  opacity: 1;
-  transform: none;
-}
-
-/* ==========================================================================
-   Interactive Hover Ripple (Wrap Text & Button)
-   ========================================================================== */
-
-.auralink-hero-lead {
-  position: relative;
-  z-index: 1;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.auralink-hero-lead[data-liquid-hover="true"] {
-  will-change: filter, transform;
-}
-
-.auralink-hero-lead[data-liquid-hover="true"] .auralink-hero-title,
-.auralink-hero-lead[data-liquid-hover="true"] .auralink-hero-subtitle {
-  transform: translate3d(var(--ripple-wave-x, 0px), var(--ripple-wave-y, 0px), 0);
-  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
-  will-change: transform;
-}
-
-.auralink-hero-lead[data-liquid-hover="true"] .auralink-hero-cta-btn {
-  transform: translate3d(calc(var(--ripple-wave-x, 0px) * 0.4), calc(var(--ripple-wave-y, 0px) * 0.4), 0);
-  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
-}
-
-/* Progressive enhancement: when JavaScript is disabled */
-.no-js .auralink-hero-title,
-.no-js .auralink-hero-subtitle,
-.no-js .auralink-hero-cta-btn,
-.no-js .auralink-hero-tags {
-  opacity: 1 !important;
-  transform: none !important;
-  clip-path: none !important;
-  -webkit-clip-path: none !important;
-  filter: none !important;
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .auralink-hero-title,
-  .auralink-hero-subtitle,
-  .auralink-hero-cta-btn,
-  .auralink-hero-tags {
-    opacity: 1 !important;
-    transform: none !important;
-    clip-path: none !important;
-    -webkit-clip-path: none !important;
-    filter: none !important;
-    transition: none !important;
-  }
-}
-

@@ -1,27 +1,25 @@
 /**
- * AuraLink - Hero Section Liquid Wave Text Reveal & Interactive Hover Ripple
- * Inspired by bleibtgleich.dev
+ * AuraLink - Hero Section Water Droplet Text Coalescence & Radial Cursor Ripple
  *
- * Features:
- * 1. Initial Load: Organic liquid wave wipe reveal rising from bottom to top
- * 2. Interactive Hover: Moving the cursor over the text wrap & CTA button stimulates
- *    fluid water ripples with smooth velocity-reactive displacement & wave motion.
- * 3. Smooth Damping: Ripples settle gracefully into resting crisp typography on mouse leave.
- * 4. Progressive enhancement & reduced motion support.
+ * Mechanics:
+ * 1. Initial Load: Each letter emerges like an organic water droplet (bercak air)
+ *    splashing and condensing into its crisp letterform with surface-tension wobble.
+ * 2. Interactive Hover: Starts from one cursor point (titik kursor) and radiates
+ *    concentric water waves outward across subsequent letters with distance-based delays.
+ * 3. Progressive enhancement & accessibility support (screen readers, reduced motion).
  */
 
 (function () {
   'use strict';
 
-  function initHeroLiquidSection() {
+  function initHeroDropletSection() {
     const heroContainers = document.querySelectorAll('.auralink-hero-container');
     if (!heroContainers.length) return;
 
     heroContainers.forEach(function (container) {
-      if (container.dataset.liquidInitialized === 'true') return;
-      container.dataset.liquidInitialized = 'true';
+      if (container.dataset.dropletInitialized === 'true') return;
+      container.dataset.dropletInitialized = 'true';
 
-      const sectionId = container.id.replace('AuraLinkHero-', '');
       const leadEl = container.querySelector('.auralink-hero-lead');
       const contentEl = container.querySelector('.auralink-hero-content');
       const titleEl = container.querySelector('.auralink-hero-title');
@@ -31,178 +29,91 @@
 
       if (!leadEl || !titleEl) return;
 
-      const titleWavePath = document.getElementById('auralink-title-wave-path-' + sectionId);
-      const subWavePath = document.getElementById('auralink-sub-wave-path-' + sectionId);
-      const dispMap = document.getElementById('auralink-disp-' + sectionId);
-      const turbulence = document.getElementById('auralink-turbulence-' + sectionId);
+      // 1. Split text into words and individual characters (preserving <br> tags & semantic a11y)
+      const titleChars = splitTextIntoChars(titleEl);
+      const subtitleChars = subtitleEl ? splitTextIntoChars(subtitleEl) : [];
+      const allChars = titleChars.concat(subtitleChars);
 
       // Accessibility: Respect reduced motion
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReducedMotion) {
-        settleFirstLoadAnimation(true);
+        settleAnimation(true);
         return;
       }
 
-      // Mark ready state (primes CSS transforms & initial clip-paths)
+      // Mark initial state: letters primed as submerged droplets
       leadEl.setAttribute('data-liquid-ready', 'true');
       if (contentEl) contentEl.setAttribute('data-liquid-ready', 'true');
 
-      // Hook initial SVG clipPath & filter for the reveal
-      titleEl.style.clipPath = 'url(#auralink-title-wave-clip-' + sectionId + ')';
-      titleEl.style.webkitClipPath = 'url(#auralink-title-wave-clip-' + sectionId + ')';
-      titleEl.style.filter = 'url(#auralink-liquid-filter-' + sectionId + ')';
+      let revealStarted = false;
 
-      if (subtitleEl && subWavePath) {
-        subtitleEl.style.clipPath = 'url(#auralink-sub-wave-clip-' + sectionId + ')';
-        subtitleEl.style.webkitClipPath = 'url(#auralink-sub-wave-clip-' + sectionId + ')';
-        subtitleEl.style.filter = 'url(#auralink-liquid-filter-' + sectionId + ')';
+      function startDropletReveal() {
+        if (revealStarted) return;
+        revealStarted = true;
+
+        // Cascade heading droplets (bercak air forming letters)
+        titleChars.forEach(function (charSpan, idx) {
+          const delayMs = idx * 24;
+          charSpan.style.setProperty('--char-delay', delayMs + 'ms');
+          charSpan.classList.add('char--droplet-coalesce');
+        });
+
+        // Cascade subtitle droplets with slight stagger
+        const subBaseDelay = 280;
+        subtitleChars.forEach(function (charSpan, idx) {
+          const delayMs = subBaseDelay + idx * 10;
+          charSpan.style.setProperty('--char-delay', delayMs + 'ms');
+          charSpan.classList.add('char--droplet-coalesce');
+        });
+
+        // CTA button & tags fade in smoothly with lift
+        const ctaDelay = Math.max(550, titleChars.length * 20);
+        setTimeout(function () {
+          if (ctaEl) {
+            ctaEl.style.opacity = '1';
+            ctaEl.style.transform = 'translateY(0)';
+          }
+          if (tagsEl) {
+            tagsEl.style.opacity = '1';
+            tagsEl.style.transform = 'translateY(0)';
+          }
+        }, ctaDelay);
+
+        // Calculate total reveal completion time
+        const totalDuration = Math.max(
+          titleChars.length * 24 + 850,
+          subBaseDelay + subtitleChars.length * 10 + 850
+        );
+
+        setTimeout(function () {
+          settleAnimation(false);
+        }, totalDuration);
       }
 
-      function buildWavePath(level, phase, amplitude) {
-        const points = 16;
-        const step = 1 / points;
-        const startY = (level + Math.sin(phase) * amplitude).toFixed(4);
-        let d = 'M 0 1.25 L 0 ' + startY;
-
-        for (let i = 1; i <= points; i++) {
-          const x = i * step;
-          // Fluid harmonic equation: primary wave + secondary turbulent overtone
-          const wave = Math.sin(x * Math.PI * 4 + phase) * amplitude
-                     + Math.cos(x * Math.PI * 6 - phase * 1.3) * (amplitude * 0.45);
-          const y = Math.max(-0.25, Math.min(1.25, level + wave));
-          d += ' L ' + x.toFixed(4) + ' ' + y.toFixed(4);
-        }
-
-        d += ' L 1 1.25 Z';
-        return d;
-      }
-
-      function easeOutCubic(t) {
-        return 1 - Math.pow(1 - t, 3);
-      }
-
-      let firstLoadStarted = false;
-      let startTime = null;
-      let frameId = null;
-
-      const titleDuration = 1150; // ms
-      const subDelay = 180;       // ms stagger for subtitle
-      const subDuration = 950;    // ms
-      const ctaDelay = 420;       // ms stagger for CTA & tags
-      const totalDuration = Math.max(titleDuration, subDelay + subDuration) + 100;
-
-      function startFirstLoadAnimation() {
-        if (firstLoadStarted) return;
-        firstLoadStarted = true;
-
-        leadEl.setAttribute('data-liquid-animating', 'true');
-
-        function animate(timestamp) {
-          if (!startTime) startTime = timestamp;
-          const elapsed = timestamp - startTime;
-
-          // 1. Heading Wave Reveal Animation
-          const titleProgress = Math.min(1, Math.max(0, elapsed / titleDuration));
-          const titleEased = easeOutCubic(titleProgress);
-
-          // Liquid water level rises from 1.18 (below) to -0.18 (above)
-          const titleLevel = 1.18 - 1.36 * titleEased;
-          const titlePhase = titleProgress * 20.0;
-          const titleAmp = Math.sin(titleProgress * Math.PI) * 0.065 + 0.015;
-
-          if (titleWavePath) {
-            titleWavePath.setAttribute('d', buildWavePath(titleLevel, titlePhase, titleAmp));
-          }
-
-          // Liquid rising translateY: 32px -> 0px
-          const titleY = (32 * (1 - titleEased)).toFixed(2);
-          titleEl.style.transform = 'translateY(' + titleY + 'px)';
-
-          // 2. Subtitle Wave Reveal Animation (staggered)
-          if (subtitleEl && subWavePath) {
-            const subElapsed = elapsed - subDelay;
-            if (subElapsed > 0) {
-              const subProgress = Math.min(1, Math.max(0, subElapsed / subDuration));
-              const subEased = easeOutCubic(subProgress);
-
-              const subLevel = 1.18 - 1.36 * subEased;
-              const subPhase = subProgress * 18.0 + 2.0;
-              const subAmp = Math.sin(subProgress * Math.PI) * 0.05 + 0.012;
-
-              subWavePath.setAttribute('d', buildWavePath(subLevel, subPhase, subAmp));
-
-              const subY = (22 * (1 - subEased)).toFixed(2);
-              subtitleEl.style.transform = 'translateY(' + subY + 'px)';
-            }
-          }
-
-          // 3. Fluid Displacement Map scale (liquid turbulence)
-          if (dispMap) {
-            const peakProgress = Math.max(0, Math.min(1, elapsed / 800));
-            const currentScale = Math.sin(peakProgress * Math.PI) * 22;
-            dispMap.setAttribute('scale', currentScale.toFixed(1));
-          }
-
-          // 4. Staggered CTA & Badges Reveal
-          if (elapsed >= ctaDelay) {
-            if (ctaEl && !ctaEl.style.opacity) {
-              ctaEl.style.opacity = '1';
-              ctaEl.style.transform = 'translateY(0)';
-            }
-            if (tagsEl && !tagsEl.style.opacity) {
-              tagsEl.style.opacity = '1';
-              tagsEl.style.transform = 'translateY(0)';
-            }
-          }
-
-          if (elapsed < totalDuration) {
-            frameId = requestAnimationFrame(animate);
-          } else {
-            settleFirstLoadAnimation(false);
-          }
-        }
-
-        frameId = requestAnimationFrame(animate);
-      }
-
-      function settleFirstLoadAnimation(immediate) {
-        if (frameId) cancelAnimationFrame(frameId);
-
-        leadEl.removeAttribute('data-liquid-animating');
+      function settleAnimation(immediate) {
+        leadEl.removeAttribute('data-liquid-ready');
         leadEl.setAttribute('data-liquid-done', 'true');
         if (contentEl) contentEl.setAttribute('data-liquid-done', 'true');
 
-        // Clean up reveal clip-paths so text is razor-sharp
-        titleEl.style.clipPath = 'none';
-        titleEl.style.webkitClipPath = 'none';
-        titleEl.style.filter = 'none';
-        titleEl.style.transform = '';
-        titleEl.style.opacity = '1';
-
-        if (subtitleEl) {
-          subtitleEl.style.clipPath = 'none';
-          subtitleEl.style.webkitClipPath = 'none';
-          subtitleEl.style.filter = 'none';
-          subtitleEl.style.transform = '';
-          subtitleEl.style.opacity = '1';
-        }
+        allChars.forEach(function (span) {
+          span.classList.remove('char--droplet-coalesce');
+          span.style.removeProperty('--char-delay');
+          span.style.opacity = '1';
+          span.style.transform = '';
+          span.style.filter = '';
+        });
 
         if (ctaEl) {
           ctaEl.style.opacity = '1';
           ctaEl.style.transform = '';
         }
-
         if (tagsEl) {
           tagsEl.style.opacity = '1';
           tagsEl.style.transform = '';
         }
 
-        if (dispMap) {
-          dispMap.setAttribute('scale', '0');
-        }
-
-        // Initialize Interactive Hover Ripple on text wrap and button
-        setupInteractiveHoverRipple(leadEl, ctaEl, dispMap, turbulence, sectionId);
+        // Initialize radial cursor water ripples
+        setupRadialHoverRipples(leadEl, allChars, ctaEl);
       }
 
       // Check if loading screen is active on first load
@@ -217,12 +128,12 @@
         // Wait until loading screen reaches 100% and dismisses
         const onLoadingDone = function () {
           document.removeEventListener('auralink:loading:done', onLoadingDone);
-          setTimeout(startFirstLoadAnimation, 80);
+          setTimeout(startDropletReveal, 60);
         };
         document.addEventListener('auralink:loading:done', onLoadingDone);
 
         setTimeout(function () {
-          if (!firstLoadStarted) startFirstLoadAnimation();
+          if (!revealStarted) startDropletReveal();
         }, 3200);
       } else {
         // Trigger via IntersectionObserver or immediate frame
@@ -231,180 +142,235 @@
             function (entries) {
               if (entries[0].isIntersecting) {
                 observer.disconnect();
-                startFirstLoadAnimation();
+                startDropletReveal();
               }
             },
             { threshold: 0.15 }
           );
           observer.observe(container);
         } else {
-          startFirstLoadAnimation();
+          startDropletReveal();
         }
       }
 
       // Fallback guarantee: never leave text hidden
       setTimeout(function () {
         if (!leadEl.getAttribute('data-liquid-done')) {
-          settleFirstLoadAnimation(true);
+          settleAnimation(true);
         }
-      }, totalDuration + 4000);
+      }, 4500);
     });
   }
 
   // =========================================================================
-  // Interactive Water Ripple on Mouse Hover (Wrap Text & Button)
+  // Text Splitting Helper: preserves words (<span class="auralink-word">)
+  // and splits characters (<span class="auralink-char">) while respecting <br>
   // =========================================================================
-  function setupInteractiveHoverRipple(leadEl, ctaEl, dispMap, turbulence, sectionId) {
-    if (!leadEl || !dispMap || !turbulence) return;
-    if (leadEl.dataset.hoverRippleInitialized === 'true') return;
-    leadEl.dataset.hoverRippleInitialized = 'true';
+  function splitTextIntoChars(element) {
+    if (!element || element.dataset.charsSplit === 'true') {
+      return Array.from(element.querySelectorAll('.auralink-char'));
+    }
+    element.dataset.charsSplit = 'true';
+
+    // Set accessible label for screen readers
+    const originalText = element.textContent.trim();
+    element.setAttribute('aria-label', originalText);
+
+    const childNodes = Array.from(element.childNodes);
+    element.innerHTML = '';
+
+    const charSpans = [];
+
+    childNodes.forEach(function (node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent;
+        // Split by whitespace chunks to keep words intact
+        const tokens = text.split(/(\s+)/);
+
+        tokens.forEach(function (token) {
+          if (!token) return;
+          if (/^\s+$/.test(token)) {
+            element.appendChild(document.createTextNode(token));
+          } else {
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'auralink-word';
+            wordSpan.setAttribute('aria-hidden', 'true');
+
+            for (let i = 0; i < token.length; i++) {
+              const charSpan = document.createElement('span');
+              charSpan.className = 'auralink-char';
+              charSpan.textContent = token[i];
+              wordSpan.appendChild(charSpan);
+              charSpans.push(charSpan);
+            }
+            element.appendChild(wordSpan);
+          }
+        });
+      } else if (node.nodeName === 'BR') {
+        element.appendChild(document.createElement('br'));
+      } else {
+        element.appendChild(node.cloneNode(true));
+      }
+    });
+
+    return charSpans;
+  }
+
+  // =========================================================================
+  // Radial Concentric Water Ripple on Hover
+  // (Starts from one cursor point & cascades outwards to subsequent letters)
+  // =========================================================================
+  function setupRadialHoverRipples(leadEl, charSpans, ctaEl) {
+    if (!leadEl || !charSpans.length) return;
+    if (leadEl.dataset.radialHoverActive === 'true') return;
+    leadEl.dataset.radialHoverActive = 'true';
 
     // Only apply on fine pointer devices (desktop mouse/trackpad)
     const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
     if (!hasFinePointer) return;
 
-    let isHovering = false;
-    let targetScale = 0;
-    let currentScale = 0;
-    let targetWaveX = 0;
-    let targetWaveY = 0;
-    let currentWaveX = 0;
-    let currentWaveY = 0;
-    let lastMouseX = null;
-    let lastMouseY = null;
-    let lastTime = performance.now();
-    let mouseVelocity = 0;
-    let hoverFrameId = null;
-    let phase = 0;
-    let normX = 0.5;
-    let normY = 0.5;
+    let charPositions = [];
 
-    function onPointerEnter(e) {
-      isHovering = true;
-      lastMouseX = e.clientX;
-      lastMouseY = e.clientY;
-      lastTime = performance.now();
-      targetScale = 7.0; // Initial gentle water ripple onset
-      leadEl.setAttribute('data-liquid-hover', 'true');
-      leadEl.style.filter = 'url(#auralink-liquid-filter-' + sectionId + ')';
-
-      if (!hoverFrameId) {
-        hoverFrameId = requestAnimationFrame(updateHoverRipple);
-      }
+    function cachePositions() {
+      charPositions = charSpans.map(function (span) {
+        const rect = span.getBoundingClientRect();
+        return {
+          span: span,
+          cx: rect.left + rect.width / 2,
+          cy: rect.top + rect.height / 2,
+          busy: false
+        };
+      });
     }
+
+    cachePositions();
+
+    window.addEventListener('resize', cachePositions, { passive: true });
+    window.addEventListener('scroll', cachePositions, { passive: true });
+
+    let lastMoveTime = 0;
+    const maxRadius = 260; // Max ripple radius in px
+    const waveSpeed = 0.72; // Wave propagation speed in px/ms
 
     function onPointerMove(e) {
-      if (!isHovering) {
-        onPointerEnter(e);
-      }
-
-      const rect = leadEl.getBoundingClientRect();
-      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-      const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
-
-      normX = rect.width > 0 ? x / rect.width : 0.5;
-      normY = rect.height > 0 ? y / rect.height : 0.5;
-
-      // Calculate cursor speed to dynamically surge water waves
       const now = performance.now();
-      const dt = Math.max(16, now - lastTime);
-      if (lastMouseX !== null && lastMouseY !== null) {
-        const dist = Math.hypot(e.clientX - lastMouseX, e.clientY - lastMouseY);
-        const speed = dist / dt; // px per ms
-        mouseVelocity = Math.min(2.2, mouseVelocity * 0.65 + speed * 0.35);
-      }
-      lastMouseX = e.clientX;
-      lastMouseY = e.clientY;
-      lastTime = now;
+      // Throttle ripple trigger frequency to ~40fps for optimal fluid sensation
+      if (now - lastMoveTime < 24) return;
+      lastMoveTime = now;
 
-      // Ripple scale scales organically with cursor velocity (5px floor up to 16px crest)
-      targetScale = Math.min(16, 5.5 + mouseVelocity * 8.5);
+      const curX = e.clientX;
+      const curY = e.clientY;
 
-      // Subtle undulating directional water tilt
-      targetWaveX = (normX - 0.5) * 5.0;
-      targetWaveY = (normY - 0.5) * 3.5;
+      // 1. Radiate water ripple to all characters from the cursor point
+      for (let i = 0; i < charPositions.length; i++) {
+        const item = charPositions[i];
+        const dx = item.cx - curX;
+        const dy = item.cy - curY;
+        const dist = Math.hypot(dx, dy);
 
-      leadEl.style.setProperty('--mouse-norm-x', normX.toFixed(3));
-      leadEl.style.setProperty('--mouse-norm-y', normY.toFixed(3));
-    }
+        if (dist <= maxRadius && !item.busy) {
+          // Time delay proportional to distance: concentric ripple propagation
+          const delayMs = dist / waveSpeed;
+          const factor = Math.pow(1 - dist / maxRadius, 1.35);
 
-    function onPointerLeave() {
-      isHovering = false;
-      targetScale = 0;
-      targetWaveX = 0;
-      targetWaveY = 0;
-      mouseVelocity = 0;
-      lastMouseX = null;
-      lastMouseY = null;
-    }
-
-    function updateHoverRipple(timestamp) {
-      // Smooth exponential easing for organic water physics
-      const lerpRate = isHovering ? 0.12 : 0.08;
-      currentScale += (targetScale - currentScale) * lerpRate;
-      currentWaveX += (targetWaveX - currentWaveX) * 0.09;
-      currentWaveY += (targetWaveY - currentWaveY) * 0.09;
-
-      // Gradually decay velocity when mouse is hovering but stationary
-      if (isHovering) {
-        mouseVelocity *= 0.90;
-        targetScale = Math.max(4.5, targetScale * 0.96);
+          item.busy = true;
+          triggerCharRipple(item, dx, dy, dist, factor, delayMs);
+        }
       }
 
-      phase += 0.045 + currentScale * 0.003;
-
-      if (currentScale > 0.06) {
-        dispMap.setAttribute('scale', currentScale.toFixed(2));
-
-        // Organic turbulence baseFrequency shift responding to cursor & time
-        const fx = (0.016 + Math.sin(phase + normX * Math.PI) * 0.005).toFixed(4);
-        const fy = (0.034 + Math.cos(phase * 0.8 + normY * Math.PI) * 0.007).toFixed(4);
-        turbulence.setAttribute('baseFrequency', fx + ' ' + fy);
-
-        // Fluid undulating micro-translation
-        leadEl.style.setProperty('--ripple-wave-x', currentWaveX.toFixed(2) + 'px');
-        leadEl.style.setProperty('--ripple-wave-y', currentWaveY.toFixed(2) + 'px');
-
-        hoverFrameId = requestAnimationFrame(updateHoverRipple);
-      } else {
-        // Calm resting state: restore 100% crisp typography
-        currentScale = 0;
-        dispMap.setAttribute('scale', '0');
-        leadEl.style.filter = 'none';
-        leadEl.removeAttribute('data-liquid-hover');
-        leadEl.style.setProperty('--ripple-wave-x', '0px');
-        leadEl.style.setProperty('--ripple-wave-y', '0px');
-        hoverFrameId = null;
-      }
-    }
-
-    leadEl.addEventListener('pointerenter', onPointerEnter, { passive: true });
-    leadEl.addEventListener('pointermove', onPointerMove, { passive: true });
-    leadEl.addEventListener('pointerleave', onPointerLeave, { passive: true });
-
-    // Track button-specific cursor ripple sheen
-    if (ctaEl) {
-      ctaEl.addEventListener('pointermove', function (e) {
+      // 2. Radiate water ripple to CTA button if nearby
+      if (ctaEl) {
         const btnRect = ctaEl.getBoundingClientRect();
-        const bx = ((e.clientX - btnRect.left) / btnRect.width) * 100;
-        const by = ((e.clientY - btnRect.top) / btnRect.height) * 100;
+        const btnCx = btnRect.left + btnRect.width / 2;
+        const btnCy = btnRect.top + btnRect.height / 2;
+        const btnDist = Math.hypot(btnCx - curX, btnCy - curY);
+
+        // Update button ripple sheen origin
+        const bx = ((curX - btnRect.left) / btnRect.width) * 100;
+        const by = ((curY - btnRect.top) / btnRect.height) * 100;
         ctaEl.style.setProperty('--cta-mouse-x', bx.toFixed(1) + '%');
         ctaEl.style.setProperty('--cta-mouse-y', by.toFixed(1) + '%');
-      }, { passive: true });
+
+        if (btnDist <= maxRadius && !ctaEl.dataset.rippleBusy) {
+          ctaEl.dataset.rippleBusy = 'true';
+          const btnDelay = btnDist / waveSpeed;
+          const btnFactor = Math.pow(1 - btnDist / maxRadius, 1.2);
+
+          setTimeout(function () {
+            ctaEl.classList.remove('cta--wave-calm');
+            ctaEl.classList.add('cta--wave-hit');
+
+            const pushX = ((btnCx - curX) / (btnDist || 1)) * 3 * btnFactor;
+            const pushY = -3.5 * btnFactor;
+            ctaEl.style.setProperty('--btn-wave-x', pushX.toFixed(2) + 'px');
+            ctaEl.style.setProperty('--btn-wave-y', pushY.toFixed(2) + 'px');
+            ctaEl.style.setProperty('--btn-scale', (1 + 0.03 * btnFactor).toFixed(3));
+
+            setTimeout(function () {
+              ctaEl.classList.remove('cta--wave-hit');
+              ctaEl.classList.add('cta--wave-calm');
+              setTimeout(function () {
+                ctaEl.classList.remove('cta--wave-calm');
+                delete ctaEl.dataset.rippleBusy;
+              }, 550);
+            }, 140);
+          }, btnDelay);
+        }
+      }
     }
+
+    function triggerCharRipple(item, dx, dy, dist, factor, delayMs) {
+      setTimeout(function () {
+        const span = item.span;
+
+        // Fluid directional splash away from cursor center
+        const normX = dx / (dist || 1);
+        const normY = dy / (dist || 1);
+        const pushX = normX * 5.0 * factor;
+        const liftY = -6.5 * factor + (normY * 2.5 * factor);
+        const scale = 1 + 0.16 * factor;
+
+        span.style.setProperty('--wave-x', pushX.toFixed(2) + 'px');
+        span.style.setProperty('--wave-y', liftY.toFixed(2) + 'px');
+        span.style.setProperty('--wave-scale', scale.toFixed(3));
+
+        span.classList.remove('char--wave-calm');
+        span.classList.add('char--wave-hit');
+
+        // Settle back to resting state with liquid elastic ease
+        setTimeout(function () {
+          span.classList.remove('char--wave-hit');
+          span.classList.add('char--wave-calm');
+
+          setTimeout(function () {
+            span.classList.remove('char--wave-calm');
+            span.style.removeProperty('--wave-x');
+            span.style.removeProperty('--wave-y');
+            span.style.removeProperty('--wave-scale');
+            item.busy = false;
+          }, 550);
+        }, 130);
+      }, delayMs);
+    }
+
+    leadEl.addEventListener('pointerenter', function () {
+      cachePositions();
+    }, { passive: true });
+
+    leadEl.addEventListener('pointermove', onPointerMove, { passive: true });
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHeroLiquidSection);
+    document.addEventListener('DOMContentLoaded', initHeroDropletSection);
   } else {
-    initHeroLiquidSection();
+    initHeroDropletSection();
   }
 
   // Shopify Theme Editor support
   if (window.Shopify && window.Shopify.designMode) {
     document.addEventListener('shopify:section:load', function (e) {
       if (e.target.classList.contains('section-auralink-hero')) {
-        initHeroLiquidSection();
+        initHeroDropletSection();
       }
     });
   }
