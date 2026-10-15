@@ -60,10 +60,10 @@
               >
                 <div class="auralink-testimonials__quote-content">
                   {%- if block.settings.title != blank -%}
-                    <h3 class="auralink-testimonials__quote-title">{{ block.settings.title | escape }}</h3>
+                    <h3 class="auralink-testimonials__quote-title" data-liquid-reveal="text">{{ block.settings.title | escape }}</h3>
                   {%- endif -%}
                   {%- if block.settings.quote != blank -%}
-                    <p class="auralink-testimonials__quote-text">{{ block.settings.quote | escape }}</p>
+                    <p class="auralink-testimonials__quote-text" data-liquid-reveal="text">{{ block.settings.quote | escape }}</p>
                   {%- endif -%}
                 </div>
 
@@ -98,10 +98,10 @@
                     <div class="auralink-testimonials__author-meta">
                       <span class="auralink-testimonials__quote-mark" aria-hidden="true">“</span>
                       {%- if block.settings.author_name != blank -%}
-                        <h4 class="auralink-testimonials__author-name">{{ block.settings.author_name | escape }}</h4>
+                        <h4 class="auralink-testimonials__author-name" data-liquid-reveal="text">{{ block.settings.author_name | escape }}</h4>
                       {%- endif -%}
                       {%- if block.settings.author_role != blank -%}
-                        <span class="auralink-testimonials__author-role">{{ block.settings.author_role | escape }}</span>
+                        <span class="auralink-testimonials__author-role" data-liquid-reveal="text">{{ block.settings.author_role | escape }}</span>
                       {%- endif -%}
                     </div>
                   </div>
@@ -109,10 +109,10 @@
                   {%- if block.settings.tag_1 != blank or block.settings.tag_2 != blank -%}
                     <div class="auralink-testimonials__tags">
                       {%- if block.settings.tag_1 != blank -%}
-                        <span class="auralink-testimonials__tag">{{ block.settings.tag_1 | escape }}</span>
+                        <span class="auralink-testimonials__tag" data-liquid-reveal="text">{{ block.settings.tag_1 | escape }}</span>
                       {%- endif -%}
                       {%- if block.settings.tag_2 != blank -%}
-                        <span class="auralink-testimonials__tag">{{ block.settings.tag_2 | escape }}</span>
+                        <span class="auralink-testimonials__tag" data-liquid-reveal="text">{{ block.settings.tag_2 | escape }}</span>
                       {%- endif -%}
                     </div>
                   {%- endif -%}

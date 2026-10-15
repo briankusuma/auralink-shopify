@@ -51,7 +51,7 @@
             {%- render 'icon-bento-chip' -%}
           </div>
           {%- if section.settings.card_1_text != blank -%}
-            <p class="auralink-bento-glass-card__text">
+            <p class="auralink-bento-glass-card__text" data-liquid-reveal="text">
               {{ section.settings.card_1_text | escape }}
             </p>
           {%- endif -%}
@@ -81,7 +81,7 @@
           {%- endif -%}
 
           {%- if section.settings.card_2_tag != blank -%}
-            <span class="auralink-bento-pill-tag">
+            <span class="auralink-bento-pill-tag" data-liquid-reveal="text">
               {{ section.settings.card_2_tag | escape }}
             </span>
           {%- endif -%}
@@ -93,7 +93,7 @@
             {%- render 'icon-bento-shield' -%}
           </div>
           {%- if section.settings.card_3_heading != blank -%}
-            <p class="auralink-bento-shield-text">
+            <p class="auralink-bento-shield-text" data-liquid-reveal="text">
               {{ section.settings.card_3_heading | escape }}
             </p>
           {%- endif -%}
@@ -125,13 +125,13 @@
         </div>
 
         {%- if section.settings.card_4_stat != blank -%}
-          <span class="auralink-bento-stat__number">
+          <span class="auralink-bento-stat__number" data-liquid-reveal="text">
             {{ section.settings.card_4_stat | escape }}
           </span>
         {%- endif -%}
 
         {%- if section.settings.card_4_text != blank -%}
-          <p class="auralink-bento-stat__desc">
+          <p class="auralink-bento-stat__desc" data-liquid-reveal="text">
             {{ section.settings.card_4_text | escape }}
           </p>
         {%- endif -%}

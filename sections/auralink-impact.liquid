@@ -37,10 +37,10 @@
 
             <div class="auralink-impact-author__info">
               {%- if section.settings.author_name != blank -%}
-                <h3 class="auralink-impact-author__name">{{ section.settings.author_name | escape }}</h3>
+                <h3 class="auralink-impact-author__name" data-liquid-reveal="text">{{ section.settings.author_name | escape }}</h3>
               {%- endif -%}
               {%- if section.settings.author_role != blank -%}
-                <p class="auralink-impact-author__role">{{ section.settings.author_role | escape }}</p>
+                <p class="auralink-impact-author__role" data-liquid-reveal="text">{{ section.settings.author_role | escape }}</p>
               {%- endif -%}
             </div>
           </div>
@@ -70,10 +70,10 @@
             </div>
             <div class="auralink-impact-metric__content">
               {%- if section.settings.metric_1_stat != blank -%}
-                <p class="auralink-impact-metric__stat">{{ section.settings.metric_1_stat | escape }}</p>
+                <p class="auralink-impact-metric__stat" data-liquid-reveal="text">{{ section.settings.metric_1_stat | escape }}</p>
               {%- endif -%}
               {%- if section.settings.metric_1_label != blank -%}
-                <p class="auralink-impact-metric__label">{{ section.settings.metric_1_label | escape }}</p>
+                <p class="auralink-impact-metric__label" data-liquid-reveal="text">{{ section.settings.metric_1_label | escape }}</p>
               {%- endif -%}
             </div>
           </div>
@@ -87,10 +87,10 @@
             </div>
             <div class="auralink-impact-metric__content">
               {%- if section.settings.metric_2_stat != blank -%}
-                <p class="auralink-impact-metric__stat">{{ section.settings.metric_2_stat | escape }}</p>
+                <p class="auralink-impact-metric__stat" data-liquid-reveal="text">{{ section.settings.metric_2_stat | escape }}</p>
               {%- endif -%}
               {%- if section.settings.metric_2_label != blank -%}
-                <p class="auralink-impact-metric__label matrict-2">{{ section.settings.metric_2_label | escape }}</p>
+                <p class="auralink-impact-metric__label matrict-2" data-liquid-reveal="text">{{ section.settings.metric_2_label | escape }}</p>
               {%- endif -%}
             </div>
           </div>
@@ -104,10 +104,10 @@
             </div>
             <div class="auralink-impact-metric__content">
               {%- if section.settings.metric_3_stat != blank -%}
-                <p class="auralink-impact-metric__stat">{{ section.settings.metric_3_stat | escape }}</p>
+                <p class="auralink-impact-metric__stat" data-liquid-reveal="text">{{ section.settings.metric_3_stat | escape }}</p>
               {%- endif -%}
               {%- if section.settings.metric_3_label != blank -%}
-                <p class="auralink-impact-metric__label">{{ section.settings.metric_3_label | escape }}</p>
+                <p class="auralink-impact-metric__label" data-liquid-reveal="text">{{ section.settings.metric_3_label | escape }}</p>
               {%- endif -%}
             </div>
           </div>

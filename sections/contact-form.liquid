@@ -20,7 +20,7 @@
       <div class="auralink-contact__header{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
         {%- if section.settings.tag != blank -%}
           <div class="auralink-contact__tag-wrap">
-            <span class="auralink-pill">
+            <span class="auralink-pill" data-liquid-reveal="text">
               <span class="auralink-pill__dot" aria-hidden="true"></span>
               {{ section.settings.tag | escape }}
             </span>
@@ -36,7 +36,7 @@
         {%- endif -%}
 
         {%- if section.settings.description != blank -%}
-          <div class="auralink-contact__description rte">
+          <div class="auralink-contact__description rte" data-liquid-reveal="text">
             {{ section.settings.description }}
           </div>
         {%- endif -%}
@@ -91,16 +91,16 @@
                       {%- endcase -%}
                     </div>
                     {%- if block.settings.badge != blank -%}
-                      <span class="auralink-contact-info-card__badge">{{ block.settings.badge | escape }}</span>
+                      <span class="auralink-contact-info-card__badge" data-liquid-reveal="text">{{ block.settings.badge | escape }}</span>
                     {%- endif -%}
                   </div>
 
                   {%- if block.settings.heading != blank -%}
-                    <h3 class="auralink-contact-info-card__title">{{ block.settings.heading | escape }}</h3>
+                    <h3 class="auralink-contact-info-card__title" data-liquid-reveal="text">{{ block.settings.heading | escape }}</h3>
                   {%- endif -%}
 
                   {%- if block.settings.content != blank -%}
-                    <div class="auralink-contact-info-card__content rte">
+                    <div class="auralink-contact-info-card__content rte" data-liquid-reveal="text">
                       {{ block.settings.content }}
                     </div>
                   {%- endif -%}

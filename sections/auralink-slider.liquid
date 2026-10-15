@@ -94,22 +94,22 @@
 
             <div class="auralink-slider__overlay"></div>
 
-            <span class="auralink-slider__number">{{ slide_number }}</span>
+            <span class="auralink-slider__number" data-liquid-reveal="text">{{ slide_number }}</span>
 
             <div class="auralink-slider__content">
               <div class="auralink-slider__product-info">
                 {%- if block.settings.model_code != blank -%}
-                  <span class="auralink-slider__model">{{ block.settings.model_code | escape }}</span>
+                  <span class="auralink-slider__model" data-liquid-reveal="text">{{ block.settings.model_code | escape }}</span>
                 {%- endif -%}
-                <span class="auralink-slider__product-title">{{ slide_title | escape }}</span>
+                <span class="auralink-slider__product-title" data-liquid-reveal="text">{{ slide_title | escape }}</span>
               </div>
 
               <div class="auralink-slider__meta">
                 {%- if block.settings.category_tag != blank -%}
-                  <span class="auralink-slider__tag">{{ block.settings.category_tag | escape }}</span>
+                  <span class="auralink-slider__tag" data-liquid-reveal="text">{{ block.settings.category_tag | escape }}</span>
                 {%- endif -%}
                 {%- if block.settings.description != blank -%}
-                  <p class="auralink-slider__desc">{{ block.settings.description | escape }}</p>
+                  <p class="auralink-slider__desc" data-liquid-reveal="text">{{ block.settings.description | escape }}</p>
                 {%- endif -%}
               </div>
 
