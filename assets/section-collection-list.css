@@ -1,0 +1,329 @@
+/* ==========================================================================
+   AuraLink Collections List Page (/collections)
+   Matches Figma Node: 3265:260 (Speedtest / Collection Card)
+   ========================================================================== */
+
+.collection-list {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.collection-list-header {
+  margin-bottom: 40px;
+}
+
+.collection-list-header__tag-wrap {
+  margin-bottom: 14px;
+}
+
+.collection-list-header .auralink-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--badge-corner-radius, 40px);
+  background-color: var(--auralink-color-accent, #F2FE63);
+  color: #000000;
+  font-family: var(--font-body-family), sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.collection-list-header .auralink-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #000000;
+  display: inline-block;
+}
+
+.collection-list-header h1.title {
+  font-family: var(--font-heading-family), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-foreground, #000000);
+  font-size: clamp(32px, 4vw, 48px);
+  margin: 0;
+  line-height: 1.15;
+}
+
+.collection-list.grid {
+  row-gap: 28px;
+  column-gap: 24px;
+}
+
+/* --------------------------------------------------------------------------
+   Collection Card (Figma Node: 3265:260)
+   -------------------------------------------------------------------------- */
+.collection-card-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+.auralink-collection-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--collection-card-corner-radius, 32px);
+  background-color: #F1EFEF;
+  aspect-ratio: 524 / 437;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.auralink-collection-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* 1. Background Media & Image */
+.auralink-collection-card__media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: var(--collection-card-corner-radius, 32px);
+}
+
+.auralink-collection-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: var(--collection-card-corner-radius, 32px);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auralink-collection-card:hover .auralink-collection-card__img {
+  transform: scale(1.05);
+}
+
+/* 2. Gradient Overlay (Figma Node: 3265:264) */
+.auralink-collection-card__overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, rgba(217, 217, 217, 0) 48%, rgba(0, 0, 0, 0.5) 100%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* 3. Top-Left Badge: Name Collection (Figma Node: 3265:261) */
+.auralink-collection-card__badge-wrap {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.auralink-collection-card__name-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: var(--badge-corner-radius, 40px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #FFFFFF;
+  font-family: var(--font-body-family), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+/* 4. Bottom-Right Button: View Collection (Figma Node: 3250:234) */
+.auralink-collection-card__action-wrap {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  z-index: 4;
+}
+
+.auralink-collection-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 8px 8px 20px;
+  border-radius: var(--buttons-radius, 100px);
+  background: #FFFFFF;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #000000;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.auralink-collection-card__btn-text {
+  font-family: var(--font-body-family), sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #000000;
+}
+
+.auralink-collection-card__btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #000000;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.auralink-collection-card__btn-icon svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.25s ease;
+}
+
+.auralink-collection-card:hover .auralink-collection-card__btn {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.auralink-collection-card:hover .auralink-collection-card__btn-icon,
+.auralink-collection-card__btn:hover .auralink-collection-card__btn-icon {
+  background-color: #F2FE63;
+  color: #000000;
+  transform: scale(1.05);
+}
+
+.auralink-collection-card:hover .auralink-collection-card__btn-icon svg,
+.auralink-collection-card__btn:hover .auralink-collection-card__btn-icon svg {
+  transform: translate(1px, -1px);
+}
+
+/* 5. Full Clickable Link */
+.auralink-collection-card__full-link {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: 32px;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile & Tablet Responsiveness
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 749px) {
+  .collection-list:not(.slider) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .section-collection-list .page-width {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .section-collection-list .collection-list:not(.slider) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .collection-list.grid {
+    row-gap: 20px;
+    column-gap: 16px;
+  }
+
+  .auralink-collection-card {
+    border-radius: 24px;
+    aspect-ratio: 1.2;
+  }
+
+  .auralink-collection-card__media,
+  .auralink-collection-card__img,
+  .auralink-collection-card__overlay,
+  .auralink-collection-card__full-link {
+    border-radius: 24px;
+  }
+
+  .auralink-collection-card__badge-wrap {
+    top: 18px;
+    left: 18px;
+  }
+
+  .auralink-collection-card__name-badge {
+    font-size: 13px;
+    padding: 5px 12px;
+  }
+
+  .auralink-collection-card__action-wrap {
+    bottom: 18px;
+    right: 18px;
+  }
+
+  .auralink-collection-card__btn {
+    padding: 6px 6px 6px 14px;
+    gap: 10px;
+  }
+
+  .auralink-collection-card__btn-text {
+    font-size: 13px;
+  }
+
+  .auralink-collection-card__btn-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .auralink-collection-card__btn-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.collection-list__item:only-child {
+  max-width: 100%;
+  width: 100%;
+}
+
+@media screen and (max-width: 749px) {
+  .slider.collection-list--1-items {
+    padding-bottom: 0;
+  }
+}
+
+@media screen and (min-width: 750px) and (max-width: 989px) {
+  .slider.collection-list--1-items,
+  .slider.collection-list--2-items,
+  .slider.collection-list--3-items,
+  .slider.collection-list--4-items {
+    padding-bottom: 0;
+  }
+}
+
+@media screen and (min-width: 750px) {
+  .collection-list__item a:hover {
+    box-shadow: none;
+  }
+}
+
+@media screen and (max-width: 989px) {
+  .collection-list.slider .collection-list__item {
+    max-width: 100%;
+  }
+}
+
+.collection-list-view-all {
+  margin-top: 2rem;
+}

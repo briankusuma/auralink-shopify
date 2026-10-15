@@ -1,0 +1,96 @@
+{% comment %}
+  Renders a collection card
+  Figma Node: 3265:260 (Speedtest / Collections)
+
+  Accepts:
+  - card_collection: {Object} Collection Liquid object
+  - media_aspect_ratio: {String} Size of the product image card (optional)
+  - columns: {Number}
+  - wrapper_class: {String} Wrapper class for card (optional)
+
+  Usage:
+  {% render 'card-collection', card_collection: collection %}
+{% endcomment %}
+
+<div class="card-wrapper animate-arrow {% if wrapper_class and wrapper_class != 'none' %}{{ wrapper_class }}{% else %}collection-card-wrapper{% endif %}">
+  <div class="auralink-collection-card">
+    {%- comment -%} 1. Background Media & Gradient Overlay {%- endcomment -%}
+    <div class="auralink-collection-card__media">
+      {%- if card_collection.featured_image -%}
+        <img
+          srcset="
+            {%- if card_collection.featured_image.width >= 165 -%}{{ card_collection.featured_image | image_url: width: 165 }} 165w,{%- endif -%}
+            {%- if card_collection.featured_image.width >= 360 -%}{{ card_collection.featured_image | image_url: width: 360 }} 360w,{%- endif -%}
+            {%- if card_collection.featured_image.width >= 535 -%}{{ card_collection.featured_image | image_url: width: 535 }} 535w,{%- endif -%}
+            {%- if card_collection.featured_image.width >= 750 -%}{{ card_collection.featured_image | image_url: width: 750 }} 750w,{%- endif -%}
+            {%- if card_collection.featured_image.width >= 1000 -%}{{ card_collection.featured_image | image_url: width: 1000 }} 1000w,{%- endif -%}
+            {%- if card_collection.featured_image.width >= 1500 -%}{{ card_collection.featured_image | image_url: width: 1500 }} 1500w,{%- endif -%}
+            {{ card_collection.featured_image | image_url }} {{ card_collection.featured_image.width }}w
+          "
+          src="{{ card_collection.featured_image | image_url: width: 750 }}"
+          sizes="(min-width: {{ settings.page_width }}px) {{ settings.page_width | minus: 100 | divided_by: columns | default: 3 }}px, (min-width: 750px) calc((100vw - 10rem) / {{ columns | default: 3 }}), calc(100vw - 3rem)"
+          alt="{{ card_collection.featured_image.alt | default: card_collection.title | escape }}"
+          height="{{ card_collection.featured_image.height }}"
+          width="{{ card_collection.featured_image.width }}"
+          loading="lazy"
+          class="auralink-collection-card__img motion-reduce"
+        >
+      {%- else -%}
+        {%- assign coll_fallback_idx = forloop.index | default: 1 | minus: 1 | modulo: 6 | plus: 1 -%}
+        {%- assign coll_fallback_img = 'product-img-' | append: coll_fallback_idx | append: '.png' -%}
+        <img
+          src="{{ coll_fallback_img | asset_url }}"
+          alt="{{ card_collection.title | default: 'AuraLink Collection' | escape }}"
+          loading="lazy"
+          width="1048"
+          height="874"
+          class="auralink-collection-card__img auralink-collection-card__fallback-img motion-reduce"
+        >
+      {%- endif -%}
+      <div class="auralink-collection-card__overlay" aria-hidden="true"></div>
+    </div>
+
+    {%- comment -%} 2. Top-Left Badge: Name Collection (Figma node 3265:261) {%- endcomment -%}
+    <div class="auralink-collection-card__badge-wrap">
+      <span class="auralink-collection-card__name-badge">
+        {%- if card_collection.title != blank -%}
+          {{- card_collection.title | escape -}}
+        {%- else -%}
+          {{ 'onboarding.collection_title' | t }}
+        {%- endif -%}
+      </span>
+    </div>
+
+    {%- comment -%} 3. Bottom-Right Button: View Collection (Figma node 3250:234) {%- endcomment -%}
+    <div class="auralink-collection-card__action-wrap">
+      <a
+        {% if card_collection == blank %}
+          role="link" aria-disabled="true"
+        {% else %}
+          href="{{ card_collection.url }}"
+        {% endif %}
+        class="auralink-collection-card__btn"
+      >
+        <span class="auralink-collection-card__btn-text">View collection</span>
+        <span class="auralink-collection-card__btn-icon" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.5 11.5L11.5 2.5M11.5 2.5H4M11.5 2.5V10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </a>
+    </div>
+
+    {%- comment -%} Full card clickable link {%- endcomment -%}
+    <a
+      {% if card_collection == blank %}
+        role="link" aria-disabled="true"
+      {% else %}
+        href="{{ card_collection.url }}"
+      {% endif %}
+      class="auralink-collection-card__full-link"
+      aria-label="{{ card_collection.title | default: 'Collection' | escape }}"
+    >
+      <span class="visually-hidden">{{ card_collection.title | default: 'Collection' | escape }}</span>
+    </a>
+  </div>
+</div>

@@ -1,0 +1,195 @@
+{{ 'section-auralink-hero.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | default: 16 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 40 }}px;
+  }
+  #AuraLinkHero-{{ section.id }} {
+    {%- if section.settings.background_image != blank -%}
+      background-image: url('{{ section.settings.background_image | image_url: width: 2816 }}');
+    {%- else -%}
+      background-image: url('{{ 'hero-bg.png' | asset_url }}');
+    {%- endif -%}
+  }
+{%- endstyle -%}
+
+<div class="auralink-hero-wrapper section-{{ section.id }}-padding">
+  <div 
+    id="AuraLinkHero-{{ section.id }}" 
+    class="auralink-hero-container color-{{ section.settings.color_scheme }} gradient"
+  >
+    
+    {% comment %} Left: Content (Headline, Subhead, CTA, Badges) - Figma Node 2899:1084 {% endcomment %}
+    <div class="auralink-hero-content">
+      <div class="auralink-hero-lead">
+        {%- if section.settings.heading != blank -%}
+          <h1 class="auralink-hero-title">
+            {{ section.settings.heading | escape | newline_to_br }}
+          </h1>
+        {%- endif -%}
+
+        {%- if section.settings.subheading != blank -%}
+          <p class="auralink-hero-subtitle">
+            {{ section.settings.subheading | escape }}
+          </p>
+        {%- endif -%}
+
+        {%- if section.settings.button_label != blank -%}
+          <a href="{{ section.settings.button_link | default: routes.all_products_collection_url }}" class="auralink-hero-cta-btn">
+            <span class="auralink-cta-text">{{ section.settings.button_label | escape }}</span>
+            <span class="auralink-cta-icon-circle" aria-hidden="true">
+              {%- render 'icon-arrow-top-right' -%}
+            </span>
+          </a>
+        {%- endif -%}
+      </div>
+
+      {% comment %} Bottom Left: Feature Badges (Smart, Safe, Secure) - Figma Node 2899:1069 {% endcomment %}
+      <div class="auralink-hero-tags" role="list">
+        {%- if section.settings.tag_1 != blank -%}
+          <span class="auralink-tag-pill" role="listitem">{{ section.settings.tag_1 | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.tag_2 != blank -%}
+          <span class="auralink-tag-pill" role="listitem">{{ section.settings.tag_2 | escape }}</span>
+        {%- endif -%}
+        {%- if section.settings.tag_3 != blank -%}
+          <span class="auralink-tag-pill" role="listitem">{{ section.settings.tag_3 | escape }}</span>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {% comment %} Right: Device Image - Figma Node 2899:1059 {% endcomment %}
+    <div class="auralink-hero-media">
+      {%- if section.settings.device_image != blank -%}
+        {{ section.settings.device_image | image_url: width: 1750 | image_tag: 
+          loading: 'eager', 
+          fetchpriority: 'high',
+          class: 'auralink-hero-device-img',
+          alt: section.settings.heading | default: 'AuraLink Smart Home Device' | escape
+        }}
+      {%- else -%}
+        <img 
+          src="{{ 'hero-device.png' | asset_url }}" 
+          alt="{{ section.settings.heading | default: 'AuraLink Smart Home Device' | escape }}" 
+          class="auralink-hero-device-img" 
+          loading="eager" 
+          fetchpriority="high"
+          width="875" 
+          height="883"
+        >
+      {%- endif -%}
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Hero banner",
+  "tag": "section",
+  "class": "section-auralink-hero",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Hero Content"
+    },
+    {
+      "type": "textarea",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Your Smart Home\nSafe - Seamless. and Secure"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Discover the latest smart home devices designed to simplify your life,  and optimize energy efficiency."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Get started"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "header",
+      "content": "Feature Badges"
+    },
+    {
+      "type": "text",
+      "id": "tag_1",
+      "label": "Badge 1",
+      "default": "Smart"
+    },
+    {
+      "type": "text",
+      "id": "tag_2",
+      "label": "Badge 2",
+      "default": "Safe"
+    },
+    {
+      "type": "text",
+      "id": "tag_3",
+      "label": "Badge 3",
+      "default": "Secure"
+    },
+    {
+      "type": "header",
+      "content": "Media Settings"
+    },
+    {
+      "type": "image_picker",
+      "id": "device_image",
+      "label": "Device image (Right column)",
+      "info": "Upload custom device image. Defaults to Figma 3D smart device."
+    },
+    {
+      "type": "image_picker",
+      "id": "background_image",
+      "label": "Card background image",
+      "info": "Upload custom backdrop image. Defaults to Figma 3D studio background."
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero banner"
+    }
+  ]
+}
+{% endschema %}

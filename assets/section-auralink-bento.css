@@ -1,0 +1,365 @@
+/* ==========================================================================
+   AuraLink Bento Features Section
+   Figma Node: 3046:229
+   ========================================================================== */
+
+.auralink-bento-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.auralink-bento-container {
+  max-width: 1064px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  box-sizing: border-box;
+}
+
+/* Header: Title & Subtitle */
+.auralink-bento-header {
+  text-align: center;
+  max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 64px;
+}
+
+.auralink-bento-title {
+  font-family: inherit;
+  font-size: clamp(32px, 4.5vw, 48px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-foreground, #000000);
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.auralink-bento-subtitle {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: -0.04em;
+  color: rgba(var(--color-foreground, 0, 0, 0), 0.7);
+  margin: 0;
+}
+
+/* Bento 3-Column Grid */
+.auralink-bento-grid {
+  display: grid;
+  grid-template-columns: 524fr 254fr 254fr;
+  gap: 16px;
+  height: 437px;
+  width: 100%;
+}
+
+/* Card base */
+.auralink-bento-card {
+  position: relative;
+  border-radius: 32px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.auralink-bento-card__bg-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 1. Large Card (Left) */
+.auralink-bento-card--large {
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 28px;
+  background-color: #e9e9e9;
+}
+
+.auralink-bento-glass-card {
+  position: relative;
+  z-index: 2;
+  width: calc(100% - 48px);
+  max-width: 404px;
+  min-height: 128px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
+  padding: 30px 24px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.auralink-bento-glass-card__badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 120px;
+  background-color: #F2FE63;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 3;
+}
+
+.auralink-bento-glass-card__text {
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+/* 2. Middle Column: Stacked */
+.auralink-bento-col--stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.auralink-bento-card--connected {
+  height: 210px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  background-color: #e5e5e5;
+}
+
+.auralink-bento-card--connected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.4) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.auralink-bento-pill-tag {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 40px;
+  background: transparent;
+  color: #ffffff;
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.auralink-bento-card--shield {
+  height: 211px;
+  background-color: #F2FE63;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 30px 24px;
+  text-align: center;
+}
+
+.auralink-bento-shield-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000000;
+}
+
+.auralink-bento-shield-text {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin: 0;
+}
+
+/* 3. Stat Card (Right) */
+.auralink-bento-card--stat {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 20px;
+  text-align: center;
+  background-color: #333333;
+}
+
+.auralink-bento-card--stat .auralink-bento-card__bg-img {
+  filter: blur(10px) brightness(0.9);
+  transform: scale(1.15); /* Prevents blur bleed edge */
+}
+
+.auralink-bento-card--stat::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.auralink-bento-stat__badge {
+  position: relative;
+  z-index: 2;
+  width: 64px;
+  height: 64px;
+  border-radius: 120px;
+  background-color: #F2FE63;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.auralink-bento-stat__number {
+  position: relative;
+  z-index: 2;
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 20px 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.auralink-bento-stat__desc {
+  position: relative;
+  z-index: 2;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0;
+  max-width: 200px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover & Transitions */
+@media (prefers-reduced-motion: no-preference) {
+  .auralink-bento-card {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .auralink-bento-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+  }
+  .auralink-bento-card__bg-img {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .auralink-bento-card:hover .auralink-bento-card__bg-img {
+    transform: scale(1.05);
+  }
+  .auralink-bento-card--stat:hover .auralink-bento-card__bg-img {
+    transform: scale(1.22);
+  }
+}
+
+/* Tablet Breakpoint (750px - 989px) */
+@media screen and (max-width: 989px) {
+  .auralink-bento-grid {
+    grid-template-columns: 1fr 1fr;
+    height: auto;
+    gap: 16px;
+  }
+  .auralink-bento-card--large {
+    grid-column: span 2;
+    height: 380px;
+  }
+  .auralink-bento-col--stacked {
+    height: 400px;
+  }
+  .auralink-bento-card--connected,
+  .auralink-bento-card--shield {
+    height: calc(50% - 8px);
+  }
+  .auralink-bento-card--stat {
+    height: 400px;
+  }
+}
+
+/* Mobile Breakpoint (< 750px) */
+@media screen and (max-width: 749px) {
+  .auralink-bento-header {
+    margin-bottom: 40px;
+  }
+  .auralink-bento-title {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .auralink-bento-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    height: auto;
+  }
+  .auralink-bento-card--large {
+    grid-column: span 1;
+    height: 340px;
+    padding-bottom: 20px;
+  }
+  .auralink-bento-glass-card {
+    width: calc(100% - 32px);
+    padding: 24px 16px 16px;
+  }
+  .auralink-bento-glass-card__text {
+    font-size: 18px;
+  }
+  .auralink-bento-col--stacked {
+    height: auto;
+  }
+  .auralink-bento-card--connected {
+    height: 200px;
+  }
+  .auralink-bento-card--shield {
+    height: 200px;
+    padding: 24px 16px;
+  }
+  .auralink-bento-shield-text {
+    font-size: 20px;
+  }
+  .auralink-bento-card--stat {
+    height: 340px;
+    padding: 32px 16px;
+  }
+  .auralink-bento-stat__number {
+    font-size: 48px;
+    margin: 16px 0;
+  }
+  .auralink-bento-stat__desc {
+    font-size: 20px;
+  }
+}

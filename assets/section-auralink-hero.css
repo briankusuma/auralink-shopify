@@ -1,0 +1,240 @@
+/* AuraLink Hero Section Styles (Figma Node 2899:1050) */
+
+.auralink-hero-wrapper {
+  width: 100%;
+  max-width: var(--page-width, 1440px);
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+
+.auralink-hero-container {
+  position: relative;
+  width: 100%;
+  max-width: calc(var(--page-width, 1440px) - 32px);
+  aspect-ratio: 1408 / 883;
+  min-height: clamp(600px, 62.7vw, 883px);
+  margin: 0 auto;
+  border-radius: var(--auralink-radius-section, 32px);
+  overflow: hidden;
+  box-sizing: border-box;
+  background-color: #d8dbdd;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: row;
+}
+
+/* Left Content Column (Figma Node 2899:1084 - location {x: 64, y: 129}, max-width 740px) */
+.auralink-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 740px;
+  height: 100%;
+  padding: 129px 0 48px 64px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.auralink-hero-lead {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  position: relative;
+  z-index: 1;
+}
+
+.auralink-hero-title {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-heading-family);
+  font-size: clamp(2.5rem, 5.8vw, 83px);
+  line-height: 0.9em;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  color: var(--auralink-color-dark, #000000);
+  margin: 0;
+  word-break: break-word;
+}
+
+.auralink-hero-subtitle {
+  font-family: var(--font-body-family);
+  font-size: 18px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.7);
+  max-width: 416px;
+  margin: 0;
+}
+
+/* CTA Pill Button (Figma Node 2899:1054) */
+.auralink-hero-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 8px 8px 24px;
+  background: #ffffff;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: var(--auralink-radius-pill, 100px);
+  text-decoration: none;
+  width: fit-content;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  z-index: 3;
+}
+
+.auralink-hero-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+.auralink-hero-cta-btn:focus-visible {
+  outline: 2px solid var(--auralink-color-dark, #000000);
+  outline-offset: 4px;
+}
+
+.auralink-cta-text {
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--auralink-color-dark, #000000);
+}
+
+.auralink-cta-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--auralink-color-dark, #000000);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.auralink-hero-cta-btn:hover .auralink-cta-icon-circle {
+  transform: translateX(3px);
+}
+
+.auralink-cta-icon-circle svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Feature Badges (Figma Node 2899:1069 - Smart, Safe, Secure over podium) */
+.auralink-hero-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 60px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 3;
+}
+
+.auralink-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--auralink-radius-badge, 40px);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  user-select: none;
+}
+
+/* Right: Device Media (Figma Node 2899:1059 - x: 469, y: 0, width: 875, height: 883, mepet ke kanan & di atas title) */
+.auralink-hero-media {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 62.14%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.auralink-hero-device-img {
+  width: 100%;
+  height: 100%;
+  max-width: 875px;
+  object-fit: contain;
+  object-position: right center;
+  display: block;
+}
+
+/* Responsive Queries */
+@media screen and (max-width: 1024px) {
+  .auralink-hero-content {
+    padding: 110px 0 40px 40px;
+    max-width: 480px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .auralink-hero-wrapper {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .auralink-hero-container {
+    aspect-ratio: auto;
+    min-height: auto;
+    flex-direction: column;
+    background-size: cover;
+    background-position: center bottom;
+  }
+
+  .auralink-hero-content {
+    min-height: auto;
+    height: auto;
+    padding: 100px 20px 32px 20px;
+    max-width: 100%;
+  }
+
+  .auralink-hero-lead {
+    gap: 24px;
+  }
+
+  .auralink-hero-media {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1637 / 1284;
+    max-width: 460px;
+    margin: 24px auto 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .auralink-hero-device-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .auralink-hero-tags {
+    margin-top: 32px;
+    padding-top: 0;
+  }
+}

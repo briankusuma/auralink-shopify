@@ -1,0 +1,602 @@
+/* AuraLink Header Navbar Styles (Figma Node 2899:1086 / 2899:1050) */
+
+.header-wrapper {
+  background: transparent;
+}
+
+/* Ensure the Header Section & Group Stacks Above Main Content / Hero */
+.shopify-section-group-header-group,
+.section-header,
+.shopify-section-group-header-group.section-header {
+  position: relative;
+  z-index: 100 !important;
+}
+
+/* Overlay Header on Hero Section */
+.header-wrapper--overlay {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  width: 100%;
+  z-index: 100 !important;
+  background: transparent !important;
+  border-bottom: none !important;
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease, top 0.3s ease;
+}
+
+.header-wrapper--overlay .header {
+  max-width: var(--page-width, 1408px);
+  margin: 0 auto;
+  padding: 12px 64px !important;
+}
+
+@media screen and (max-width: 989px) {
+  .header-wrapper--overlay {
+    top: 8px;
+  }
+  .header-wrapper--overlay .header {
+    padding: 10px 24px !important;
+  }
+}
+
+/* Sticky scrolled state for overlay header */
+.shopify-section-header-sticky .header-wrapper--overlay,
+.scrolled-past-header .header-wrapper--overlay {
+  position: fixed;
+  top: 0;
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.shopify-section-header-sticky .header-wrapper--overlay .header,
+.scrolled-past-header .header-wrapper--overlay .header {
+  padding: 10px 48px;
+}
+
+.header {
+  max-width: var(--page-width, 1440px);
+  margin: 0 auto;
+  padding: 20px 48px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+/* 1. Left: Menu Navigation */
+.header__inline-menu {
+  justify-self: start;
+}
+
+.header__inline-menu .list-menu--inline {
+  counter-reset: auralink-nav-counter;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header__inline-menu .list-menu--inline > li {
+  counter-increment: auralink-nav-counter;
+}
+
+.header__inline-menu .header__menu-item {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--auralink-color-dark, #000000);
+  padding: 6px 0;
+  transition: opacity 0.2s ease;
+}
+
+.header__inline-menu .header__menu-item:hover {
+  opacity: 0.7;
+}
+
+.header__inline-menu .list-menu--inline > li > .header__menu-item::before,
+.header__inline-menu .list-menu--inline > li > header-menu > details > summary::before {
+  content: "0" counter(auralink-nav-counter) ". ";
+  color: var(--auralink-color-muted, #aeaeae);
+  font-weight: 500;
+  font-size: 13px;
+  margin-right: 4px;
+}
+
+/* 2. Center: Logo & Brand */
+.header__heading {
+  margin: 0;
+  text-align: center;
+  justify-self: center;
+}
+
+.header__heading-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--auralink-color-dark, #000000);
+  font-size: 24px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auralink-brand-title {
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 0.05em;
+  font-size: 24px;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.auralink-brand-title .brand-aura {
+  font-weight: 600;
+}
+
+.auralink-brand-title .brand-link {
+  font-weight: 300;
+  opacity: 0.85;
+}
+
+/* 3. Right: Icons & Localization */
+.header__icons {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Language & Country Capsule */
+.header-localization .localization-form {
+  padding: 0;
+  margin: 0;
+}
+
+.header .disclosure__button.localization-selector {
+  display: inline-flex;
+  align-items: center;
+  height: 46px;
+  padding: 4px 14px;
+  border-radius: var(--auralink-radius-pill, 100px);
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  backdrop-filter: var(--auralink-backdrop-blur, blur(4px));
+  -webkit-backdrop-filter: var(--auralink-backdrop-blur, blur(4px));
+  color: var(--auralink-color-dark, #000000);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  gap: 8px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.header .disclosure__button.localization-selector:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: translateY(-1px);
+}
+
+.header .disclosure__button.localization-selector span {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* AuraLink Language Slider (Figma Node 2655:276 / 2899:1097) */
+.auralink-lang-slider-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
+
+.auralink-lang-form {
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+}
+
+.auralink-lang-slider {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  height: 46px;
+  border-radius: var(--auralink-radius-pill, 100px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: var(--auralink-backdrop-blur, blur(4px));
+  -webkit-backdrop-filter: var(--auralink-backdrop-blur, blur(4px));
+  padding: 3px;
+  gap: 2px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+.auralink-lang-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  min-width: 38px;
+  padding: 0 12px;
+  border-radius: var(--auralink-radius-pill, 100px);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--auralink-color-dark, #000000);
+  letter-spacing: 0.01em;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.auralink-lang-btn:hover {
+  opacity: 0.75;
+}
+
+.auralink-lang-btn:focus-visible {
+  outline: 2px solid var(--auralink-color-dark, #000000);
+  outline-offset: 2px;
+}
+
+.auralink-lang-btn--active {
+  background: var(--auralink-color-accent, #F2FE63);
+  color: #000000;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  opacity: 1 !important;
+}
+
+.auralink-lang-btn--active:hover {
+  opacity: 1;
+}
+
+/* Action Buttons (Cart, Search, Account) */
+.header__icon {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  backdrop-filter: var(--auralink-backdrop-blur, blur(4px));
+  -webkit-backdrop-filter: var(--auralink-backdrop-blur, blur(4px));
+  color: var(--auralink-color-dark, #000000);
+  text-decoration: none;
+  position: relative;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.header__icon:hover {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.05);
+}
+
+.header__icon .svg-wrapper,
+.header__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.header__icon--cart .svg-wrapper,
+.header__icon--cart svg,
+.header__icon--cart .icon {
+  width: 34px;
+  height: 34px;
+}
+
+.cart-count-bubble {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: var(--auralink-color-accent, #f2fe63);
+  color: #000000;
+  font-weight: 700;
+  font-size: 11px;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Drawer Toggle Button on Mobile */
+header-drawer .header__icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Remove Dawn's default menu backdrop pseudo-element that creates a black bar under the close icon */
+.header__icon--menu::before,
+.header__icon--menu[aria-expanded='true']::before,
+header-drawer details[open] > summary::before,
+header-drawer summary::before,
+.js menu-drawer > details > summary::before,
+.js menu-drawer > details[open] > summary::before {
+  display: none !important;
+  content: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Clean Compact Mobile Drawer Layout */
+.js .menu-drawer {
+  height: calc(100dvh - var(--header-bottom-position, 64px)) !important;
+  max-height: calc(100dvh - var(--header-bottom-position, 64px)) !important;
+}
+
+.menu-drawer__inner-container {
+  height: 100% !important;
+  max-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.menu-drawer__navigation-container {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  height: 90% !important;
+  max-height: 100% !important;
+  overflow-y: auto !important;
+  padding: 1.6rem 2rem 2.4rem !important;
+  gap: 1.2rem !important;
+  box-sizing: border-box !important;
+}
+
+.menu-drawer__search {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+  flex-shrink: 0 !important;
+}
+
+.menu-drawer__search-link {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  width: 100%;
+  padding: 1.2rem 1.8rem;
+  border-radius: var(--auralink-radius-pill, 100px);
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--auralink-color-dark, #000000);
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.menu-drawer__search-link:hover,
+.menu-drawer__search-link:focus {
+  background: rgba(0, 0, 0, 0.09);
+  color: var(--auralink-color-dark, #000000);
+}
+
+.menu-drawer__search-link .svg-wrapper {
+  width: 1.8rem;
+  height: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.65;
+}
+
+.menu-drawer__search-text {
+  opacity: 0.6;
+}
+
+.menu-drawer__navigation {
+  padding: 0.8rem 0 !important;
+  margin: 0 !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  flex-grow: 1 !important;
+}
+
+.menu-drawer__menu {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.4rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+.menu-drawer__menu-item {
+  padding: 1rem 1.4rem !important;
+  font-size: 1.6rem !important;
+  font-weight: 500 !important;
+  border-radius: 12px !important;
+  text-decoration: none !important;
+  color: var(--auralink-color-dark, #000000) !important;
+  display: flex !important;
+  align-items: center !important;
+  transition: background 0.2s ease !important;
+}
+
+.menu-drawer__menu-item:hover,
+.menu-drawer__menu-item:focus {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+.menu-drawer__utility-links {
+  background: transparent !important;
+  padding: 1.2rem 0 0 !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.8rem !important;
+  flex-shrink: 0 !important;
+}
+
+.menu-drawer__account {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1rem !important;
+  padding: 1.2rem 2rem !important;
+  text-decoration: none !important;
+  font-size: 1.4rem !important;
+  font-weight: 600 !important;
+  color: var(--auralink-color-dark, #000000) !important;
+  border-radius: var(--auralink-radius-pill, 100px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  margin-top: 0.4rem !important;
+  margin-bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  order: 99 !important;
+  transition: background 0.2s ease, transform 0.2s ease !important;
+}
+
+.menu-drawer__account:hover,
+.menu-drawer__account:focus {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: var(--auralink-color-dark, #000000) !important;
+  transform: translateY(-1px);
+}
+
+.menu-drawer__account .svg-wrapper {
+  width: 1.8rem !important;
+  height: 1.8rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Responsive adjustments for Mobile (< 990px) */
+@media screen and (max-width: 989px) {
+  /* When Mobile Menu Drawer is open, navbar background becomes solid white */
+  .header-wrapper.menu-open,
+  .header-wrapper--overlay.menu-open,
+  .section-header.menu-open .header-wrapper,
+  .section-header.menu-open .header-wrapper--overlay,
+  .header-wrapper:has(header-drawer details[open]),
+  .header-wrapper--overlay:has(header-drawer details[open]),
+  .header-wrapper:has(header-drawer details.menu-opening),
+  .header-wrapper--overlay:has(header-drawer details.menu-opening),
+  .shopify-section-group-header-group:has(header-drawer details[open]) .header-wrapper,
+  .shopify-section-group-header-group:has(header-drawer details[open]) .header-wrapper--overlay,
+  body.overflow-hidden-tablet .header-wrapper,
+  body.overflow-hidden-tablet .header-wrapper--overlay,
+  body.overflow-hidden-mobile .header-wrapper,
+  body.overflow-hidden-mobile .header-wrapper--overlay {
+    top: 0 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  .header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    padding: 12px 20px !important;
+    gap: 8px !important;
+  }
+
+  /* 1. Left: Logo */
+  .header__heading {
+    order: 1 !important;
+    position: static !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+    justify-self: start !important;
+    flex: 0 1 auto !important;
+    white-space: nowrap !important;
+    max-width: calc(100% - 110px) !important;
+  }
+
+  .header__heading-link {
+    text-align: left !important;
+    justify-content: flex-start !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  .auralink-brand-title {
+    white-space: nowrap !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+  }
+
+  .header__heading-logo-wrapper {
+    margin: 0 !important;
+  }
+
+  /* 2. Hide Search, Account & Localizations from header bar on mobile */
+  header > .header__search,
+  .header > .header__search,
+  .header__icons > .header__search,
+  .header__icons > shopify-account,
+  .header__icons > .header__icon--account,
+  .header__icons > .desktop-localization-wrapper,
+  .header__icons > .shopify-app-block {
+    display: none !important;
+  }
+
+  /* 3. Right: Exactly 2 icons (Cart and Menu) with 8px gap */
+  .header__icons {
+    order: 2 !important;
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+    gap: 8px !important;
+    justify-self: end !important;
+    flex-shrink: 0 !important;
+  }
+
+  .header__icon--cart {
+    margin: 0 !important;
+  }
+
+  header-drawer {
+    order: 3 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-self: end !important;
+    flex-shrink: 0 !important;
+  }
+
+  header-drawer details {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  header-drawer summary.header__icon {
+    margin: 0 !important;
+  }
+
+  header-drawer .header__icon,
+  .header__icons .header__icon {
+    width: 44px !important;
+    height: 44px !important;
+  }
+}

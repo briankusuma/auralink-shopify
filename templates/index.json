@@ -1,0 +1,248 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "auralink_hero": {
+      "type": "auralink-hero",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "heading": "Your Smart Home\nSafe - Seamless. and Secure",
+        "subheading": "Discover the latest smart home devices designed to simplify your life,  and optimize energy efficiency.",
+        "button_label": "Get started",
+        "button_link": "/collections/all",
+        "tag_1": "Smart",
+        "tag_2": "Safe",
+        "tag_3": "Secure",
+        "padding_top": 16,
+        "padding_bottom": 40
+      }
+    },
+    "auralink_bento": {
+      "type": "auralink-bento",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "heading": "Welcome to a Smarter Way of Living",
+        "subheading": "Transforming everyday living",
+        "card_1_text": "AI devices learn your habits and adjust automatically.",
+        "card_2_tag": "Connected Ecosystem",
+        "card_3_heading": "Smart, Safe, and Secure",
+        "card_4_stat": "99%",
+        "card_4_text": "Seamless Integration with Your Life",
+        "padding_top": 48,
+        "padding_bottom": 64
+      }
+    },
+    "auralink_slider": {
+      "type": "auralink-slider",
+      "blocks": {
+        "slide_1": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "default_asset_image": "slider-product-1.png",
+            "slide_number": "01",
+            "model_code": "A02",
+            "title": "Lumi Glow",
+            "category_tag": "Smart Lights",
+            "description": "These AI-powered lights automatically adjust brightness and color temperature based on the time of day.",
+            "button_label": "View Product",
+            "button_link": "/collections/all"
+          }
+        },
+        "slide_2": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "default_asset_image": "slider-product-2.png",
+            "slide_number": "02",
+            "model_code": "H01",
+            "title": "Control Hub",
+            "category_tag": "Smart Hub",
+            "description": "Intuitive central control unit engineered for high-precision tactile management of all your smart devices.",
+            "button_label": "View Product",
+            "button_link": "/collections/all"
+          }
+        },
+        "slide_3": {
+          "type": "slide",
+          "settings": {
+            "product": "",
+            "default_asset_image": "slider-product-3.png",
+            "slide_number": "03",
+            "model_code": "D03",
+            "title": "Docking Pad",
+            "category_tag": "Power & Charge",
+            "description": "Seamless multi-device charging station crafted with architectural elegance and intelligent thermal regulation.",
+            "button_label": "View Product",
+            "button_link": "/collections/all"
+          }
+        }
+      },
+      "block_order": [
+        "slide_1",
+        "slide_2",
+        "slide_3"
+      ],
+      "settings": {
+        "color_scheme": "scheme-1",
+        "heading": "Discover the latest smart home devices",
+        "subheading": "Transform your home with intelligent devices that learn, adapt, and respond",
+        "padding_top": 48,
+        "padding_bottom": 64
+      }
+    },
+    "auralink_impact": {
+      "type": "auralink-impact",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "author_name": "Dr. Dayat Santoso",
+        "author_role": "CEO of NexaTech Innovations",
+        "quote_text": "“The integration of AI into smart home devices is revolutionizing how we interact with our living spaces. These technologies not only bring unprecedented convenience but also optimize energy use.”",
+        "metric_1_stat": "80M+",
+        "metric_1_label": "Product Launched over worldwide",
+        "metric_2_stat": "50+",
+        "metric_2_label": "Countries connected to our ecosystem",
+        "metric_3_stat": "$120M+",
+        "metric_3_label": "raised in Series B funding",
+        "padding_top": 40,
+        "padding_bottom": 56
+      }
+    },
+    "auralink_testimonials_D7it8Y": {
+      "type": "auralink-testimonials",
+      "blocks": {
+        "testimonial_q84ieA": {
+          "type": "testimonial",
+          "settings": {
+            "title": "\"Security and comfort finally work together.\"",
+            "quote": "“With facial recognition and smart locks, I never worry about lost keys or unknown visitors. Plus, the whole system works with my voice assistant—it’s seamless and secure.”",
+            "default_avatar": "testimonial-avatar-1.png",
+            "author_name": "Torik Handoko",
+            "author_role": "IT Consultant & Father of Two",
+            "tag_1": "Secure",
+            "tag_2": "Comfort"
+          }
+        },
+        "testimonial_rg9pdD": {
+          "type": "testimonial",
+          "settings": {
+            "title": "\"Effortless energy savings without lifting a finger.\"",
+            "quote": "“The climate sensors learned our daily routines in just a few days. Our heating bill dropped by nearly 30% while the house always stays at the perfect temperature.”",
+            "default_avatar": "testimonial-avatar-2.jpg",
+            "author_name": "Elena Rostova",
+            "author_role": "Architect & Sustainability Director",
+            "tag_1": "Energy",
+            "tag_2": "Climate"
+          }
+        },
+        "testimonial_czyWRQ": {
+          "type": "testimonial",
+          "settings": {
+            "title": "\"Peace of mind wherever I travel.\"",
+            "quote": "“Being able to monitor the entire house in real time with end-to-end encryption gives our family genuine peace of mind. Everything connects without delays or bugs.”",
+            "default_avatar": "testimonial-avatar-3.jpg",
+            "author_name": "Marcus Chen",
+            "author_role": "Product Designer",
+            "tag_1": "Privacy",
+            "tag_2": "Connected"
+          }
+        },
+        "testimonial_U6dxyV": {
+          "type": "testimonial",
+          "settings": {
+            "title": "\"Intuitive and elegant design for home\"",
+            "quote": "“Even my grandparents find the tactile switches and automated lighting simple to use. The industrial design blends naturally into our interior aesthetics.”",
+            "default_avatar": "testimonial-avatar-4.jpg",
+            "author_name": "Sarah Jenkins",
+            "author_role": "Interior Stylist & Homeowner",
+            "tag_1": "Intuitive",
+            "tag_2": "Aesthetic"
+          }
+        }
+      },
+      "block_order": [
+        "testimonial_q84ieA",
+        "testimonial_rg9pdD",
+        "testimonial_czyWRQ",
+        "testimonial_U6dxyV"
+      ],
+      "name": "Customer reviews",
+      "settings": {
+        "color_scheme": "",
+        "heading": "Here’s what people says",
+        "subheading": "Real stories from real homes—discover how our AI-powered devices are making everyday life smarter, safer, and more effortless.",
+        "button_label": "Case study",
+        "button_link": "",
+        "autoplay_speed": 5,
+        "padding_top": 48,
+        "padding_bottom": 64
+      }
+    },
+    "auralink_cta_HWPeAh": {
+      "type": "auralink-cta",
+      "name": "Call to action",
+      "settings": {
+        "color_scheme": "",
+        "layout": "text_right",
+        "default_image": "cta-card-composite.png",
+        "heading": "Your Journey to Smarter Living Starts with One Click.",
+        "subheading": "Discover AI-powered devices that adapt to your lifestyle—bringing comfort, security, and efficiency to every corner of your home.",
+        "button_label": "Get started",
+        "button_link": "",
+        "show_badge": true,
+        "padding_top": 48,
+        "padding_bottom": 64
+      }
+    },
+    "featured_collection_hRfWkB": {
+      "type": "featured-collection",
+      "name": "Featured collection",
+      "settings": {
+        "tag": "AuraLink Ecosystem",
+        "title": "Featured Devices",
+        "heading_size": "h1",
+        "heading_alignment": "left",
+        "description": "<p>Discover the latest intelligent devices engineered for seamless modern living.</p>",
+        "show_description": true,
+        "description_style": "body",
+        "collection": "auralink-ecosystem",
+        "products": [],
+        "products_to_show": 6,
+        "columns_desktop": 3,
+        "enable_desktop_slider": false,
+        "full_width": false,
+        "show_view_all": true,
+        "button_label": "Explore all devices",
+        "button_link": "/collections/auralink-ecosystem",
+        "view_all_style": "solid",
+        "color_scheme": "scheme-1",
+        "image_ratio": "adapt",
+        "image_shape": "default",
+        "show_secondary_image": false,
+        "show_vendor": false,
+        "show_rating": false,
+        "quick_add": "none",
+        "columns_mobile": "2",
+        "swipe_on_mobile": true,
+        "padding_top": 48,
+        "padding_bottom": 64
+      }
+    }
+  },
+  "order": [
+    "auralink_hero",
+    "auralink_bento",
+    "auralink_slider",
+    "auralink_impact",
+    "auralink_testimonials_D7it8Y",
+    "auralink_cta_HWPeAh",
+    "featured_collection_hRfWkB"
+  ]
+}

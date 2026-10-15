@@ -1,0 +1,311 @@
+{{ 'section-auralink-slider.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'auralink-slider.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | default: 48 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 64 }}px;
+  }
+{%- endstyle -%}
+
+<div class="auralink-slider-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+    <div class="auralink-slider__header">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="auralink-slider__title">{{ section.settings.heading | escape }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subheading != blank -%}
+        <p class="auralink-slider__subtitle">{{ section.settings.subheading | escape }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <auralink-slider
+    class="auralink-slider-component"
+    data-section-id="{{ section.id }}"
+    role="region"
+    aria-roledescription="carousel"
+    aria-label="{{ section.settings.heading | default: 'Product showcase' | escape }}"
+  >
+    <div class="auralink-slider__stage">
+      <div class="auralink-slider__track" id="Slider-{{ section.id }}" role="list">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign slide_index = forloop.index
+            assign slide_number = block.settings.slide_number
+            if slide_number == blank
+              if slide_index < 10
+                assign slide_number = '0' | append: slide_index
+              else
+                assign slide_number = slide_index | append: ''
+              endif
+            endif
+
+            assign card_product = block.settings.product
+            assign slide_title = block.settings.title | default: card_product.title | default: 'Lumi Glow'
+            assign slide_url = block.settings.button_link | default: card_product.url | default: '/collections/all'
+            assign slide_img = block.settings.image | default: card_product.featured_image
+          -%}
+
+          <div
+            class="auralink-slider__slide"
+            data-slot="{% if forloop.first %}center{% elsif forloop.index == 2 %}right{% else %}left{% endif %}"
+            id="Slide-{{ section.id }}-{{ block.id }}"
+            data-slide-index="{{ forloop.index0 }}"
+            role="listitem"
+            tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+            aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            <div class="auralink-slider__media">
+              {%- if slide_img != blank -%}
+                {{
+                  slide_img
+                  | image_url: width: 1400
+                  | image_tag:
+                    loading: 'lazy',
+                    sizes: '(min-width: 1200px) 1064px, (min-width: 768px) 86vw, 100vw',
+                    widths: '600, 800, 1064, 1200, 1400',
+                    class: 'auralink-slider__image',
+                    alt: slide_title | escape
+                }}
+              {%- elsif block.settings.default_asset_image != blank -%}
+                <img
+                  src="{{ block.settings.default_asset_image | asset_url }}"
+                  alt="{{ slide_title | escape }}"
+                  class="auralink-slider__image"
+                  loading="lazy"
+                  width="1064"
+                  height="569"
+                >
+              {%- else -%}
+                {%- assign slider_fallback_idx = forloop.index0 | modulo: 6 | plus: 1 -%}
+                {%- assign slider_fallback_img = 'product-img-' | append: slider_fallback_idx | append: '.png' -%}
+                <img
+                  src="{{ slider_fallback_img | asset_url }}"
+                  alt="{{ slide_title | escape }}"
+                  class="auralink-slider__image"
+                  loading="lazy"
+                  width="1048"
+                  height="874"
+                >
+              {%- endif -%}
+            </div>
+
+            <div class="auralink-slider__overlay"></div>
+
+            <span class="auralink-slider__number">{{ slide_number }}</span>
+
+            <div class="auralink-slider__content">
+              <div class="auralink-slider__product-info">
+                {%- if block.settings.model_code != blank -%}
+                  <span class="auralink-slider__model">{{ block.settings.model_code | escape }}</span>
+                {%- endif -%}
+                <span class="auralink-slider__product-title">{{ slide_title | escape }}</span>
+              </div>
+
+              <div class="auralink-slider__meta">
+                {%- if block.settings.category_tag != blank -%}
+                  <span class="auralink-slider__tag">{{ block.settings.category_tag | escape }}</span>
+                {%- endif -%}
+                {%- if block.settings.description != blank -%}
+                  <p class="auralink-slider__desc">{{ block.settings.description | escape }}</p>
+                {%- endif -%}
+              </div>
+
+              {%- if block.settings.button_label != blank -%}
+                <a href="{{ slide_url }}" class="auralink-slider__cta">
+                  <span>{{ block.settings.button_label | escape }}</span>
+                  <span class="auralink-slider__cta-arrow" aria-hidden="true">
+                    {% render 'icon-slider-arrow' %}
+                  </span>
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+
+      <div class="auralink-slider__nav-container">
+        <button
+          type="button"
+          class="auralink-slider__nav-btn auralink-slider__nav-btn--prev"
+          name="previous"
+          aria-label="{{ 'general.slider.previous_slide' | t | default: 'Previous slide' }}"
+          aria-controls="Slider-{{ section.id }}"
+        >
+          {% render 'icon-slider-prev' %}
+        </button>
+
+        <button
+          type="button"
+          class="auralink-slider__nav-btn auralink-slider__nav-btn--next"
+          name="next"
+          aria-label="{{ 'general.slider.next_slide' | t | default: 'Next slide' }}"
+          aria-controls="Slider-{{ section.id }}"
+        >
+          {% render 'icon-slider-next' %}
+        </button>
+      </div>
+    </div>
+  </auralink-slider>
+</div>
+
+{% schema %}
+{
+  "name": "Product showcase",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Discover the latest smart home devices"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Transform your home with intelligent devices that learn, adapt, and respond"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product (optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image"
+        },
+        {
+          "type": "text",
+          "id": "default_asset_image",
+          "label": "Theme asset image (fallback)",
+          "default": "slider-product-1.png"
+        },
+        {
+          "type": "text",
+          "id": "slide_number",
+          "label": "Slide number",
+          "default": "01"
+        },
+        {
+          "type": "text",
+          "id": "model_code",
+          "label": "Model code",
+          "default": "A02"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Product name",
+          "default": "Lumi Glow"
+        },
+        {
+          "type": "text",
+          "id": "category_tag",
+          "label": "Category tag",
+          "default": "Smart Lights"
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Description",
+          "default": "These AI-powered lights automatically adjust brightness and color temperature based on the time of day."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "View Product"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product showcase",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "default_asset_image": "slider-product-1.png",
+            "slide_number": "01",
+            "model_code": "A02",
+            "title": "Lumi Glow",
+            "category_tag": "Smart Lights",
+            "description": "These AI-powered lights automatically adjust brightness and color temperature based on the time of day.",
+            "button_label": "View Product"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "default_asset_image": "slider-product-2.png",
+            "slide_number": "02",
+            "model_code": "H01",
+            "title": "Control Hub",
+            "category_tag": "Smart Hub",
+            "description": "Intuitive central control unit engineered for high-precision tactile management of all your smart devices.",
+            "button_label": "View Product"
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "default_asset_image": "slider-product-3.png",
+            "slide_number": "03",
+            "model_code": "D03",
+            "title": "Docking Pad",
+            "category_tag": "Power & Charge",
+            "description": "Seamless multi-device charging station crafted with architectural elegance and intelligent thermal regulation.",
+            "button_label": "View Product"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

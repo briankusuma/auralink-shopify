@@ -1,0 +1,528 @@
+/* ==========================================================================
+   AuraLink Showcase Slider Section
+   ========================================================================== */
+
+.auralink-slider-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--color-background, #FAFAF9);
+  color: var(--color-foreground, #000000);
+}
+
+.auralink-slider-component {
+  --slide-active-w: 1064px;
+  --slide-active-h: 569px;
+  --slide-side-w: 734px;
+  --slide-side-h: 393px;
+  --slide-gap: 16px;
+  display: block;
+  width: 100%;
+  position: relative;
+}
+
+/* Header strictly aligned with center active slide */
+.auralink-slider__header {
+  max-width: 1064px;
+  width: 100%;
+  margin: 0 auto 36px auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  box-sizing: border-box;
+}
+
+.auralink-slider__title {
+  margin: 0;
+  max-width: 560px;
+  font-family: 'Inter Display', var(--font-heading-family), sans-serif;
+  font-size: clamp(28px, 3.8vw, 48px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-foreground, #000000);
+}
+
+.auralink-slider__subtitle {
+  margin: 0;
+  max-width: 300px;
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.04em;
+  color: rgba(0, 0, 0, 0.7);
+  text-align: right;
+}
+
+/* Stage */
+.auralink-slider__stage {
+  position: relative;
+  width: 100%;
+  height: var(--slide-active-h);
+  overflow: hidden;
+}
+
+.auralink-slider__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Individual Slide */
+.auralink-slider__slide {
+  position: absolute;
+  border-radius: 32px;
+  overflow: hidden;
+  background-color: #F0F0EE;
+  user-select: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+  transition:
+    left 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    top 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s ease,
+    filter 0.4s ease;
+  will-change: left, top, width, height;
+}
+
+.auralink-slider__slide.no-transition {
+  transition: none !important;
+}
+
+/* 1. Center Active Slide: Mathematically Centered */
+.auralink-slider__slide[data-slot="center"] {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: var(--slide-active-w);
+  height: var(--slide-active-h);
+  z-index: 5;
+  opacity: 1;
+  cursor: default;
+  filter: none;
+}
+
+/* 2. Left Peek Slide: Aligned Top (y=0), exactly gap distance from active slide */
+.auralink-slider__slide[data-slot="left"] {
+  left: calc(50% - (var(--slide-active-w) / 2) - var(--slide-gap) - var(--slide-side-w));
+  top: 0;
+  transform: none;
+  width: var(--slide-side-w);
+  height: var(--slide-side-h);
+  z-index: 3;
+  opacity: 1;
+  cursor: pointer;
+  filter: brightness(0.97);
+}
+
+/* 3. Right Peek Slide: Aligned Bottom (y=176), exactly gap distance from active slide */
+.auralink-slider__slide[data-slot="right"] {
+  left: calc(50% + (var(--slide-active-w) / 2) + var(--slide-gap));
+  top: calc(var(--slide-active-h) - var(--slide-side-h));
+  transform: none;
+  width: var(--slide-side-w);
+  height: var(--slide-side-h);
+  z-index: 3;
+  opacity: 1;
+  cursor: pointer;
+  filter: brightness(0.97);
+}
+
+/* Hidden Slides */
+.auralink-slider__slide[data-slot="hidden"] {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%) scale(0.8);
+  width: var(--slide-side-w);
+  height: var(--slide-side-h);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Slide Media */
+.auralink-slider__media {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.auralink-slider__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.auralink-slider__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #EAEAEA;
+  color: #888888;
+}
+
+/* Overlay gradient in front of image (z-index: 2), behind content (z-index: 3) */
+.auralink-slider__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 32px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.00) 39.63%, rgba(0, 0, 0, 0.20) 90.07%);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  display: block!important;
+}
+
+/* Top-Left Slide Number */
+.auralink-slider__number {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+  z-index: 3;
+  margin: 0;
+  font-family: 'Inter Display', var(--font-heading-family), sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
+  pointer-events: none;
+}
+
+.auralink-slider__slide[data-slot="center"] .auralink-slider__number {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Bottom Content Container - True space-between with mathematically centered meta */
+.auralink-slider__content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  padding: 40px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: flex-end;
+  gap: 24px;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.45s ease 0.15s, transform 0.45s ease 0.15s;
+  pointer-events: none;
+}
+
+.auralink-slider__slide[data-slot="center"] .auralink-slider__content {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Left Column: Product Model & Title */
+.auralink-slider__product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  justify-self: start;
+  text-align: left;
+}
+
+.auralink-slider__model {
+  font-family: 'Inter Display', var(--font-heading-family), sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+}
+
+.auralink-slider__product-title {
+  font-family: 'Inter Display', var(--font-heading-family), sans-serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Center Column: Tag & Description (Centered) */
+.auralink-slider__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 440px;
+  text-align: center;
+  justify-self: center;
+}
+
+.auralink-slider__tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.auralink-slider__desc {
+  margin: 0;
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.03em;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Right Column: CTA Button (Aligned to right) */
+.auralink-slider__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 8px 8px 20px;
+  border-radius: 100px;
+  background-color: #FFFFFF;
+  color: #000000;
+  text-decoration: none;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+.auralink-slider__cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.auralink-slider__cta-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #000000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  transition: transform 0.25s ease;
+}
+
+.auralink-slider__cta:hover .auralink-slider__cta-arrow {
+  transform: translateX(2px);
+}
+
+.auralink-slider__cta-arrow svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Floating Navigation Arrows Container: Tied directly to active center card */
+.auralink-slider__nav-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--slide-active-w);
+  height: var(--slide-active-h);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.auralink-slider__nav-btn {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.25s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.auralink-slider__nav-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14);
+}
+
+.auralink-slider__nav-btn:active {
+  transform: scale(0.95);
+}
+
+/* Next button: lime yellow #F2FE63, top-right boundary */
+.auralink-slider__nav-btn--next {
+  top: 24px;
+  right: -80px;
+  color: #F2FE63;
+}
+
+/* Prev button: light grey/white #F5F5F5, bottom-left boundary */
+.auralink-slider__nav-btn--prev {
+  bottom: 24px;
+  left: -80px;
+  color: #F5F5F5;
+}
+
+
+.auralink-slider__nav-btn svg {
+  width: 56px;
+  height: 56px;
+  display: block;
+}
+
+/* Responsive Breakpoints */
+@media screen and (max-width: 1200px) {
+  .auralink-slider-component {
+    --slide-active-w: min(86vw, 1064px);
+    --slide-active-h: calc(var(--slide-active-w) * (569 / 1064));
+    --slide-side-w: calc(var(--slide-active-w) * (734 / 1064));
+    --slide-side-h: calc(var(--slide-side-w) * (393 / 734));
+  }
+
+  .auralink-slider__header {
+    width: var(--slide-active-w);
+  }
+
+  .auralink-slider__nav-btn--next {
+    right: -20px;
+  }
+
+  .auralink-slider__nav-btn--prev {
+    left: -20px;
+  }
+}
+
+@media screen and (max-width: 990px) {
+  .auralink-slider__content {
+    padding: 30px;
+    gap: 16px;
+  }
+
+  .auralink-slider__desc {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .auralink-slider__meta {
+    max-width: 320px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .auralink-slider-component {
+    --slide-active-w: calc(100vw - 32px);
+    --slide-active-h: 540px;
+    --slide-side-w: calc(85vw - 32px);
+    --slide-side-h: 380px;
+    --slide-gap: 12px;
+  }
+
+  .auralink-slider__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 24px;
+    width: var(--slide-active-w);
+  }
+
+  .auralink-slider__subtitle {
+    text-align: left;
+    max-width: 100%;
+  }
+
+  .auralink-slider__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+  }
+
+  .auralink-slider__cta {
+    align-self: flex-end !important;
+    margin-left: auto !important;
+  }
+
+  .auralink-slider__meta {
+    align-items: flex-start;
+    text-align: left;
+    gap: 8px;
+  }
+
+  .auralink-slider__number {
+    top: 24px;
+    left: 24px;
+    font-size: 24px;
+  }
+
+  .auralink-slider__model,
+  .auralink-slider__product-title {
+    font-size: 24px;
+  }
+
+  .auralink-slider__nav-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .auralink-slider__nav-btn svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .auralink-slider__nav-btn--next {
+    top: 16px;
+    right: 12px;
+  }
+
+  .auralink-slider__nav-btn--prev {
+    bottom: 16px;
+    left: 12px;
+  }
+}

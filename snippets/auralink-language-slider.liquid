@@ -1,0 +1,81 @@
+{%- comment -%}
+  Renders the AuraLink sliding language switcher (Figma Node 2655:276 / 2899:1097)
+  Accepts:
+  - local_position: {String} Optional suffix to prevent duplicate DOM IDs (e.g., 'Desktop', 'Drawer')
+{%- endcomment -%}
+
+{%- assign slider_form_id = 'HeaderLanguageSliderForm' -%}
+{%- assign slider_input_id = 'HeaderLanguageSliderLocaleCode' -%}
+{%- if local_position != blank -%}
+  {%- assign slider_form_id = slider_form_id | append: '-' | append: local_position -%}
+  {%- assign slider_input_id = slider_input_id | append: '-' | append: local_position -%}
+{%- endif -%}
+
+<auralink-lang-slider class="auralink-lang-slider-wrapper">
+  {%- form 'localization', id: slider_form_id, class: 'auralink-lang-form' -%}
+    <input 
+      type="hidden" 
+      name="locale_code" 
+      id="{{ slider_input_id }}" 
+      value="{{ localization.language.iso_code }}"
+    >
+    
+    <div 
+      class="auralink-lang-slider" 
+      role="radiogroup" 
+      aria-label="{{ 'localization.language_label' | t | default: 'Language' }}"
+    >
+      {%- if localization.available_languages.size > 1 -%}
+        {%- for language in localization.available_languages -%}
+          {%- assign lang_code = language.iso_code | slice: 0, 2 | upcase -%}
+          {%- assign lang_locale = language.iso_code | slice: 0, 2 | downcase -%}
+          {%- assign is_active = false -%}
+          {%- if language.iso_code == localization.language.iso_code -%}
+            {%- assign is_active = true -%}
+          {%- endif -%}
+          <button
+            type="button"
+            class="auralink-lang-btn{% if is_active %} auralink-lang-btn--active{% endif %}"
+            role="radio"
+            aria-checked="{% if is_active %}true{% else %}false{% endif %}"
+            data-locale="{{ lang_locale }}"
+            title="{{ language.endonym_name | capitalize }}"
+          >
+            <span class="auralink-lang-text">{{ lang_code }}</span>
+          </button>
+        {%- endfor -%}
+      {%- else -%}
+        {%- comment -%}
+          Store fallback: provides ID & EN toggle matching Figma design
+        {%- endcomment -%}
+        {%- assign current_code = localization.language.iso_code | slice: 0, 2 | downcase -%}
+        {%- assign is_id = false -%}
+        {%- assign is_en = true -%}
+        {%- if current_code == 'id' -%}
+          {%- assign is_id = true -%}
+          {%- assign is_en = false -%}
+        {%- endif -%}
+        <button
+          type="button"
+          class="auralink-lang-btn{% if is_id %} auralink-lang-btn--active{% endif %}"
+          role="radio"
+          aria-checked="{% if is_id %}true{% else %}false{% endif %}"
+          data-locale="id"
+          title="Bahasa Indonesia"
+        >
+          <span class="auralink-lang-text">ID</span>
+        </button>
+        <button
+          type="button"
+          class="auralink-lang-btn{% if is_en %} auralink-lang-btn--active{% endif %}"
+          role="radio"
+          aria-checked="{% if is_en %}true{% else %}false{% endif %}"
+          data-locale="en"
+          title="English"
+        >
+          <span class="auralink-lang-text">EN</span>
+        </button>
+      {%- endif -%}
+    </div>
+  {%- endform -%}
+</auralink-lang-slider>

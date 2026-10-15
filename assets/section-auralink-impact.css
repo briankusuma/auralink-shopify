@@ -1,0 +1,406 @@
+/* ==========================================================================
+   AuraLink Impact & Partners Section
+   Figma Node: 3069:228
+   ========================================================================== */
+
+.auralink-impact-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.auralink-impact-container {
+  max-width: var(--page-width, 1408px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Top Card: Quote, Author, Divider, Metrics (Figma Node 3069:342)
+   -------------------------------------------------------------------------- */
+.auralink-impact-card {
+  background-color: #F5F3F0;
+  border-radius: 32px;
+  padding: 104px 64px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.auralink-impact-card-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Top Row: Author, Divider (67px gap), Quote (Figma Node 3069:239) */
+.auralink-impact-quote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.auralink-impact-author {
+  flex: 0 0 150px;
+  width: 150px;
+  max-width: 150px;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.auralink-impact-author__img {
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  object-fit: cover;
+  display: block;
+}
+
+.auralink-impact-author__info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auralink-impact-author__name {
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.auralink-impact-author__role {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.7);
+  margin: 0;
+  line-height: 1.3;
+  max-width: 150px;
+}
+
+/* Vertical Divider (Figma Node 3069:245) */
+.auralink-impact-quote-divider {
+  width: 2px;
+  height: 184px;
+  min-height: 184px;
+  background-color: #FFFFFF;
+  flex-shrink: 0;
+  margin-left: 67px;
+  margin-right: 67px;
+  display: block !important;
+}
+
+@media screen and (min-width: 750px) {
+  .auralink-impact-quote-divider {
+    display: block !important;
+  }
+}
+
+/* Quote Text (Figma Node 3069:246) */
+.auralink-impact-quote-text {
+  flex: 0 0 956px;
+  max-width: 956px;
+  width: 956px;
+  font-family: inherit;
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin: 0;
+}
+
+/* Middle Divider Line (Figma Node 3069:238) */
+.auralink-impact-divider {
+  width: 100%;
+  max-width: 1280px;
+  height: 2px;
+  min-height: 2px;
+  background-color: #FFFFFF;
+  margin: 80px auto;
+  border: none;
+  display: block!important;
+}
+
+/* Metrics Row (Figma Node 3069:340) */
+.auralink-impact-metrics-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.auralink-impact-metric-item {
+  display: flex;
+  align-items: flex-end;
+  gap: 32px;
+}
+
+.auralink-impact-metric__box {
+  width: 160px;
+  height: 160px;
+  min-width: 160px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  flex-shrink: 0;
+}
+
+.auralink-impact-metric__badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 120px;
+  background-color: #F2FE63;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.auralink-impact-metric__content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+}
+
+.auralink-impact-metric__stat {
+  font-family: inherit;
+  font-size: clamp(34px, 3.2vw, 44px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.auralink-impact-metric__label {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.7);
+  margin: 0;
+  max-width: 155px;
+}
+.matrict-2{
+max-width: 200px;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Grid: Partner / Logo Grid (Figma Node 3069:330)
+   -------------------------------------------------------------------------- */
+.auralink-impact-logos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.auralink-impact-logo-card {
+  background-color: #F5F3F0;
+  border-radius: 24px;
+  height: 116px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 32px;
+  box-sizing: border-box;
+  text-decoration: none;
+  width: 100%;
+}
+
+.auralink-impact-logo-card img,
+.auralink-impact-logo-card svg,
+.auralink-impact-logo-img {
+  width: auto;
+  height: auto;
+  max-width: 165px;
+  max-height: 38px;
+  min-height: 26px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Micro-interactions */
+@media (prefers-reduced-motion: no-preference) {
+  .auralink-impact-logo-card {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+  }
+  .auralink-impact-logo-card:hover {
+    transform: translateY(-3px);
+    background-color: #EFECE7;
+  }
+  .auralink-impact-metric__badge {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .auralink-impact-metric-item:hover .auralink-impact-metric__badge {
+    transform: scale(1.08) rotate(4deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1360px) {
+  .auralink-impact-card {
+    padding: 64px 40px;
+  }
+  .auralink-impact-quote-row {
+    max-width: 100%;
+  }
+  .auralink-impact-quote-divider {
+    margin-left: 48px;
+    margin-right: 48px;
+  }
+  .auralink-impact-quote-text {
+    flex: 1;
+    max-width: none;
+    width: auto;
+    font-size: clamp(26px, 2.5vw, 36px);
+  }
+  .auralink-impact-divider {
+    margin: 56px 0;
+  }
+  .auralink-impact-metrics-row {
+    max-width: 100%;
+    gap: 24px;
+  }
+  .auralink-impact-metric-item {
+    gap: 20px;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .auralink-impact-card {
+    padding: 56px 32px;
+  }
+  .auralink-impact-quote-divider {
+    margin-left: 28px;
+    margin-right: 28px;
+    height: 160px;
+  }
+  .auralink-impact-metrics-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .auralink-impact-metric__box {
+    width: 120px;
+    height: 120px;
+    min-width: 120px;
+  }
+  .auralink-impact-metric__badge {
+    width: 56px;
+    height: 56px;
+  }
+  .auralink-impact-metric__badge svg {
+    width: 28px;
+    height: 28px;
+  }
+  .auralink-impact-metric__label {
+    max-width: none;
+  }
+  .auralink-impact-logos {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .auralink-impact-card {
+    padding: 36px 20px 32px;
+    border-radius: 24px;
+  }
+  .auralink-impact-quote-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .auralink-impact-quote-divider {
+    display: none !important;
+  }
+  .auralink-impact-author {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    flex: auto;
+    width: 100%;
+    max-width: none;
+  }
+  .auralink-impact-author__img {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+  }
+  .auralink-impact-quote-text {
+    font-size: 20px;
+    line-height: 1.3;
+  }
+  .auralink-impact-divider {
+    margin: 36px 0 32px;
+  }
+  .auralink-impact-metric-item {
+    gap: 16px;
+  }
+  .auralink-impact-metric__box {
+    width: 90px;
+    height: 90px;
+    min-width: 90px;
+    border-radius: 12px;
+  }
+  .auralink-impact-metric__badge {
+    width: 44px;
+    height: 44px;
+  }
+  .auralink-impact-metric__badge svg {
+    width: 22px;
+    height: 22px;
+  }
+  .auralink-impact-metric__stat {
+    font-size: 28px;
+    margin-bottom: 4px;
+  }
+  .auralink-impact-metric__label {
+    font-size: 14px;
+    max-width: none;
+  }
+  .auralink-impact-logos {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .auralink-impact-logo-card {
+    height: 84px;
+    padding: 16px 20px;
+    border-radius: 16px;
+  }
+  .auralink-impact-logo-card img,
+  .auralink-impact-logo-card svg,
+  .auralink-impact-logo-img {
+    max-width: 130px;
+    max-height: 28px;
+    min-height: 20px;
+  }
+}

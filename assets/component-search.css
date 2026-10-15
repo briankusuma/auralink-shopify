@@ -1,0 +1,189 @@
+/* Search Form Container & Pill Field */
+.search .field,
+.search-modal .field,
+.search-modal__form .field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 100px !important;
+  border: 1.5px solid #FFFFFF !important;
+  background-color: #FFFFFF !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.search .field:after,
+.search-modal .field:after,
+.search-modal__form .field:after {
+  display: none !important;
+}
+
+.search .field:focus-within,
+.search-modal .field:focus-within,
+.search-modal__form .field:focus-within {
+  border-color: #FFFFFF !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), 0 4px 14px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Search Input */
+.search__input.field__input,
+.search__input.field__input:focus,
+.search__input.field__input:not(:placeholder-shown),
+.search__input.field__input:-webkit-autofill {
+  height: 52px !important;
+  min-height: 52px !important;
+  padding: 0 96px 0 24px !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 100px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-family: 'Inter', var(--font-body-family), sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  color: #000000 !important;
+  line-height: normal !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Hide floating label, preserve placeholder text only */
+.search .field__label,
+.search-modal .field__label,
+.search-modal__form .field__label,
+.search__input ~ .field__label {
+  display: none !important;
+}
+
+.search__input.field__input::placeholder {
+  opacity: 1 !important;
+  color: rgba(0, 0, 0, 0.45) !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+}
+
+/* Green Search Button matching Figma #F2FE63 */
+.search .search__button,
+.search-modal .search__button,
+.search-modal__form .search__button {
+  position: absolute !important;
+  right: 6px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  border-radius: 100px !important;
+  background-color: #F2FE63 !important;
+  border: 1px solid #F2FE63 !important;
+  color: #000000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  z-index: 5 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.search .search__button:hover,
+.search-modal .search__button:hover,
+.search-modal__form .search__button:hover {
+  background-color: #e4f055 !important;
+  border-color: #e4f055 !important;
+  transform: translateY(-50%) scale(1.05) !important;
+  box-shadow: 0 3px 10px rgba(242, 254, 99, 0.45) !important;
+}
+
+.search .search__button:active,
+.search-modal .search__button:active,
+.search-modal__form .search__button:active {
+  transform: translateY(-50%) scale(0.96) !important;
+}
+
+.search .search__button:focus-visible,
+.search-modal .search__button:focus-visible {
+  outline: 2px solid #000000 !important;
+  outline-offset: 2px !important;
+}
+
+.search .search__button .icon,
+.search-modal .search__button .icon,
+.search-modal__form .search__button .icon,
+.search .search__button .svg-wrapper,
+.search-modal .search__button .svg-wrapper {
+  width: 18px !important;
+  height: 18px !important;
+  color: #000000 !important;
+  fill: #000000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.search .search__button .icon path,
+.search-modal .search__button .icon path {
+  fill: #000000 !important;
+}
+
+/* Reset / Clear Button */
+.search .reset__button,
+.search-modal .reset__button,
+.search-modal__form .reset__button {
+  position: absolute !important;
+  right: 50px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+  border: none !important;
+  color: rgba(0, 0, 0, 0.5) !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 5 !important;
+  transition: color 0.15s ease, transform 0.15s ease !important;
+}
+
+.search .reset__button.hidden,
+.search-modal .reset__button.hidden {
+  display: none !important;
+}
+
+.search .reset__button:hover,
+.search-modal .reset__button:hover {
+  color: #000000 !important;
+  transform: translateY(-50%) scale(1.1) !important;
+}
+
+.search .reset__button::after,
+.search-modal .reset__button::after {
+  display: none !important;
+}
+
+.search .reset__button .icon,
+.search-modal .reset__button .icon {
+  height: 16px !important;
+  width: 16px !important;
+}
+
+/* Remove extra spacing for search inputs in Safari */
+input::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+.template-search__results {
+  position: relative;
+}

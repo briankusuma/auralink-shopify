@@ -1,0 +1,342 @@
+{{ 'section-auralink-testimonials.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'auralink-testimonials.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | default: 48 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 64 }}px;
+  }
+{%- endstyle -%}
+
+<div class="auralink-testimonials-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="auralink-testimonials-container{% if section.settings.layout == 'slider_first' %} auralink-testimonials-container--reverse{% endif %}">
+    
+    {% comment %} Left Column: Section Heading & Case Study Button {% endcomment %}
+    <div class="auralink-testimonials__left">
+      <div class="auralink-testimonials__heading-group">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="auralink-testimonials__title">{{ section.settings.heading | escape }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="auralink-testimonials__subtitle">{{ section.settings.subheading | escape }}</p>
+        {%- endif -%}
+      </div>
+
+      {%- if section.settings.button_label != blank -%}
+        <div class="auralink-testimonials__action-wrap">
+          <a href="{{ section.settings.button_link | default: '#' }}" class="auralink-testimonials__cta">
+            <span>{{ section.settings.button_label | escape }}</span>
+            <span class="auralink-testimonials__cta-icon" aria-hidden="true">
+              {% render 'icon-case-study-arrow' %}
+            </span>
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {% comment %} Right Column: Testimonial Card Autoslider & Dots {% endcomment %}
+    <div class="auralink-testimonials__right">
+      <auralink-testimonials
+        class="auralink-testimonials-component"
+        data-section-id="{{ section.id }}"
+        data-autoplay-speed="{{ section.settings.autoplay_speed | default: 5 | times: 1000 }}"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="{{ section.settings.heading | default: 'Customer testimonials' | escape }}"
+      >
+        <div class="auralink-testimonials__card">
+          <div class="auralink-testimonials__slides" role="list">
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign avatar_img = block.settings.avatar
+              -%}
+              <div
+                class="auralink-testimonials__slide{% if forloop.first %} is-active{% endif %}"
+                id="Testimonial-{{ section.id }}-{{ block.id }}"
+                data-slide-index="{{ forloop.index0 }}"
+                role="listitem"
+                aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+                {{ block.shopify_attributes }}
+              >
+                <div class="auralink-testimonials__quote-content">
+                  {%- if block.settings.title != blank -%}
+                    <h3 class="auralink-testimonials__quote-title">{{ block.settings.title | escape }}</h3>
+                  {%- endif -%}
+                  {%- if block.settings.quote != blank -%}
+                    <p class="auralink-testimonials__quote-text">{{ block.settings.quote | escape }}</p>
+                  {%- endif -%}
+                </div>
+
+                <hr class="auralink-testimonials__divider">
+
+                <div class="auralink-testimonials__author-row">
+                  <div class="auralink-testimonials__author-info">
+                    {%- if avatar_img != blank -%}
+                      {{
+                        avatar_img
+                        | image_url: width: 240
+                        | image_tag:
+                          loading: 'lazy',
+                          class: 'auralink-testimonials__avatar',
+                          width: 120,
+                          height: 120,
+                          alt: block.settings.author_name | escape
+                      }}
+                    {%- elsif block.settings.default_avatar != blank -%}
+                      <img
+                        src="{{ block.settings.default_avatar | asset_url }}"
+                        alt="{{ block.settings.author_name | escape }}"
+                        class="auralink-testimonials__avatar"
+                        loading="lazy"
+                        width="120"
+                        height="120"
+                      >
+                    {%- else -%}
+                      <div class="auralink-testimonials__avatar" aria-hidden="true"></div>
+                    {%- endif -%}
+
+                    <div class="auralink-testimonials__author-meta">
+                      <span class="auralink-testimonials__quote-mark" aria-hidden="true">“</span>
+                      {%- if block.settings.author_name != blank -%}
+                        <h4 class="auralink-testimonials__author-name">{{ block.settings.author_name | escape }}</h4>
+                      {%- endif -%}
+                      {%- if block.settings.author_role != blank -%}
+                        <span class="auralink-testimonials__author-role">{{ block.settings.author_role | escape }}</span>
+                      {%- endif -%}
+                    </div>
+                  </div>
+
+                  {%- if block.settings.tag_1 != blank or block.settings.tag_2 != blank -%}
+                    <div class="auralink-testimonials__tags">
+                      {%- if block.settings.tag_1 != blank -%}
+                        <span class="auralink-testimonials__tag">{{ block.settings.tag_1 | escape }}</span>
+                      {%- endif -%}
+                      {%- if block.settings.tag_2 != blank -%}
+                        <span class="auralink-testimonials__tag">{{ block.settings.tag_2 | escape }}</span>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        {% comment %} Pagination Dots {% endcomment %}
+        {%- if section.blocks.size > 1 -%}
+          <div class="auralink-testimonials__dots" role="tablist" aria-label="Testimonial slides">
+            {%- for block in section.blocks -%}
+              <button
+                type="button"
+                class="auralink-testimonials__dot{% if forloop.first %} is-active{% endif %}"
+                data-slide-target="{{ forloop.index0 }}"
+                role="tab"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                aria-label="Slide {{ forloop.index }} of {{ section.blocks.size }}"
+              ></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </auralink-testimonials>
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Customer reviews",
+  "tag": "section",
+  "class": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Desktop layout",
+      "options": [
+        {
+          "value": "text_first",
+          "label": "Text on left, slider on right"
+        },
+        {
+          "value": "slider_first",
+          "label": "Slider on left, text on right"
+        }
+      ],
+      "default": "text_first"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Here’s what people says"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Real stories from real homes—discover how our AI-powered devices are making everyday life smarter, safer, and more effortless."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Case study"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "label": "Autoslide duration",
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Testimonial",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Quote title",
+          "default": "\"Security and comfort finally work together.\""
+        },
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Quote body",
+          "default": "“With facial recognition and smart locks, I never worry about lost keys or unknown visitors. Plus, the whole system works with my voice assistant—it’s seamless and secure.”"
+        },
+        {
+          "type": "image_picker",
+          "id": "avatar",
+          "label": "Author avatar"
+        },
+        {
+          "type": "text",
+          "id": "default_avatar",
+          "label": "Default avatar asset",
+          "default": "testimonial-avatar-1.png"
+        },
+        {
+          "type": "text",
+          "id": "author_name",
+          "label": "Author name",
+          "default": "Torik Handoko"
+        },
+        {
+          "type": "text",
+          "id": "author_role",
+          "label": "Author role",
+          "default": "IT Consultant & Father of Two"
+        },
+        {
+          "type": "text",
+          "id": "tag_1",
+          "label": "Tag 1",
+          "default": "Secure"
+        },
+        {
+          "type": "text",
+          "id": "tag_2",
+          "label": "Tag 2",
+          "default": "Comfort"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Customer reviews",
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "title": "\"Security and comfort finally work together.\"",
+            "quote": "“With facial recognition and smart locks, I never worry about lost keys or unknown visitors. Plus, the whole system works with my voice assistant—it’s seamless and secure.”",
+            "author_name": "Torik Handoko",
+            "author_role": "IT Consultant & Father of Two",
+            "default_avatar": "testimonial-avatar-1.png",
+            "tag_1": "Secure",
+            "tag_2": "Comfort"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "title": "\"Effortless energy savings without lifting a finger.\"",
+            "quote": "“The climate sensors learned our daily routines in just a few days. Our heating bill dropped by nearly 30% while the house always stays at the perfect temperature.”",
+            "author_name": "Elena Rostova",
+            "author_role": "Architect & Sustainability Director",
+            "default_avatar": "testimonial-avatar-2.jpg",
+            "tag_1": "Energy",
+            "tag_2": "Climate"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "title": "\"Peace of mind wherever I travel.\"",
+            "quote": "“Being able to monitor the entire house in real time with end-to-end encryption gives our family genuine peace of mind. Everything connects without delays or bugs.”",
+            "author_name": "Marcus Chen",
+            "author_role": "Product Designer & Smart Home Enthusiast",
+            "default_avatar": "testimonial-avatar-3.jpg",
+            "tag_1": "Privacy",
+            "tag_2": "Connected"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "title": "\"Intuitive and elegant design for the whole family.\"",
+            "quote": "“Even my grandparents find the tactile switches and automated lighting simple to use. The industrial design blends naturally into our interior aesthetics.”",
+            "author_name": "Sarah Jenkins",
+            "author_role": "Interior Stylist & Homeowner",
+            "default_avatar": "testimonial-avatar-4.jpg",
+            "tag_1": "Intuitive",
+            "tag_2": "Aesthetic"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

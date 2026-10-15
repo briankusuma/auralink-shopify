@@ -1,0 +1,495 @@
+{% comment %}theme-check-disable UndefinedObject{% endcomment %}
+{{ 'section-auralink-footer.css' | asset_url | stylesheet_tag }}
+{{ 'component-list-payment.css' | asset_url | stylesheet_tag }}
+{{ 'component-list-social.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | default: 24 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 48 }}px;
+    margin-top: {{ section.settings.margin_top | default: 0 }}px;
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign has_social_icons = true
+  if settings.social_facebook_link == blank and settings.social_instagram_link == blank and settings.social_youtube_link == blank and settings.social_tiktok_link == blank and settings.social_twitter_link == blank and settings.social_pinterest_link == blank and settings.social_snapchat_link == blank and settings.social_tumblr_link == blank and settings.social_vimeo_link == blank
+    assign has_social_icons = false
+  endif
+-%}
+
+<footer class="auralink-footer-section section-{{ section.id }}-padding">
+  <div class="auralink-footer-wrapper">
+    <div class="auralink-footer-card">
+      
+      {% comment %} Top Content: Brand Info and Navigation Columns {% endcomment %}
+      <div class="auralink-footer__top">
+        
+        {% comment %} Brand / Logo Column {% endcomment %}
+        <div class="auralink-footer__brand-col">
+          <a href="{{ routes.root_url }}" class="auralink-footer__logo-link" aria-label="{{ shop.name | escape }}">
+            {%- if settings.logo != blank -%}
+              {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
+              {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
+              {{
+                settings.logo
+                | image_url: width: 400
+                | image_tag:
+                  class: 'auralink-footer__logo-img',
+                  height: logo_height,
+                  width: settings.logo_width,
+                  alt: logo_alt,
+                  loading: 'lazy'
+              }}
+            {%- else -%}
+              <span class="auralink-footer__brand-title">
+                <span class="brand-aura">aura</span><span class="brand-link">link</span>
+              </span>
+            {%- endif -%}
+          </a>
+
+          {%- assign brand_desc = section.settings.brand_description | default: "AI-powered smart home solutions that make everyday living more convenient, secure, and energy-efficient." -%}
+          {%- if brand_desc != blank -%}
+            <p class="auralink-footer__tagline">{{ brand_desc | escape }}</p>
+          {%- endif -%}
+
+          {%- if section.settings.show_social and has_social_icons -%}
+            {%- render 'social-icons', class: 'auralink-footer__social-list' -%}
+          {%- endif -%}
+
+          {%- if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop -%}
+            <div class="auralink-footer__follow-on-shop">
+              {{ shop | login_button: action: 'follow' }}
+            </div>
+          {%- endif -%}
+        </div>
+
+        {% comment %} Navigation Grid {% endcomment %}
+        <div class="auralink-footer__nav-grid">
+          {%- if section.blocks.size > 0 -%}
+            {%- for block in section.blocks -%}
+              <div class="auralink-footer__nav-col" {{ block.shopify_attributes }}>
+                {%- case block.type -%}
+                  {%- when '@app' -%}
+                    {% render block %}
+
+                  {%- when 'link_list' -%}
+                    {%- if block.settings.heading != blank -%}
+                      <h2 class="auralink-footer__col-heading">{{ block.settings.heading | escape }}</h2>
+                    {%- endif -%}
+
+                    <ul class="auralink-footer__menu-list" role="list">
+                      {%- if block.settings.menu != blank and block.settings.menu.links.size > 0 -%}
+                        {%- for link in block.settings.menu.links -%}
+                          <li>
+                            <a href="{{ link.url }}" class="auralink-footer__menu-link">
+                              {{ link.title | escape }}
+                            </a>
+                          </li>
+                        {%- endfor -%}
+                      {%- else -%}
+                        {% comment %} Fallback links when menu has no items yet {% endcomment %}
+                        {%- assign heading_down = block.settings.heading | downcase -%}
+                        {%- if heading_down contains 'company' -%}
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">About us</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Careers</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Annual Report</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Shareholder</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Sustainability</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Press</a></li>
+                        {%- elsif heading_down contains 'category' -%}
+                          <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Smart Assistants</a></li>
+                          <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Lighting</a></li>
+                          <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Security</a></li>
+                          <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Thermostats</a></li>
+                          <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Appliances</a></li>
+                        {%- elsif heading_down contains 'connect' -%}
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Newsletter Signup</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Facebook</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Instagram</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">LinkedIn</a></li>
+                        {%- elsif heading_down contains 'support' -%}
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">FAQ</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Contact</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Privacy Policy</a></li>
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Terms of Use</a></li>
+                        {%- else -%}
+                          <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Home</a></li>
+                          <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Products</a></li>
+                        {%- endif -%}
+                      {%- endif -%}
+                    </ul>
+
+                  {%- when 'text' -%}
+                    {%- if block.settings.heading != blank -%}
+                      <h2 class="auralink-footer__col-heading">{{ block.settings.heading | escape }}</h2>
+                    {%- endif -%}
+                    <div class="auralink-footer__col-content">
+                      {{ block.settings.subtext }}
+                    </div>
+
+                  {%- when 'brand_information' -%}
+                    <div class="auralink-footer__brand-info">
+                      {%- if settings.brand_image != blank -%}
+                        {%- assign brand_image_height = settings.brand_image_width | divided_by: settings.brand_image.aspect_ratio -%}
+                        <div
+                          class="auralink-footer__brand-image"
+                          style="max-width: min(100%, {{ settings.brand_image_width }}px);"
+                        >
+                          {{
+                            settings.brand_image
+                            | image_url: width: 1100
+                            | image_tag:
+                              loading: 'lazy',
+                              widths: '50, 100, 150, 200, 300, 400, 550, 800, 1100',
+                              height: brand_image_height,
+                              width: settings.brand_image_width,
+                              alt: settings.brand_image.alt | default: shop.name | escape
+                          }}
+                        </div>
+                      {%- endif -%}
+                      {%- if settings.brand_headline != blank -%}
+                        <h2 class="auralink-footer__col-heading">{{ settings.brand_headline | escape }}</h2>
+                      {%- endif -%}
+                      {%- if settings.brand_description != blank -%}
+                        <div class="auralink-footer__menu-list rte">{{ settings.brand_description }}</div>
+                      {%- endif -%}
+                      {%- if block.settings.show_social and has_social_icons -%}
+                        {%- render 'social-icons', class: 'auralink-footer__social-list' -%}
+                      {%- endif -%}
+                    </div>
+
+                  {%- when 'image' -%}
+                    {%- if block.settings.image != blank -%}
+                      <div class="auralink-footer__col-image">
+                        {{
+                          block.settings.image
+                          | image_url: width: block.settings.image_width
+                          | image_tag:
+                            loading: 'lazy',
+                            width: block.settings.image_width,
+                            height: block.settings.image_width
+                        }}
+                      </div>
+                    {%- endif -%}
+
+                {%- endcase -%}
+              </div>
+            {%- endfor -%}
+
+          {%- else -%}
+            {% comment %} Default 4 columns matching Figma Node #3108:233 {% endcomment %}
+            <div class="auralink-footer__nav-col">
+              <h2 class="auralink-footer__col-heading">Company</h2>
+              <ul class="auralink-footer__menu-list" role="list">
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">About us</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Careers</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Annual Report</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Shareholder</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Sustainability</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Press</a></li>
+              </ul>
+            </div>
+
+            <div class="auralink-footer__nav-col">
+              <h2 class="auralink-footer__col-heading">Category</h2>
+              <ul class="auralink-footer__menu-list" role="list">
+                <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Smart Assistants</a></li>
+                <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Lighting</a></li>
+                <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Security</a></li>
+                <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Thermostats</a></li>
+                <li><a href="{{ routes.all_products_collection_url }}" class="auralink-footer__menu-link">Appliances</a></li>
+              </ul>
+            </div>
+
+            <div class="auralink-footer__nav-col">
+              <h2 class="auralink-footer__col-heading">Connect</h2>
+              <ul class="auralink-footer__menu-list" role="list">
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Newsletter Signup</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Facebook</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Instagram</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">LinkedIn</a></li>
+              </ul>
+            </div>
+
+            <div class="auralink-footer__nav-col">
+              <h2 class="auralink-footer__col-heading">Support</h2>
+              <ul class="auralink-footer__menu-list" role="list">
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">FAQ</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Contact</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Privacy Policy</a></li>
+                <li><a href="{{ routes.root_url }}" class="auralink-footer__menu-link">Terms of Use</a></li>
+              </ul>
+            </div>
+          {%- endif -%}
+        </div>
+
+      </div>
+
+      {% comment %} Subtle Divider {% endcomment %}
+      <div class="auralink-footer__divider" aria-hidden="true"></div>
+
+      {% comment %} Bottom Bar: Policies & Copyright {% endcomment %}
+      <div class="auralink-footer__bottom">
+        <div class="auralink-footer__bottom-left">
+          {%- if section.settings.show_policy and shop.policies.size > 0 -%}
+            <ul class="auralink-footer__policies" role="list">
+              {%- for policy in shop.policies -%}
+                {%- if policy != blank -%}
+                  <li>
+                    <a href="{{ policy.url }}" class="auralink-footer__policy-link">
+                      {{ policy.title | escape }}
+                    </a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            <ul class="auralink-footer__policies" role="list">
+              <li>
+                <a href="{{ routes.root_url }}pages/privacy-policy" class="auralink-footer__policy-link">
+                  Privacy Policy/Terms
+                </a>
+              </li>
+            </ul>
+          {%- endif -%}
+        </div>
+
+        {% comment %} Optional Localization & Payment support {% endcomment %}
+        {%- if section.settings.enable_country_selector or section.settings.enable_language_selector or section.settings.payment_enable -%}
+          <div class="auralink-footer__extra">
+            {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+              <localization-form class="auralink-footer__localization">
+                {%- form 'localization', id: 'FooterCountryForm', class: 'localization-form' -%}
+                  {%- render 'country-localization', localPosition: 'FooterCountry' -%}
+                {%- endform -%}
+              </localization-form>
+            {%- endif -%}
+
+            {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+              <localization-form class="auralink-footer__localization">
+                {%- form 'localization', id: 'FooterLanguageForm', class: 'localization-form' -%}
+                  {%- render 'language-localization', localPosition: 'FooterLanguage' -%}
+                {%- endform -%}
+              </localization-form>
+            {%- endif -%}
+
+            {%- if section.settings.payment_enable and shop.enabled_payment_types.size > 0 -%}
+              <ul class="auralink-footer__payments" role="list">
+                {%- for type in shop.enabled_payment_types -%}
+                  <li>
+                    {{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        <div class="auralink-footer__bottom-right">
+          <span class="auralink-footer__copyright">
+            All rights reserved &copy;{{ shop.name | default: 'Auralink' }} {{ 'now' | date: '%Y' }}
+          </span>
+          <small class="auralink-footer__powered">{{ powered_by_link }}</small>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "link_list",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Quick links",
+          "label": "Heading"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "default": "footer",
+          "label": "Menu"
+        }
+      ]
+    },
+    {
+      "type": "brand_information",
+      "name": "Brand information",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_social",
+          "default": true,
+          "label": "Show social media icons"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Heading",
+          "label": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "subtext",
+          "default": "<p>Share contact information, store details, or brand content with your customers.</p>",
+          "label": "Subtext"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "min": 50,
+          "max": 550,
+          "step": 5,
+          "unit": "px",
+          "label": "Width",
+          "default": 100
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "textarea",
+      "id": "brand_description",
+      "label": "Brand Tagline",
+      "default": "AI-powered smart home solutions that make everyday living more convenient, secure, and energy-efficient."
+    },
+    {
+      "type": "header",
+      "content": "Follow on Shop"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_follow_on_shop",
+      "default": true,
+      "label": "Enable Follow on Shop"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social",
+      "default": true,
+      "label": "Show social media icons"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "default": false,
+      "label": "Enable country/region selector"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "default": false,
+      "label": "Enable language selector"
+    },
+    {
+      "type": "checkbox",
+      "id": "payment_enable",
+      "default": false,
+      "label": "Show payment icons"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_policy",
+      "default": true,
+      "label": "Show policy links"
+    },
+    {
+      "type": "header",
+      "content": "Spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top margin",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 48
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "link_list",
+        "settings": {
+          "heading": "Company"
+        }
+      },
+      {
+        "type": "link_list",
+        "settings": {
+          "heading": "Category"
+        }
+      },
+      {
+        "type": "link_list",
+        "settings": {
+          "heading": "Connect"
+        }
+      },
+      {
+        "type": "link_list",
+        "settings": {
+          "heading": "Support"
+        }
+      }
+    ]
+  }
+}
+{% endschema %}

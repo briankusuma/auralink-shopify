@@ -1,0 +1,265 @@
+{{ 'section-auralink-bento.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | default: 48 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 64 }}px;
+  }
+{%- endstyle -%}
+
+<div class="auralink-bento-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  <div class="auralink-bento-container">
+    
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="auralink-bento-header">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="auralink-bento-title">
+            {{ section.settings.heading | escape | newline_to_br }}
+          </h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="auralink-bento-subtitle">
+            {{ section.settings.subheading | escape }}
+          </p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="auralink-bento-grid">
+      
+      {% comment %} 1. Left Large Card: AI Device {% endcomment %}
+      <div class="auralink-bento-card auralink-bento-card--large">
+        {%- if section.settings.card_1_image != blank -%}
+          {{ section.settings.card_1_image | image_url: width: 1200 | image_tag:
+            loading: 'lazy',
+            class: 'auralink-bento-card__bg-img',
+            alt: section.settings.card_1_text | default: 'AuraLink smart device' | escape
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'bento-card-ai.png' | asset_url }}"
+            alt="{{ section.settings.card_1_text | default: 'AuraLink smart device' | escape }}"
+            class="auralink-bento-card__bg-img"
+            loading="lazy"
+            width="524"
+            height="437"
+          >
+        {%- endif -%}
+
+        <div class="auralink-bento-glass-card">
+          <div class="auralink-bento-glass-card__badge" aria-hidden="true">
+            {%- render 'icon-bento-chip' -%}
+          </div>
+          {%- if section.settings.card_1_text != blank -%}
+            <p class="auralink-bento-glass-card__text">
+              {{ section.settings.card_1_text | escape }}
+            </p>
+          {%- endif -%}
+        </div>
+      </div>
+
+      {% comment %} 2. Middle Column: Stacked Cards {% endcomment %}
+      <div class="auralink-bento-col--stacked">
+        
+        {% comment %} 2a. Top: Connected Ecosystem {% endcomment %}
+        <div class="auralink-bento-card auralink-bento-card--connected">
+          {%- if section.settings.card_2_image != blank -%}
+            {{ section.settings.card_2_image | image_url: width: 800 | image_tag:
+              loading: 'lazy',
+              class: 'auralink-bento-card__bg-img',
+              alt: section.settings.card_2_tag | default: 'Connected Ecosystem' | escape
+            }}
+          {%- else -%}
+            <img
+              src="{{ 'bento-card-connected.png' | asset_url }}"
+              alt="{{ section.settings.card_2_tag | default: 'Connected Ecosystem' | escape }}"
+              class="auralink-bento-card__bg-img"
+              loading="lazy"
+              width="254"
+              height="211"
+            >
+          {%- endif -%}
+
+          {%- if section.settings.card_2_tag != blank -%}
+            <span class="auralink-bento-pill-tag">
+              {{ section.settings.card_2_tag | escape }}
+            </span>
+          {%- endif -%}
+        </div>
+
+        {% comment %} 2b. Bottom: Smart, Safe, and Secure {% endcomment %}
+        <div class="auralink-bento-card auralink-bento-card--shield">
+          <div class="auralink-bento-shield-icon" aria-hidden="true">
+            {%- render 'icon-bento-shield' -%}
+          </div>
+          {%- if section.settings.card_3_heading != blank -%}
+            <p class="auralink-bento-shield-text">
+              {{ section.settings.card_3_heading | escape }}
+            </p>
+          {%- endif -%}
+        </div>
+
+      </div>
+
+      {% comment %} 3. Right Card: 99% Stat {% endcomment %}
+      <div class="auralink-bento-card auralink-bento-card--stat">
+        {%- if section.settings.card_4_image != blank -%}
+          {{ section.settings.card_4_image | image_url: width: 800 | image_tag:
+            loading: 'lazy',
+            class: 'auralink-bento-card__bg-img',
+            alt: section.settings.card_4_text | default: 'Integration' | escape
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'bento-card-stat.png' | asset_url }}"
+            alt="{{ section.settings.card_4_text | default: 'Integration' | escape }}"
+            class="auralink-bento-card__bg-img"
+            loading="lazy"
+            width="254"
+            height="437"
+          >
+        {%- endif -%}
+
+        <div class="auralink-bento-stat__badge" aria-hidden="true">
+          {%- render 'icon-bento-asterisk' -%}
+        </div>
+
+        {%- if section.settings.card_4_stat != blank -%}
+          <span class="auralink-bento-stat__number">
+            {{ section.settings.card_4_stat | escape }}
+          </span>
+        {%- endif -%}
+
+        {%- if section.settings.card_4_text != blank -%}
+          <p class="auralink-bento-stat__desc">
+            {{ section.settings.card_4_text | escape }}
+          </p>
+        {%- endif -%}
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Bento features",
+  "tag": "section",
+  "class": "section-auralink-bento",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Welcome to a Smarter Way of Living"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Transforming everyday living"
+    },
+    {
+      "type": "header",
+      "content": "Card 1: AI Device (Large Left)"
+    },
+    {
+      "type": "image_picker",
+      "id": "card_1_image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "card_1_text",
+      "label": "Overlay text",
+      "default": "AI devices learn your habits and adjust automatically."
+    },
+    {
+      "type": "header",
+      "content": "Card 2: Connected Ecosystem (Middle Top)"
+    },
+    {
+      "type": "image_picker",
+      "id": "card_2_image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "card_2_tag",
+      "label": "Pill tag text",
+      "default": "Connected Ecosystem"
+    },
+    {
+      "type": "header",
+      "content": "Card 3: Smart, Safe, and Secure (Middle Bottom)"
+    },
+    {
+      "type": "text",
+      "id": "card_3_heading",
+      "label": "Heading",
+      "default": "Smart, Safe, and Secure"
+    },
+    {
+      "type": "header",
+      "content": "Card 4: Stat Metric (Right)"
+    },
+    {
+      "type": "image_picker",
+      "id": "card_4_image",
+      "label": "Background image"
+    },
+    {
+      "type": "text",
+      "id": "card_4_stat",
+      "label": "Statistic number",
+      "default": "99%"
+    },
+    {
+      "type": "text",
+      "id": "card_4_text",
+      "label": "Description",
+      "default": "Seamless Integration with Your Life"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 64
+    }
+  ],
+  "presets": [
+    {
+      "name": "Bento features"
+    }
+  ]
+}
+{% endschema %}

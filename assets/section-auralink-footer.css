@@ -1,0 +1,388 @@
+/* ==========================================================================
+   AuraLink Footer Section
+   Matches Figma node #3108:233 (Speedtest)
+   ========================================================================== */
+
+.auralink-footer-section {
+  width: 100%;
+  position: relative;
+  background-color: var(--color-background, #FAFAF9);
+  box-sizing: border-box;
+}
+
+.auralink-footer-wrapper {
+  max-width: var(--page-width, 1408px);
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   Footer Card Container
+   -------------------------------------------------------------------------- */
+.auralink-footer-card {
+  width: 100%;
+  background-color: #000000;
+  border-radius: 24px;
+  padding: 64px 48px 24px;
+  color: #FFFFFF;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------------------
+   Top Row: Brand Info + Navigation Columns
+   -------------------------------------------------------------------------- */
+.auralink-footer__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 48px;
+  width: 100%;
+}
+
+/* Brand Column */
+.auralink-footer__brand-col {
+  flex: 0 0 380px;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auralink-footer__logo-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  color: #FFFFFF;
+  width: fit-content;
+}
+
+.auralink-footer__logo-img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.auralink-footer__brand-title {
+  font-family: 'Ambit', 'Inter Display', var(--font-heading-family), sans-serif;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.auralink-footer__brand-title .brand-aura {
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.auralink-footer__brand-title .brand-link {
+  font-weight: 200;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.auralink-footer__tagline {
+  margin: 0;
+  max-width: 353px;
+  font-family: 'Inter Display', 'Inter', var(--font-body-family), sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: normal;
+}
+
+/* Social links in brand column if enabled */
+.auralink-footer__social-list {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.auralink-footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.auralink-footer__social-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.auralink-footer__social-link svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+/* Navigation Columns Grid */
+.auralink-footer__nav-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(116px, 1fr));
+  gap: 32px 24px;
+  justify-content: space-between;
+}
+
+.auralink-footer__nav-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auralink-footer__col-heading {
+  margin: 0;
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.2;
+}
+
+.auralink-footer__menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.auralink-footer__menu-link {
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: #FFFFFF;
+  text-decoration: none;
+  line-height: 1.3;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+  opacity: 0.95;
+}
+
+.auralink-footer__menu-link:hover {
+  opacity: 0.65;
+  transform: translateX(2px);
+}
+
+.auralink-footer__menu-link:focus-visible {
+  outline: 2px solid #F2FE63;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Rich Text & Custom App Block support */
+.auralink-footer__col-content {
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.auralink-footer__col-content a {
+  color: #FFFFFF;
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Divider
+   -------------------------------------------------------------------------- */
+.auralink-footer__divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.12);
+  margin: 57px 0 24px;
+  display: block!important;
+}
+
+/* --------------------------------------------------------------------------
+   Bottom Row: Policy Links & Copyright
+   -------------------------------------------------------------------------- */
+.auralink-footer__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+}
+
+.auralink-footer__bottom-left,
+.auralink-footer__bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.auralink-footer__policies {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.auralink-footer__policy-link {
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.auralink-footer__policy-link:hover {
+  color: #FFFFFF;
+}
+
+.auralink-footer__policy-link:focus-visible {
+  outline: 2px solid #F2FE63;
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.auralink-footer__copyright {
+  font-family: 'Inter', var(--font-body-family), sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: right;
+}
+
+.auralink-footer__powered {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.auralink-footer__powered a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+}
+
+.auralink-footer__powered a:hover {
+  color: #FFFFFF;
+}
+
+/* --------------------------------------------------------------------------
+   Shopify Localization & Payments (Theme Store Compliant)
+   -------------------------------------------------------------------------- */
+.auralink-footer__extra {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.auralink-footer__localization .disclosure__button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.auralink-footer__payments {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 1100px) {
+  .auralink-footer__top {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .auralink-footer__brand-col {
+    max-width: 100%;
+    flex: unset;
+  }
+
+  .auralink-footer__nav-grid {
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media screen and (max-width: 860px) {
+  .auralink-footer__nav-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 36px 20px;
+  }
+
+  .auralink-footer-card {
+    padding: 48px 32px 24px;
+  }
+
+  .auralink-footer__divider {
+    margin: 40px 0 20px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .auralink-footer-card {
+    padding: 36px 20px 20px;
+    border-radius: 20px;
+  }
+
+  .auralink-footer__nav-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px 16px;
+  }
+
+  .auralink-footer__menu-link {
+    font-size: 16px;
+  }
+
+  .auralink-footer__col-heading {
+    font-size: 13px;
+  }
+
+  .auralink-footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .auralink-footer__copyright {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auralink-footer__menu-link,
+  .auralink-footer__social-link,
+  .auralink-footer__policy-link {
+    transition: none;
+  }
+}
