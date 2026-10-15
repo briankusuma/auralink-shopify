@@ -99,11 +99,11 @@
         </div>
       {%- endif -%}
       {%- if section.settings.title != blank -%}
-        <h2 class="title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+        <h2 class="title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}" data-liquid-reveal="text">
           {{ section.settings.title }}
         </h2>
       {%- elsif target_collection.title != blank -%}
-        <h2 class="title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+        <h2 class="title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}" data-liquid-reveal="text">
           {{ target_collection.title }}
         </h2>
       {%- endif -%}
@@ -111,7 +111,7 @@
         or section.settings.show_description
         and target_collection.description != empty
       -%}
-        <div class="collection__description {{ section.settings.description_style }} rte{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+        <div class="collection__description {{ section.settings.description_style }} rte{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}" data-liquid-reveal="text">
           {%- if section.settings.show_description and target_collection.description != blank -%}
             {{ target_collection.description }}
           {%- else -%}

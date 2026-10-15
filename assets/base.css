@@ -3648,3 +3648,31 @@ details-disclosure > details {
     transform: translateX(100%) scaleX(0);
   }
 }
+
+/* ==========================================================================
+   Global Liquid Gooey Text Reveal on Scroll (bleibtgleich.dev mechanics)
+   ========================================================================== */
+[data-liquid-reveal="text"] {
+  visibility: hidden;
+}
+
+.split-line-mask,
+.split-line-h1-mask {
+  display: block;
+  overflow: visible;
+}
+
+.split-line,
+.split-line-h1 {
+  display: inline-block;
+  will-change: filter;
+  position: relative;
+}
+
+.no-js [data-liquid-reveal="text"],
+.no-js .split-line,
+.no-js .split-line-h1 {
+  visibility: visible !important;
+  opacity: 1 !important;
+  filter: none !important;
+}

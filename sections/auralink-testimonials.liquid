@@ -15,10 +15,10 @@
     <div class="auralink-testimonials__left">
       <div class="auralink-testimonials__heading-group">
         {%- if section.settings.heading != blank -%}
-          <h2 class="auralink-testimonials__title">{{ section.settings.heading | escape }}</h2>
+          <h2 class="auralink-testimonials__title" data-liquid-reveal="text">{{ section.settings.heading | escape }}</h2>
         {%- endif -%}
         {%- if section.settings.subheading != blank -%}
-          <p class="auralink-testimonials__subtitle">{{ section.settings.subheading | escape }}</p>
+          <p class="auralink-testimonials__subtitle" data-liquid-reveal="text">{{ section.settings.subheading | escape }}</p>
         {%- endif -%}
       </div>
 

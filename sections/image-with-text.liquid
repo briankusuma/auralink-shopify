@@ -76,6 +76,7 @@
                 {%- when 'heading' -%}
                   <h2
                     class="image-with-text__heading inline-richtext {{ block.settings.heading_size }}"
+                    data-liquid-reveal="text"
                     {{ block.shopify_attributes }}
                   >
                     {{ block.settings.heading }}
@@ -83,6 +84,7 @@
                 {%- when 'caption' -%}
                   <p
                     class="image-with-text__text image-with-text__text--caption {{ block.settings.text_style }} {{ block.settings.text_style }}--{{ block.settings.text_size }} {{ block.settings.text_style }}"
+                    data-liquid-reveal="text"
                     {{ block.shopify_attributes }}
                   >
                     {{ block.settings.caption | escape }}

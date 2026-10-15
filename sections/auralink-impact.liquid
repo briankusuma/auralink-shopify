@@ -48,7 +48,7 @@
           <div class="auralink-impact-quote-divider" aria-hidden="true"></div>
 
           {%- if section.settings.quote_text != blank -%}
-            <p class="auralink-impact-quote-text">
+            <p class="auralink-impact-quote-text" data-liquid-reveal="text">
               {{ section.settings.quote_text | escape }}
             </p>
           {%- endif -%}

@@ -40,10 +40,10 @@
     <div class="auralink-cta__card">
       <div class="auralink-cta__content">
         {%- if section.settings.heading != blank -%}
-          <h2 class="auralink-cta__title">{{ section.settings.heading | escape }}</h2>
+          <h2 class="auralink-cta__title" data-liquid-reveal="text">{{ section.settings.heading | escape }}</h2>
         {%- endif -%}
         {%- if section.settings.subheading != blank -%}
-          <p class="auralink-cta__subtitle">{{ section.settings.subheading | escape }}</p>
+          <p class="auralink-cta__subtitle" data-liquid-reveal="text">{{ section.settings.subheading | escape }}</p>
         {%- endif -%}
       </div>
 
