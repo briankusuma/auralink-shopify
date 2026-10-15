@@ -465,7 +465,7 @@
     let rafId = null;
 
     function getMaxRadius() {
-      return window.innerWidth <= 768 ? 130 : 170;
+      return window.innerWidth <= 768 ? 170 : 250;
     }
 
     const turbEl = document.getElementById('bubble-turb');
