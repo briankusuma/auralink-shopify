@@ -1,16 +1,26 @@
 /**
- * AuraLink - Hero Section Liquid Goo Text Reveal
- * 100% Exact Replication of bleibtgleich.dev `animateTextReveal()`
+ * AuraLink - Hero Section Liquid Goo Text Reveal & Interactive Liquid Melting Hover
+ * 100% Exact Replication of bleibtgleich.dev SVG Gooey Filter Technique
  *
- * SVG Gooey / Metaball Filter technique:
- * - Letters start as melted liquid blobs / mercury droplets that merge together
- *   using <feGaussianBlur> (stdDeviation: 50) and high-contrast <feColorMatrix> (alpha threshold: 20 -8).
- * - The blur animates down to 0 with cubic-bezier(0.25, 1, 0.5, 1) ease, causing the liquid
- *   blobs to condense, solidify, and resolve into razor-sharp typography.
- * - In the final 35% of the duration, the color matrix alpha threshold interpolates back
- *   from 20 -8 to 1 0.
- * - Finally, the filter is completely detached (filter: "") so the text remains
- *   100% sharp, crisp, and selectable.
+ * Mechanics:
+ * 1. Initial Load Reveal:
+ *    - Letters start as melted liquid blobs / mercury droplets using <feGaussianBlur>
+ *      (stdDeviation: 48) and high-contrast <feColorMatrix> (alpha threshold: 20 -8).
+ *    - The blur animates down to 0 with cubic-bezier(0.25, 1, 0.5, 1) ease, causing the liquid
+ *      blobs to condense, solidify, and resolve into razor-sharp typography.
+ *    - In the final 35% of the duration, the color matrix alpha threshold interpolates back
+ *      from 20 -8 to 1 0, and the filter is detached (filter: "") for 100% vector sharpness.
+ * 2. Interactive Liquid Melting Hover:
+ *    - On mouseenter on any line of .auralink-hero-title or .auralink-hero-subtitle:
+ *      a) Reactivates the SVG Goo filter (feColorMatrix: 18 -7).
+ *      b) Melts stdDeviation from 0 to 14 in ~0.18s.
+ *      c) Condenses back from 14 to 0 using elastic.out(1, 0.45) over ~0.55s.
+ *      d) Resets color matrix to 1 0 and clears the filter style for pure crispness.
+ *      e) Cancels any existing tween on rapid re-entry to prevent animation overlap.
+ * 3. Accessibility & Standards:
+ *    - cursor: pointer on text indicates interactivity.
+ *    - Full prefers-reduced-motion & .no-js support.
+ *    - Zero external script dependencies; 100% Shopify Theme Store compliant.
  */
 
 (function () {
@@ -50,7 +60,23 @@
 
   const easeOut = createBezier(0.25, 1, 0.5, 1);
 
-  // SVG namespace & helper from bleibtgleich.dev
+  // Exact elastic.out(1, 0.45) solver for spring condensation
+  function elasticOut(t, a, p) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    a = a || 1;
+    p = p || 0.45;
+    let s;
+    if (a < 1) {
+      a = 1;
+      s = p / 4;
+    } else {
+      s = (p / (2 * Math.PI)) * Math.asin(1 / a);
+    }
+    return a * Math.pow(2, -10 * t) * Math.sin(((t - s) * (2 * Math.PI)) / p) + 1;
+  }
+
+  // SVG namespace & helpers from bleibtgleich.dev
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const DUR_L = 1200; // 1.2s (bleibtgleich.dev var(--dur-l))
   const STAGGER = 90; // 0.09s stagger between lines
@@ -100,8 +126,9 @@
   }
 
   // Exact replication of animateTextReveal() timeline execution from bleibtgleich.dev
-  function runTextRevealAnimation(lineElements, baseStdDev, delayOffset) {
+  function runTextRevealAnimation(lineElements, baseStdDev, delayOffset, onCompleteAll) {
     const startDelay = typeof delayOffset === 'number' ? delayOffset : 0;
+    let completedCount = 0;
 
     lineElements.forEach(function (lineEl, lineIndex) {
       const filterId = attachGooFilter(lineEl, baseStdDev);
@@ -136,8 +163,7 @@
         }
 
         // 2. feColorMatrix alpha threshold: amp: 20 -> 1, off: -8 -> 0 in last 35% of duration
-        // (matches: t.to(g, {amp: 1, off: 0, duration: 0.35 * durL, ease: "none"}, ">-" + 0.35 * durL))
-        const matrixThreshold = 0.65; // Starts at 65% of durL
+        const matrixThreshold = 0.65;
         if (t >= matrixThreshold) {
           const matrixT = Math.min((t - matrixThreshold) / (1 - matrixThreshold), 1);
           const currentAmp = 20 + (1 - 20) * matrixT;
@@ -159,11 +185,83 @@
             feMatrix.setAttribute('values', MATRIX_VALUES(1, 0));
           }
           lineEl.style.filter = '';
+          completedCount++;
+          if (completedCount >= lineElements.length && onCompleteAll) {
+            onCompleteAll();
+          }
         }
       }
 
       requestAnimationFrame(renderFrame);
     });
+  }
+
+  // Interactive Liquid Melting Hover Effect
+  function triggerLineLiquidMelt(lineEl) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Prevent animation overlap: kill existing hover animation if user re-enters rapidly
+    if (lineEl._hoverAnimId) {
+      cancelAnimationFrame(lineEl._hoverAnimId);
+      lineEl._hoverAnimId = null;
+    }
+
+    const filterId = lineEl.dataset.filterId || attachGooFilter(lineEl, 0);
+    const feBlur = document.querySelector('#' + filterId + ' feGaussianBlur');
+    const feMatrix = document.querySelector('#' + filterId + ' feColorMatrix');
+    if (!feBlur || !feMatrix) return;
+
+    // 1. Reactivate the line's SVG Goo filter with melting threshold (18 -7)
+    lineEl.style.filter = 'url(#' + filterId + ')';
+    feMatrix.setAttribute('values', MATRIX_VALUES(18, -7));
+
+    const meltDur = 180; // 0.18s melt time
+    const condenseDur = 550; // 0.55s condense time
+    const totalDur = meltDur + condenseDur;
+    const maxMeltBlur = 14; // Peak melting stdDeviation
+
+    let startTime = null;
+
+    function renderMeltFrame(now) {
+      if (!startTime) startTime = now;
+      const elapsed = now - startTime;
+
+      if (elapsed <= meltDur) {
+        // Phase 1: Quickly melt letters from 0 to 14 stdDeviation
+        const p = elapsed / meltDur;
+        const eased = p * p * (3 - 2 * p); // Smooth cubic ease
+        const blur = maxMeltBlur * eased;
+
+        feBlur.setAttribute('stdDeviation', blur.toFixed(2));
+        feMatrix.setAttribute('values', MATRIX_VALUES(18, -7));
+        lineEl._hoverAnimId = requestAnimationFrame(renderMeltFrame);
+      } else if (elapsed <= totalDur) {
+        // Phase 2: Immediately condense back from 14 to 0 using elastic.out(1, 0.45)
+        const p = (elapsed - meltDur) / condenseDur;
+        const eased = elasticOut(p, 1, 0.45);
+        const blur = Math.max(0, maxMeltBlur * (1 - Math.min(eased, 1)));
+
+        feBlur.setAttribute('stdDeviation', blur.toFixed(2));
+
+        // In the final 30% of condensation, interpolate color matrix smoothly back to 1 0
+        if (p >= 0.7) {
+          const matrixP = (p - 0.7) / 0.3;
+          const amp = 18 + (1 - 18) * matrixP;
+          const off = -7 + (0 - -7) * matrixP;
+          feMatrix.setAttribute('values', MATRIX_VALUES(amp.toFixed(2), off.toFixed(2)));
+        }
+
+        lineEl._hoverAnimId = requestAnimationFrame(renderMeltFrame);
+      } else {
+        // On complete: reset feColorMatrix to 1 0 and clear filter style so text returns to pure vector crispness
+        feBlur.setAttribute('stdDeviation', '0');
+        feMatrix.setAttribute('values', MATRIX_VALUES(1, 0));
+        lineEl.style.filter = '';
+        lineEl._hoverAnimId = null;
+      }
+    }
+
+    lineEl._hoverAnimId = requestAnimationFrame(renderMeltFrame);
   }
 
   // Exact replication of animateDivReveal() / data-reveal="fade" from bleibtgleich.dev
@@ -273,6 +371,7 @@
       // Split text into lines
       const titleLines = splitTextLines(titleEl);
       const subtitleLines = subtitleEl ? splitTextLines(subtitleEl) : [];
+      const allLines = titleLines.concat(subtitleLines);
 
       // Check prefers-reduced-motion
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -291,6 +390,13 @@
       });
       subtitleLines.forEach(function (line) {
         attachGooFilter(line, 24);
+      });
+
+      // Attach interactive liquid melting hover effect to each line
+      allLines.forEach(function (line) {
+        line.addEventListener('mouseenter', function () {
+          triggerLineLiquidMelt(line);
+        });
       });
 
       let revealTriggered = false;

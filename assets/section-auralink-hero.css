@@ -205,6 +205,7 @@
   display: inline-block;
   will-change: filter;
   position: relative;
+  cursor: pointer;
 }
 
 .split-line-mask,
