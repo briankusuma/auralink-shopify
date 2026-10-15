@@ -78,8 +78,8 @@
 
   // SVG namespace & helpers from bleibtgleich.dev
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const DUR_L = 2400; // 2.4s slow viscous liquid reveal
-  const STAGGER = 160; // 0.16s stagger between lines
+  const DUR_L = 1500; // 1.5s liquid reveal
+  const STAGGER = 100; // 0.1s stagger between lines
   const MATRIX_VALUES = function (amp, off) {
     return '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ' + amp + ' ' + off;
   };
@@ -679,13 +679,13 @@
         });
 
         // 2. Run subtitle text reveal (initial blur 24, staggered right after title)
-        const subDelay = Math.max(500, titleLines.length * STAGGER + 200);
+        const subDelay = Math.max(300, titleLines.length * STAGGER + 120);
         runTextRevealAnimation(subtitleLines, 24, subDelay, function () {
           if (syncOverlay) syncOverlay();
         });
 
         // 3. Run fade reveal for CTA button & badges
-        const fadeDelay = subDelay + (subtitleLines.length * STAGGER) + 160;
+        const fadeDelay = subDelay + (subtitleLines.length * STAGGER) + 100;
         runFadeRevealAnimation(fadeElements, fadeDelay);
       }
 

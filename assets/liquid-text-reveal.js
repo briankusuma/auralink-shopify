@@ -1,22 +1,22 @@
 /**
  * AuraLink Theme - Global Liquid Gooey Text Reveal on Scroll
- * Replicates the exact liquid mercury text reveal mechanics from bleibtgleich.dev.
- * Triggers precisely when each section scrolls into the viewer's focus.
- * Applies across all headings (h1-h6), paragraphs (p), and text spans.
+ * 1.5s Smooth Viscous Liquid Reveal (Replicating bleibtgleich.dev SVG Goo filter)
+ * Triggers precisely when text scrolls into view; resets when scrolled back up.
  * NOTE: Hover liquid ripple is strictly excluded here (used only in Hero/Header).
  */
 (function () {
   'use strict';
 
   const SVG_NS = 'http://www.w3.org/2000/svg';
+  const EXACT_DURATION = 1500; // Exactly 1.5s duration as requested
 
   const MATRIX_VALUES = function (l, c) {
     return '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ' + l + ' ' + c;
   };
 
-  // Gentle viscous liquid easing: lets the melted droplet/mercury stage linger noticeably
-  function easeOut(e) {
-    return 1 - Math.pow(1 - e, 2.0);
+  // Smooth ease-out curve for natural liquid condensation
+  function easeOut(t) {
+    return 1 - Math.pow(1 - t, 2.4);
   }
 
   function getGlobalDefsSvg() {
@@ -32,13 +32,17 @@
   }
 
   function attachGooFilter(el, initialStdDev) {
+    const s = typeof initialStdDev === 'number' ? initialStdDev : 8;
+    const l = 6;
+    const c = -1.5;
+
     if (el.dataset.filterId) {
       const existingFilter = document.getElementById(el.dataset.filterId);
       if (existingFilter) {
         const feBlur = existingFilter.querySelector('feGaussianBlur');
         const feMatrix = existingFilter.querySelector('feColorMatrix');
-        if (feBlur) feBlur.setAttribute('stdDeviation', initialStdDev);
-        if (feMatrix) feMatrix.setAttribute('values', MATRIX_VALUES(20, -8));
+        if (feBlur) feBlur.setAttribute('stdDeviation', s);
+        if (feMatrix) feMatrix.setAttribute('values', MATRIX_VALUES(l, c));
         el.style.filter = 'url(#' + el.dataset.filterId + ')';
         return el.dataset.filterId;
       }
@@ -56,22 +60,28 @@
     filter.setAttribute('height', '150%');
     filter.setAttribute('color-interpolation-filters', 'sRGB');
 
-    const s = typeof initialStdDev === 'number' ? initialStdDev : 36;
-    const l = 20;
-    const c = -8;
+    const feBlur = document.createElementNS(SVG_NS, 'feGaussianBlur');
+    feBlur.setAttribute('in', 'SourceGraphic');
+    feBlur.setAttribute('stdDeviation', s);
+    feBlur.setAttribute('result', 'blur');
 
-    filter.innerHTML =
-      '<feGaussianBlur in="SourceGraphic" stdDeviation="' + s + '" result="blur"></feGaussianBlur>' +
-      '<feColorMatrix in="blur" mode="matrix" values="' + MATRIX_VALUES(l, c) + '" result="goo"></feColorMatrix>';
+    const feMatrix = document.createElementNS(SVG_NS, 'feColorMatrix');
+    feMatrix.setAttribute('in', 'blur');
+    feMatrix.setAttribute('mode', 'matrix');
+    feMatrix.setAttribute('values', MATRIX_VALUES(l, c));
+    feMatrix.setAttribute('result', 'goo');
 
+    filter.appendChild(feBlur);
+    filter.appendChild(feMatrix);
     svg.appendChild(filter);
+
     el.style.filter = 'url(#' + filterId + ')';
     return filterId;
   }
 
-  function runTextRevealAnimation(lineElements, baseStdDev, duration, staggerDelay, onComplete) {
-    const dur = typeof duration === 'number' ? duration : 2200;
-    const stagger = typeof staggerDelay === 'number' ? staggerDelay : 140;
+  function runTextRevealAnimation(lineElements, baseStdDev, onComplete) {
+    const dur = EXACT_DURATION; // 1.5s
+    const stagger = 80; // 0.08s stagger between lines
     let completedCount = 0;
 
     lineElements.forEach(function (lineEl, lineIndex) {
@@ -80,9 +90,10 @@
       const feMatrix = document.querySelector('#' + filterId + ' feColorMatrix');
 
       if (feBlur) feBlur.setAttribute('stdDeviation', baseStdDev);
-      if (feMatrix) feMatrix.setAttribute('values', MATRIX_VALUES(20, -8));
+      if (feMatrix) feMatrix.setAttribute('values', MATRIX_VALUES(6, -1.5));
       lineEl.style.filter = 'url(#' + filterId + ')';
       lineEl.style.visibility = 'visible';
+      lineEl.style.opacity = '1';
 
       const lineDelay = lineIndex * stagger;
       let startTime = null;
@@ -99,16 +110,18 @@
         const t = Math.min((elapsed - lineDelay) / dur, 1);
         const easedProgress = easeOut(t);
 
+        // stdDeviation decreases smoothly from baseStdDev down to 0
         const currentStdDev = Math.max(0, baseStdDev * (1 - easedProgress));
         if (feBlur) {
           feBlur.setAttribute('stdDeviation', currentStdDev.toFixed(2));
         }
 
-        const matrixThreshold = 0.75;
+        // feColorMatrix transitions to 1 0 in the second half of duration (from t=0.55 to 1.0)
+        const matrixThreshold = 0.55;
         if (t >= matrixThreshold) {
           const matrixT = Math.min((t - matrixThreshold) / (1 - matrixThreshold), 1);
-          const currentAmp = 20 + (1 - 20) * matrixT;
-          const currentOff = -8 + (0 - -8) * matrixT;
+          const currentAmp = 6 + (1 - 6) * matrixT;
+          const currentOff = -1.5 + (0 - -1.5) * matrixT;
 
           if (feMatrix) {
             feMatrix.setAttribute(
@@ -121,6 +134,7 @@
         if (t < 1) {
           requestAnimationFrame(renderFrame);
         } else {
+          // Finished: clear filter so text is 100% crisp vector sharpness
           lineEl.style.filter = '';
           lineEl.style.visibility = 'visible';
           lineEl.style.opacity = '1';
@@ -132,6 +146,13 @@
       }
 
       requestAnimationFrame(renderFrame);
+
+      // Failsafe timeout: guarantee text is never permanently hidden or blurred
+      setTimeout(function () {
+        lineEl.style.filter = '';
+        lineEl.style.visibility = 'visible';
+        lineEl.style.opacity = '1';
+      }, dur + lineDelay + 200);
     });
   }
 
@@ -175,32 +196,19 @@
     return lineElements;
   }
 
+  // Safe blur amounts that keep text visible while creating gorgeous viscous liquid coalescence
   function getBaseStdDev(el) {
     const tag = el.tagName.toLowerCase();
-    if (tag === 'h1' || tag === 'h2' || tag === 'h3' || el.classList.contains('h1') || el.classList.contains('h2') || el.classList.contains('h0')) {
-      return 42;
+    if (tag === 'h1' || tag === 'h2' || el.classList.contains('h1') || el.classList.contains('h2') || el.classList.contains('h0')) {
+      return 14;
     }
-    if (tag === 'h4' || tag === 'h5' || tag === 'h6' || el.classList.contains('h3') || el.classList.contains('h4')) {
-      return 28;
-    }
-    if (tag === 'p' || el.classList.contains('rte')) {
-      return 18;
-    }
-    return 14;
-  }
-
-  function getAnimationDuration(el) {
-    const tag = el.tagName.toLowerCase();
-    if (/^h[1-3]$/.test(tag) || el.classList.contains('h1') || el.classList.contains('h2') || el.classList.contains('h0')) {
-      return 2400;
-    }
-    if (/^h[4-6]$/.test(tag) || el.classList.contains('h3') || el.classList.contains('h4')) {
-      return 2100;
+    if (tag === 'h3' || tag === 'h4' || el.classList.contains('h3') || el.classList.contains('h4')) {
+      return 8;
     }
     if (tag === 'p' || el.classList.contains('rte')) {
-      return 1900;
+      return 5;
     }
-    return 1700;
+    return 3;
   }
 
   function initSingleLiquidReveal(el) {
@@ -209,11 +217,14 @@
     // Strict exclusion: Hero lead has its own dedicated amoeba liquid ripple effect
     if (el.closest('.auralink-hero-lead')) return;
 
+    // Strict exclusion: Header, footer, cart drawer, modals
+    if (el.closest('header, footer, .header-wrapper, .footer, [id*="shopify-section-header"], [id*="shopify-section-footer"], .header-drawer, cart-drawer, .drawer, .modal, .popup')) {
+      return;
+    }
+
     el.dataset.liquidRevealInit = 'true';
 
     const baseStdDev = getBaseStdDev(el);
-    const duration = getAnimationDuration(el);
-
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) {
       el.style.visibility = 'visible';
@@ -227,7 +238,7 @@
       attachGooFilter(line, baseStdDev);
     });
 
-    // Make the parent container visible now that its child lines are securely hidden
+    // Make parent visible once child lines are prepared
     el.style.visibility = 'visible';
 
     let revealTriggered = false;
@@ -235,7 +246,7 @@
     function triggerReveal() {
       if (revealTriggered) return;
       revealTriggered = true;
-      runTextRevealAnimation(lines, baseStdDev, duration, 140);
+      runTextRevealAnimation(lines, baseStdDev);
     }
 
     function resetReveal() {
@@ -245,6 +256,12 @@
         line.style.visibility = 'hidden';
         attachGooFilter(line, baseStdDev);
       });
+    }
+
+    // Immediate check: if already in viewport, trigger right away
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight + 50 && rect.bottom > -50) {
+      triggerReveal();
     }
 
     if ('IntersectionObserver' in window) {
@@ -261,8 +278,8 @@
         },
         {
           root: null,
-          rootMargin: '0px 0px -10% 0px',
-          threshold: 0.1
+          rootMargin: '50px 0px 50px 0px',
+          threshold: 0
         }
       );
       observer.observe(el);
@@ -271,86 +288,13 @@
     }
   }
 
-  function isEligibleText(el) {
-    if (!el || el.nodeType !== 1) return false;
-    if (el.dataset.liquidRevealInit === 'true') return false;
-
-    // Exclude header, footer, navigation, cart drawer, modals
-    if (el.closest('header, footer, .header-wrapper, .footer, [id*="shopify-section-header"], [id*="shopify-section-footer"], .header-drawer, .menu-drawer, cart-drawer, .drawer, .modal, .popup, .localization-form')) {
-      return false;
-    }
-
-    // Exclude hero text lead (which has hover ripple)
-    if (el.closest('.auralink-hero-lead')) return false;
-
-    // Exclude form controls, scripts, styles, SVGs, hidden elements
-    if (el.closest('button, input, select, textarea, label, fieldset, svg, .svg-wrapper, .icon, [aria-hidden="true"], .visually-hidden, script, style, noscript')) {
-      return false;
-    }
-
-    // Skip if an ancestor is already initialized or being split
-    if (el.parentElement && el.parentElement.closest('[data-liquid-reveal-init="true"], .split-line, .split-line-mask, .split-line-h1, .split-line-h1-mask')) {
-      return false;
-    }
-
-    // Must have non-empty text content
-    const text = el.textContent ? el.textContent.trim() : '';
-    if (text.length === 0) return false;
-
-    // Explicitly marked
-    if (el.matches('[data-liquid-reveal="text"], [data-reveal="text"]')) {
-      return true;
-    }
-
-    const tag = el.tagName.toLowerCase();
-
-    // Headings (h1..h6)
-    if (/^h[1-6]$/.test(tag)) {
-      return true;
-    }
-
-    // Paragraphs
-    if (tag === 'p') {
-      return true;
-    }
-
-    // Standalone content spans
-    if (tag === 'span') {
-      // Must not contain block elements
-      if (el.querySelector('div, p, h1, h2, h3, h4, h5, h6, ul, ol, li')) return false;
-      // Must not be an inline icon or caret
-      if (el.classList.contains('svg-wrapper') || el.classList.contains('icon') || el.classList.contains('circle-divider') || el.classList.contains('auralink-pill__dot')) {
-        return false;
-      }
-      // Parent must not be an h1..h6 or p
-      if (el.parentElement && /^h[1-6]|p$/i.test(el.parentElement.tagName)) return false;
-      return true;
-    }
-
-    return false;
-  }
-
   function initAllLiquidReveals(container) {
     const root = container || document;
 
-    // 1. Process all explicitly marked elements
-    const explicitTargets = root.querySelectorAll('[data-liquid-reveal="text"], [data-reveal="text"]');
-    explicitTargets.forEach(function (el) {
+    // Target all explicitly marked text elements in sections (headings, paragraphs, spans)
+    const targets = root.querySelectorAll('[data-liquid-reveal="text"], [data-reveal="text"]');
+    targets.forEach(function (el) {
       initSingleLiquidReveal(el);
-    });
-
-    // 2. Discover all remaining h, p, and span within section contents
-    const sectionContainers = root.querySelectorAll('.shopify-section, main, .main-content, #MainContent');
-    sectionContainers.forEach(function (section) {
-      if (section.id && (section.id.indexOf('header') !== -1 || section.id.indexOf('footer') !== -1)) {
-        return;
-      }
-      const candidates = section.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span');
-      candidates.forEach(function (el) {
-        if (isEligibleText(el)) {
-          initSingleLiquidReveal(el);
-        }
-      });
     });
   }
 
