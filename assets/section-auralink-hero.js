@@ -464,7 +464,10 @@
     let isHovered = false;
     let rafId = null;
 
-    const MAX_RADIUS = 120; // Expanded radius for thick chunky waves
+    function getMaxRadius() {
+      return window.innerWidth <= 768 ? 130 : 170;
+    }
+
     const turbEl = document.getElementById('bubble-turb');
     let frameTick = 0;
 
@@ -511,7 +514,7 @@
         currentX = targetX;
         currentY = targetY;
       }
-      targetRadius = MAX_RADIUS;
+      targetRadius = getMaxRadius();
       isHovered = true;
       leadEl.classList.add('is-liquid-active');
       if (!rafId) {
@@ -526,7 +529,7 @@
       targetY = e.clientY - rect.top;
       if (!isHovered) {
         isHovered = true;
-        targetRadius = MAX_RADIUS;
+        targetRadius = getMaxRadius();
         leadEl.classList.add('is-liquid-active');
         if (!rafId) {
           rafId = requestAnimationFrame(updateLoop);
