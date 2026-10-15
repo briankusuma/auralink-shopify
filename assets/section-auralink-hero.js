@@ -106,9 +106,12 @@
       filter.innerHTML =
         '<feTurbulence id="bubble-turb" type="turbulence" baseFrequency="0.016 0.022" numOctaves="3" result="wave" seed="2"></feTurbulence>' +
         '<feDisplacementMap in="SourceGraphic" in2="wave" scale="42" xChannelSelector="R" yChannelSelector="G" result="displaced"></feDisplacementMap>' +
-        '<feGaussianBlur in="displaced" stdDeviation="3.2" result="blurred"></feGaussianBlur>' +
-        '<feColorMatrix in="blurred" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -7.5" result="gooey"></feColorMatrix>' +
-        '<feBlend in="displaced" in2="gooey" mode="multiply"></feBlend>';
+        '<feGaussianBlur in="displaced" stdDeviation="3.0" result="blurred"></feGaussianBlur>' +
+        '<feColorMatrix in="blurred" mode="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 26 -8" result="gooey"></feColorMatrix>' +
+        '<feMerge>' +
+          '<feMergeNode in="gooey"></feMergeNode>' +
+          '<feMergeNode in="displaced"></feMergeNode>' +
+        '</feMerge>';
       svg.appendChild(filter);
     }
 
@@ -124,9 +127,12 @@
       filterLegacy.innerHTML =
         '<feTurbulence type="turbulence" baseFrequency="0.016 0.022" numOctaves="3" result="wave" seed="2"></feTurbulence>' +
         '<feDisplacementMap in="SourceGraphic" in2="wave" scale="42" xChannelSelector="R" yChannelSelector="G" result="displaced"></feDisplacementMap>' +
-        '<feGaussianBlur in="displaced" stdDeviation="3.2" result="blurred"></feGaussianBlur>' +
-        '<feColorMatrix in="blurred" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -7.5" result="gooey"></feColorMatrix>' +
-        '<feBlend in="displaced" in2="gooey" mode="multiply"></feBlend>';
+        '<feGaussianBlur in="displaced" stdDeviation="3.0" result="blurred"></feGaussianBlur>' +
+        '<feColorMatrix in="blurred" mode="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 26 -8" result="gooey"></feColorMatrix>' +
+        '<feMerge>' +
+          '<feMergeNode in="gooey"></feMergeNode>' +
+          '<feMergeNode in="displaced"></feMergeNode>' +
+        '</feMerge>';
       svg.appendChild(filterLegacy);
     }
 

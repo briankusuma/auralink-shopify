@@ -236,15 +236,15 @@
   -webkit-mask-image: radial-gradient(
     circle var(--bubble-r, 0px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
     transparent 0%,
-    transparent 55%,
-    rgba(0, 0, 0, 0.4) 80%,
+    transparent 72%,
+    rgba(0, 0, 0, 0.5) 90%,
     black 100%
   );
   mask-image: radial-gradient(
     circle var(--bubble-r, 0px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
     transparent 0%,
-    transparent 55%,
-    rgba(0, 0, 0, 0.4) 80%,
+    transparent 72%,
+    rgba(0, 0, 0, 0.5) 90%,
     black 100%
   );
   -webkit-mask-repeat: no-repeat;
@@ -270,15 +270,15 @@
   -webkit-mask-image: radial-gradient(
     circle var(--bubble-r, 0px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
     black 0%,
-    black 55%,
-    rgba(0, 0, 0, 0.6) 80%,
+    black 72%,
+    rgba(0, 0, 0, 0.5) 90%,
     transparent 100%
   );
   mask-image: radial-gradient(
     circle var(--bubble-r, 0px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
     black 0%,
-    black 55%,
-    rgba(0, 0, 0, 0.6) 80%,
+    black 72%,
+    rgba(0, 0, 0, 0.5) 90%,
     transparent 100%
   );
   -webkit-mask-repeat: no-repeat;
