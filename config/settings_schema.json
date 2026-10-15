@@ -232,6 +232,66 @@
     ]
   },
   {
+    "name": "Loading screen",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "enable_loading_screen",
+        "label": "Enable loading screen",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "loading_screen_first_visit_only",
+        "label": "Show on first visit only",
+        "info": "Display the loading screen only once per visitor browser session.",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "loading_screen_text",
+        "label": "Text logo",
+        "default": "AURALINK",
+        "info": "Text logo centered on screen with rolling scramble animation."
+      },
+      {
+        "type": "text",
+        "id": "loading_screen_label",
+        "label": "Progress label",
+        "default": "Loading",
+        "info": "Text displayed above the percentage count in the bottom-left corner."
+      },
+      {
+        "type": "range",
+        "id": "loading_screen_duration",
+        "min": 1,
+        "max": 4,
+        "step": 0.5,
+        "unit": "s",
+        "label": "Animation duration",
+        "default": 2
+      },
+      {
+        "type": "color",
+        "id": "loading_screen_bg_color",
+        "label": "Background color",
+        "default": "#F5F3F0"
+      },
+      {
+        "type": "color",
+        "id": "loading_screen_text_color",
+        "label": "Text color",
+        "default": "#121212"
+      },
+      {
+        "type": "color",
+        "id": "loading_screen_accent_color",
+        "label": "Accent color",
+        "default": "#707070"
+      }
+    ]
+  },
+  {
     "name": "t:settings_schema.buttons.name",
     "settings": [
       {

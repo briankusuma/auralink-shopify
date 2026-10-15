@@ -1,0 +1,61 @@
+{% comment %}
+  Renders the AuraLink loading screen / preloader.
+  Configured via Theme Settings (Loading screen).
+
+  Usage:
+  {% render 'loading-screen' %}
+{% endcomment %}
+
+{%- if settings.enable_loading_screen -%}
+  {{ 'loading-screen.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'loading-screen.js' | asset_url }}" defer="defer"></script>
+
+  {%- assign logo_text = settings.loading_screen_text | default: shop.name -%}
+  {%- assign label_text = settings.loading_screen_label | default: 'Loading' -%}
+  {%- assign duration = settings.loading_screen_duration | default: 2 -%}
+
+  <div
+    id="AuraLoadingScreen"
+    class="loading-screen"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    aria-label="{{ label_text }}"
+    data-duration="{{ duration }}"
+    data-first-visit="{{ settings.loading_screen_first_visit_only }}"
+    style="
+      --loading-bg: {{ settings.loading_screen_bg_color | default: '#F5F3F0' }};
+      --loading-text: {{ settings.loading_screen_text_color | default: '#121212' }};
+      --loading-accent: {{ settings.loading_screen_accent_color | default: '#707070' }};
+    "
+  >
+    <div class="loading-screen__inner">
+      {%- comment -%} Center: rolling scrambled text logo {%- endcomment -%}
+      <div class="loading-screen__center">
+        <h1
+          class="loading-screen__logo"
+          id="LoadingScreenLogo"
+          data-target-text="{{ logo_text | escape }}"
+          aria-label="{{ logo_text | escape }}"
+        >
+          <span class="loading-screen__logo-text" aria-hidden="true">{{ logo_text | escape }}</span>
+        </h1>
+      </div>
+
+      {%- comment -%} Bottom-Left: progress percentage (0 to 100%) with customizable schema label {%- endcomment -%}
+      <div class="loading-screen__bottom-left">
+        <div class="loading-screen__meta">
+          {%- if label_text != blank -%}
+            <span class="loading-screen__label">{{ label_text }}</span>
+          {%- endif -%}
+          <div class="loading-screen__counter" id="LoadingScreenCounter">
+            <span class="loading-screen__counter-number" id="LoadingScreenNumber">0</span><span class="loading-screen__counter-unit">%</span>
+          </div>
+        </div>
+        <div class="loading-screen__track" aria-hidden="true">
+          <div class="loading-screen__bar" id="LoadingScreenBar"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endif -%}
