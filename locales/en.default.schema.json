@@ -245,6 +245,16 @@
         "animations_reveal_on_scroll": {
           "label": "Reveal sections on scroll"
         },
+        "text_animation": {
+          "label": "Text animation",
+          "info": "Choose between animated liquid text reveal on scroll or plain text without animation.",
+          "options__1": {
+            "label": "Animated (liquid reveal)"
+          },
+          "options__2": {
+            "label": "Plain (no animation)"
+          }
+        },
         "animations_hover_elements": {
           "options__1": {
             "label": "None"

@@ -299,25 +299,43 @@
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, color 0.3s ease;
 }
 
-/* Progressive enhancement: when JavaScript is disabled */
+/* Progressive enhancement: when JavaScript is disabled or animations are plain / disabled */
 .no-js [data-reveal],
+.text-animations--plain [data-reveal],
+.animations--disabled [data-reveal],
 .no-js .split-line,
+.text-animations--plain .split-line,
+.animations--disabled .split-line,
 .no-js .split-line-h1,
+.text-animations--plain .split-line-h1,
+.animations--disabled .split-line-h1,
 .no-js .auralink-hero-title,
+.text-animations--plain .auralink-hero-title,
+.animations--disabled .auralink-hero-title,
 .no-js .auralink-hero-subtitle,
+.text-animations--plain .auralink-hero-subtitle,
+.animations--disabled .auralink-hero-subtitle,
 .no-js .auralink-hero-cta-btn,
-.no-js .auralink-hero-tags {
+.text-animations--plain .auralink-hero-cta-btn,
+.animations--disabled .auralink-hero-cta-btn,
+.no-js .auralink-hero-tags,
+.text-animations--plain .auralink-hero-tags,
+.animations--disabled .auralink-hero-tags {
   visibility: visible !important;
   opacity: 1 !important;
   filter: none !important;
 }
 
-.no-js .liquid-text-base {
+.no-js .liquid-text-base,
+.text-animations--plain .liquid-text-base,
+.animations--disabled .liquid-text-base {
   -webkit-mask-image: none !important;
   mask-image: none !important;
 }
 
-.no-js .auralink-hero-liquid-overlay {
+.no-js .auralink-hero-liquid-overlay,
+.text-animations--plain .auralink-hero-liquid-overlay,
+.animations--disabled .auralink-hero-liquid-overlay {
   display: none !important;
 }
 

@@ -634,13 +634,16 @@
 
       if (!titleEl) return;
 
-      // Split text into lines
-      const titleLines = splitTextLines(titleEl);
-      const subtitleLines = subtitleEl ? splitTextLines(subtitleEl) : [];
-
-      // Check prefers-reduced-motion
+      // Check prefers-reduced-motion or plain mode
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReducedMotion) {
+      const isPlainMode =
+        document.documentElement.classList.contains('text-animations--plain') ||
+        document.documentElement.classList.contains('animations--disabled') ||
+        (window.AuraLinkSettings &&
+          (window.AuraLinkSettings.textAnimation === 'plain' ||
+            window.AuraLinkSettings.animationsRevealOnScroll === false));
+
+      if (prefersReducedMotion || isPlainMode) {
         container.querySelectorAll('[data-reveal]').forEach(function (el) {
           el.style.visibility = 'visible';
           el.style.opacity = '1';
@@ -648,6 +651,10 @@
         });
         return;
       }
+
+      // Split text into lines
+      const titleLines = splitTextLines(titleEl);
+      const subtitleLines = subtitleEl ? splitTextLines(subtitleEl) : [];
 
       // Pre-attach SVG filters in initial state (melted mercury droplets)
       titleLines.forEach(function (line) {

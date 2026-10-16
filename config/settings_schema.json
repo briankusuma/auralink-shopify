@@ -210,6 +210,23 @@
       },
       {
         "type": "select",
+        "id": "text_animation",
+        "options": [
+          {
+            "value": "animated",
+            "label": "t:settings_schema.animations.settings.text_animation.options__1.label"
+          },
+          {
+            "value": "plain",
+            "label": "t:settings_schema.animations.settings.text_animation.options__2.label"
+          }
+        ],
+        "default": "animated",
+        "label": "t:settings_schema.animations.settings.text_animation.label",
+        "info": "t:settings_schema.animations.settings.text_animation.info"
+      },
+      {
+        "type": "select",
         "id": "animations_hover_elements",
         "options": [
           {

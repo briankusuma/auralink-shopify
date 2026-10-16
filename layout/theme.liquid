@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="js" lang="{{ request.locale.iso_code }}">
+<html class="js{% if settings.text_animation == 'plain' or settings.animations_reveal_on_scroll == false %} text-animations--plain animations--disabled{% endif %}" lang="{{ request.locale.iso_code }}">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -58,7 +58,14 @@
     <script src="{{ 'details-modal.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'standard-actions-override.js' | asset_url }}" defer="defer"></script>
-    <script src="{{ 'liquid-text-reveal.js' | asset_url }}" defer="defer"></script>
+    <script>
+      window.AuraLinkSettings = window.AuraLinkSettings || {};
+      window.AuraLinkSettings.textAnimation = {{ settings.text_animation | default: 'animated' | json }};
+      window.AuraLinkSettings.animationsRevealOnScroll = {{ settings.animations_reveal_on_scroll | json }};
+    </script>
+    {%- unless settings.text_animation == 'plain' or settings.animations_reveal_on_scroll == false -%}
+      <script src="{{ 'liquid-text-reveal.js' | asset_url }}" defer="defer"></script>
+    {%- endunless -%}
 
     {%- if settings.animations_reveal_on_scroll -%}
       <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>

@@ -19,6 +19,23 @@
     return 1 - Math.pow(1 - t, 2.5);
   }
 
+  function isPlainMode() {
+    if (
+      document.documentElement.classList.contains('text-animations--plain') ||
+      document.documentElement.classList.contains('animations--disabled')
+    ) {
+      return true;
+    }
+    if (
+      window.AuraLinkSettings &&
+      (window.AuraLinkSettings.textAnimation === 'plain' ||
+        window.AuraLinkSettings.animationsRevealOnScroll === false)
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   function getGlobalDefsSvg() {
     let svg = document.getElementById('global-liquid-goo-defs');
     if (!svg) {
@@ -240,6 +257,13 @@
   function initSingleLiquidReveal(el) {
     if (!el || el.dataset.liquidRevealInit === 'true') return;
 
+    if (isPlainMode()) {
+      el.style.visibility = 'visible';
+      el.style.opacity = '1';
+      el.style.filter = '';
+      return;
+    }
+
     // Strict exclusion: Hero lead has its own dedicated amoeba liquid ripple effect
     if (el.closest('.auralink-hero-lead')) return;
 
@@ -394,6 +418,18 @@
   function initAllLiquidReveals(container) {
     const root = container || document;
 
+    if (isPlainMode()) {
+      const targets = root.querySelectorAll(
+        '[data-liquid-reveal="text"], [data-reveal="text"], .liquid-reveal-init, .split-line, .split-line-h1'
+      );
+      targets.forEach(function (el) {
+        el.style.visibility = 'visible';
+        el.style.opacity = '1';
+        el.style.filter = '';
+      });
+      return;
+    }
+
     // 1. Target all explicitly marked text elements in sections (headings, paragraphs, spans)
     const targets = root.querySelectorAll('[data-liquid-reveal="text"], [data-reveal="text"]');
     targets.forEach(function (el) {
@@ -413,7 +449,7 @@
   }
 
   function replayLiquidReveal(container) {
-    if (!container) return;
+    if (!container || isPlainMode()) return;
 
     // Ensure all target elements within container are initialized
     initAllLiquidReveals(container);

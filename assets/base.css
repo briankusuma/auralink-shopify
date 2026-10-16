@@ -3674,8 +3674,25 @@ details-disclosure > details {
 .no-js [data-liquid-reveal="text"],
 .no-js .liquid-reveal-init,
 .no-js .split-line,
-.no-js .split-line-h1 {
+.no-js .split-line-h1,
+.text-animations--plain [data-liquid-reveal="text"],
+.text-animations--plain [data-reveal="text"],
+.text-animations--plain [data-reveal="fade"],
+.text-animations--plain .liquid-reveal-init,
+.text-animations--plain .split-line,
+.text-animations--plain .split-line-h1,
+.text-animations--plain .split-line-mask,
+.text-animations--plain .split-line-h1-mask,
+.animations--disabled [data-liquid-reveal="text"],
+.animations--disabled [data-reveal="text"],
+.animations--disabled [data-reveal="fade"],
+.animations--disabled .liquid-reveal-init,
+.animations--disabled .split-line,
+.animations--disabled .split-line-h1,
+.animations--disabled .split-line-mask,
+.animations--disabled .split-line-h1-mask {
   visibility: visible !important;
   opacity: 1 !important;
   filter: none !important;
+  transform: none !important;
 }
