@@ -1,4 +1,4 @@
-// ../../.gemini/antigravity-ide/brain/020d1aa1-c8c2-475c-a37c-40b1d2aab3f0/scratch/bundle_src/three-core.js
+// ../../.gemini/antigravity-ide/brain/725375f8-6803-443f-8dd8-46753d89d805/scratch/bundle_src/three-core.js
 var REVISION = "186";
 var MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2, ROTATE: 0, DOLLY: 1, PAN: 2 };
 var TOUCH = { ROTATE: 0, PAN: 1, DOLLY_PAN: 2, DOLLY_ROTATE: 3 };
@@ -19266,7 +19266,7 @@ if (typeof window !== "undefined") {
   }
 }
 
-// ../../.gemini/antigravity-ide/brain/020d1aa1-c8c2-475c-a37c-40b1d2aab3f0/scratch/bundle_src/three.js
+// ../../.gemini/antigravity-ide/brain/725375f8-6803-443f-8dd8-46753d89d805/scratch/bundle_src/three.js
 function WebGLAnimation() {
   let context = null;
   let isAnimating = false;
@@ -30764,7 +30764,7 @@ var WebGLRenderer = class {
   }
 };
 
-// ../../.gemini/antigravity-ide/brain/020d1aa1-c8c2-475c-a37c-40b1d2aab3f0/scratch/bundle_src/addons/controls/OrbitControls.js
+// ../../.gemini/antigravity-ide/brain/725375f8-6803-443f-8dd8-46753d89d805/scratch/bundle_src/addons/controls/OrbitControls.js
 var _changeEvent = { type: "change" };
 var _startEvent = { type: "start" };
 var _endEvent = { type: "end" };
@@ -31680,10 +31680,10 @@ function interceptControlUp(event) {
   }
 }
 
-// ../../.gemini/antigravity-ide/brain/020d1aa1-c8c2-475c-a37c-40b1d2aab3f0/scratch/bundle_src/addons/geometries/RoundedBoxGeometry.js
+// ../../.gemini/antigravity-ide/brain/725375f8-6803-443f-8dd8-46753d89d805/scratch/bundle_src/addons/geometries/RoundedBoxGeometry.js
 var _tempNormal = new Vector3();
 
-// ../../.gemini/antigravity-ide/brain/020d1aa1-c8c2-475c-a37c-40b1d2aab3f0/scratch/bundle_src/addons/environments/RoomEnvironment.js
+// ../../.gemini/antigravity-ide/brain/725375f8-6803-443f-8dd8-46753d89d805/scratch/bundle_src/addons/environments/RoomEnvironment.js
 var RoomEnvironment = class extends Scene {
   constructor() {
     super();
@@ -31784,7 +31784,7 @@ function createAreaLightMaterial(intensity) {
   return material;
 }
 
-// ../../.gemini/antigravity-ide/brain/020d1aa1-c8c2-475c-a37c-40b1d2aab3f0/scratch/bundle_src/radio_module_entry.js
+// ../../.gemini/antigravity-ide/brain/725375f8-6803-443f-8dd8-46753d89d805/scratch/bundle_src/radio_module_entry.js
 function initRadio3D(rootEl) {
   if (!rootEl) return null;
   const container = rootEl.querySelector(".auralink-radio-canvas-wrap");
@@ -31816,8 +31816,8 @@ function initRadio3D(rootEl) {
     0.1,
     100
   );
-  const DEFAULT_CAM_POS = new Vector3(2.28, 0.76, 4.9);
-  const DEFAULT_TARGET = new Vector3(0.04, -0.46, 0);
+  const DEFAULT_CAM_POS = new Vector3(1.89, 0.59, 4.24);
+  const DEFAULT_TARGET = new Vector3(0.12, -0.11, 0);
   camera.position.copy(DEFAULT_CAM_POS);
   const renderer = new WebGLRenderer({
     antialias: true,
@@ -31838,7 +31838,7 @@ function initRadio3D(rootEl) {
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.target.copy(DEFAULT_TARGET);
-  controls.minDistance = 4.85;
+  controls.minDistance = 3;
   controls.maxDistance = 7.5;
   controls.maxPolarAngle = Math.PI * 0.58;
   const ambientLight = new AmbientLight(16776178, 0.22);
