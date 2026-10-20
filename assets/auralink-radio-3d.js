@@ -31824,13 +31824,13 @@ function initRadio3D(rootEl) {
   const qTarY = urlParams ? urlParams.get("tarY") : null;
   const qTarZ = urlParams ? urlParams.get("tarZ") : null;
   const DEFAULT_CAM_POS = new Vector3(
-    qCamX !== null ? parseFloat(qCamX) : 1.48,
-    qCamY !== null ? parseFloat(qCamY) : 0.44,
-    qCamZ !== null ? parseFloat(qCamZ) : 4.35
+    qCamX !== null ? parseFloat(qCamX) : 1.89,
+    qCamY !== null ? parseFloat(qCamY) : 0.59,
+    qCamZ !== null ? parseFloat(qCamZ) : 4.24
   );
   const DEFAULT_TARGET = new Vector3(
-    qTarX !== null ? parseFloat(qTarX) : -0.42,
-    qTarY !== null ? parseFloat(qTarY) : -0.04,
+    qTarX !== null ? parseFloat(qTarX) : 0.02,
+    qTarY !== null ? parseFloat(qTarY) : -0.16,
     qTarZ !== null ? parseFloat(qTarZ) : 0
   );
   camera.position.copy(DEFAULT_CAM_POS);
