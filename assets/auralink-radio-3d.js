@@ -31837,7 +31837,7 @@ function initRadio3D(rootEl) {
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.target.set(0.04, -0.46, 0);
-  controls.minDistance = 1.8;
+  controls.minDistance = 3.95;
   controls.maxDistance = 7.5;
   controls.maxPolarAngle = Math.PI * 0.58;
   const ambientLight = new AmbientLight(16776178, 0.22);
