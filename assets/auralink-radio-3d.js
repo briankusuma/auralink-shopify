@@ -31825,11 +31825,15 @@ function initRadio3D(rootEl) {
   const qTarZ = urlParams ? urlParams.get("tarZ") : null;
   const DEFAULT_CAM_POS = new Vector3(
     qCamX !== null ? parseFloat(qCamX) : 1.89,
+    // ← X: makin besar, makin miring (kiri masuk, kanan menonjol)
     qCamY !== null ? parseFloat(qCamY) : 0.59,
+    // ← Y: makin besar, kamera makin dari atas
     qCamZ !== null ? parseFloat(qCamZ) : 4.24
+    // ← Z: makin kecil (dengan X naik), makin menyamping
   );
   const DEFAULT_TARGET = new Vector3(
     qTarX !== null ? parseFloat(qTarX) : 0.02,
+    // titik yang dilihat kamera
     qTarY !== null ? parseFloat(qTarY) : -0.16,
     qTarZ !== null ? parseFloat(qTarZ) : 0
   );
