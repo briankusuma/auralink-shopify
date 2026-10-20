@@ -31803,10 +31803,7 @@ function initRadio3D(rootEl) {
   try {
     const testCanvas = document.createElement("canvas");
     const gl = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
-    if (!gl) {
-      console.warn("WebGL not supported");
-      return null;
-    }
+    if (!gl) return null;
   } catch (e) {
     return null;
   }
@@ -31819,7 +31816,7 @@ function initRadio3D(rootEl) {
     0.1,
     100
   );
-  const DEFAULT_CAM_POS = new Vector3(2, 1.35, 6.3);
+  const DEFAULT_CAM_POS = new Vector3(1.76, 0.78, 3.58);
   camera.position.copy(DEFAULT_CAM_POS);
   const renderer = new WebGLRenderer({
     antialias: true,
@@ -31839,9 +31836,9 @@ function initRadio3D(rootEl) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
-  controls.target.set(0, -0.05, 0);
-  controls.minDistance = 2.8;
-  controls.maxDistance = 11;
+  controls.target.set(0.14, -0.2, 0);
+  controls.minDistance = 1.8;
+  controls.maxDistance = 7.5;
   controls.maxPolarAngle = Math.PI * 0.58;
   const ambientLight = new AmbientLight(16776178, 0.22);
   scene.add(ambientLight);
@@ -32017,7 +32014,7 @@ function initRadio3D(rootEl) {
   lcdTexture.colorSpace = SRGBColorSpace;
   const stations = [
     { freq: 98.4, name: "RETRO FM", genre: "SYNTHWAVE" },
-    { freq: 101.2, name: "JAKARTA", genre: "LO-FI JAZZ" },
+    { freq: 101.2, name: "AURALINK", genre: "LO-FI JAZZ" },
     { freq: 89.6, name: "BRAUN 3D", genre: "CHILLHOP" },
     { freq: 104.8, name: "CLASSIC", genre: "AMBIENT" },
     { freq: 92, name: "CYBER FM", genre: "ELECTRO" }
@@ -32499,7 +32496,7 @@ function initRadio3D(rootEl) {
   lcdScreenMesh.userData = {
     interactive: true,
     type: "screen",
-    label: "Layar LCD FM \u2014 Klik untuk ganti stasiun"
+    label: "LCD Display"
   };
   lcdGroup.add(lcdScreenMesh);
   const lcdGlowLight = new PointLight(13953816, 0.15, 1.2);
@@ -32580,9 +32577,9 @@ function initRadio3D(rootEl) {
   }
   const BTN_Y = 0.12;
   const KNOB_Y = -0.335;
-  createRoundButton(LCD_CX - 0.275, BTN_Y, "power", "Tombol Power (Klik ON/OFF)");
-  createRoundButton(LCD_CX, BTN_Y, "station", "Tombol Stasiun FM (Klik Ganti Channel)");
-  createPillButton(LCD_CX + 0.295, BTN_Y, "bass", "Tombol Mode Bass+ / Preset");
+  createRoundButton(LCD_CX - 0.275, BTN_Y, "power", "Power");
+  createRoundButton(LCD_CX, BTN_Y, "station", "FM Station");
+  createPillButton(LCD_CX + 0.295, BTN_Y, "bass", "Bass+");
   const dialHolder = new Group();
   dialHolder.position.set(LCD_CX, KNOB_Y, FRONT_Z);
   radioRoot.add(dialHolder);
@@ -32608,7 +32605,7 @@ function initRadio3D(rootEl) {
   knobMainMesh.userData = {
     interactive: true,
     type: "knob",
-    label: "Knob Volume \u2014 Scroll / Klik untuk atur volume"
+    label: "Volume"
   };
   knobRotatable.add(knobMainMesh);
   interactiveMeshes.push(knobMainMesh);
@@ -32799,7 +32796,7 @@ function initRadio3D(rootEl) {
     state.audioEnabled = !state.audioEnabled;
     const btn = e.currentTarget;
     btn.classList.toggle("active", state.audioEnabled);
-    if (audioLabel) audioLabel.textContent = state.audioEnabled ? "Suara: ON" : "Suara: MUTE";
+    if (audioLabel) audioLabel.textContent = state.audioEnabled ? "Sound: ON" : "Sound: MUTE";
     playClickSound(620);
     if (state.audioEnabled) startRadioSynth();
     else stopRadioSynth();
@@ -32819,7 +32816,7 @@ function initRadio3D(rootEl) {
   if (uiReset) uiReset.addEventListener("click", () => {
     playClickSound(600);
     camera.position.copy(DEFAULT_CAM_POS);
-    controls.target.set(0, -0.05, 0);
+    controls.target.set(0.14, -0.2, 0);
     controls.update();
   });
   updateVolumeUI();
@@ -32854,9 +32851,10 @@ function initRadio3D(rootEl) {
   if ((autoRotateAttr === "true" || autoRotateAttr === true) && !prefersReduced) {
     state.autoRotate = true;
     controls.autoRotate = true;
-    controls.autoRotateSpeed = 2.2;
+    controls.autoRotateSpeed = 2;
     if (uiAutoRotate) uiAutoRotate.classList.add("active");
   }
+  controls.enableZoom = true;
   if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) {
     controls.enableZoom = false;
   }
@@ -32865,10 +32863,15 @@ function initRadio3D(rootEl) {
       const w = entry.contentRect.width || container.clientWidth;
       const h = entry.contentRect.height || container.clientHeight;
       if (w > 0 && h > 0) {
-        camera.aspect = w / h;
-        if (w / h < 1) {
-          const zoomFactor = Math.max(1, 1.25 / (w / h));
-          camera.position.set(2 * zoomFactor * 0.9, 1.35 * zoomFactor * 0.9, 6.3 * zoomFactor * 0.9);
+        const aspect2 = w / h;
+        camera.aspect = aspect2;
+        if (aspect2 < 0.95) {
+          const zoomFactor = Math.max(1, 1.18 / aspect2);
+          camera.position.set(1.72 * zoomFactor, 1.05 * zoomFactor, 3.82 * zoomFactor);
+          controls.target.set(-0.06, -0.12 * zoomFactor, 0);
+        } else {
+          camera.position.copy(DEFAULT_CAM_POS);
+          controls.target.set(-0.06, -0.12, 0);
         }
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
@@ -32878,9 +32881,9 @@ function initRadio3D(rootEl) {
   resizeObserver.observe(container);
   const intersectionObserver = new IntersectionObserver((entries) => {
     for (const entry of entries) {
-      const prevVisible = isVisible;
+      const prev = isVisible;
       isVisible = entry.isIntersecting;
-      if (isVisible && !prevVisible && !animId) {
+      if (isVisible && !prev && !animId) {
         animId = requestAnimationFrame(animate);
       }
     }

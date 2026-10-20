@@ -73,20 +73,6 @@
           id="AuraLinkRadio3D-{{ section.id }}"
           data-auto-rotate="{{ section.settings.radio_auto_rotate }}"
         >
-          {% comment %} Top Header Overlay {% endcomment %}
-          <div class="auralink-radio-top-bar" aria-hidden="true">
-            <div class="auralink-radio-glass-badge">
-              <span class="auralink-radio-status-dot" data-radio-status></span>
-              <div class="auralink-radio-info-text">
-                <div class="auralink-radio-title-row">
-                  <span class="auralink-radio-title">{{ section.settings.radio_title | default: 'BRAUN / TE RETRO RADIO 3D' | escape }}</span>
-                  <span class="auralink-radio-freq-badge" data-radio-freq>FM 98.4 · VOL 75</span>
-                </div>
-                <div class="auralink-radio-subtitle-hint">Drag rotasi 360° • Klik tombol & knob untuk interaksi</div>
-              </div>
-            </div>
-          </div>
-
           {% comment %} 3D WebGL Canvas Container {% endcomment %}
           <div class="auralink-radio-canvas-wrap"></div>
 
@@ -113,29 +99,7 @@
           </div>
 
           {% comment %} Interactive Tooltip Pill {% endcomment %}
-          <div data-radio-tooltip class="auralink-radio-tooltip" aria-hidden="true">Klik untuk interaksi</div>
-
-          {% comment %} Bottom Controls Bar {% endcomment %}
-          <div class="auralink-radio-ctrls-bar" role="toolbar" aria-label="3D model controls">
-            <button type="button" class="auralink-radio-ctrl-btn active" data-radio-power title="Nyalakan / Matikan (atau klik tombol bulat di 3D)">
-              <span aria-hidden="true">⚡</span> <span data-radio-power-label>ON</span>
-            </button>
-            <button type="button" class="auralink-radio-ctrl-btn" data-radio-channel title="Ganti Stasiun FM (atau klik tombol tengah di 3D)">
-              <span aria-hidden="true">📻</span> <span>Stasiun</span>
-            </button>
-            <button type="button" class="auralink-radio-ctrl-btn" data-radio-audio title="Suara Synthesizer Retro">
-              <span aria-hidden="true">🔊</span> <span data-radio-audio-label>Suara: MUTE</span>
-            </button>
-            <button type="button" class="auralink-radio-ctrl-btn" data-radio-explode title="Bongkar Komponen 3D (Exploded View)">
-              <span aria-hidden="true">🧩</span> <span>Bongkar 3D</span>
-            </button>
-            <button type="button" class="auralink-radio-ctrl-btn" data-radio-autorotate title="Putar Otomatis">
-              <span aria-hidden="true">🔄</span> <span>Orbit</span>
-            </button>
-            <button type="button" class="auralink-radio-ctrl-btn" data-radio-reset title="Reset Sudut Kamera">
-              <span aria-hidden="true">🎯</span> <span>Reset</span>
-            </button>
-          </div>
+          <div data-radio-tooltip class="auralink-radio-tooltip" aria-hidden="true"></div>
         </div>
       {%- else -%}
         {%- if section.settings.device_image != blank -%}
