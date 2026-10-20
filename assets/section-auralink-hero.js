@@ -696,48 +696,76 @@
         runFadeRevealAnimation(fadeElements, fadeDelay);
       }
 
-      // Sync with theme loading screen if present
-      const loadingScreen = document.getElementById('AuraLoadingScreen');
-      const isLoadingActive = Boolean(
-        loadingScreen &&
-        !loadingScreen.classList.contains('loading-screen--done') &&
-        !window.auralinkLoadingDone
-      );
+      function showHeaderAndRevealHero() {
+        const headerOverlay = document.querySelector('.header-wrapper--overlay');
+        if (headerOverlay) {
+          headerOverlay.classList.add('header--visible');
+        }
+        setTimeout(triggerHeroReveal, 160);
+      }
 
-      if (isLoadingActive) {
-        const onLoadingDone = function () {
-          document.removeEventListener('auralink:loading:done', onLoadingDone);
-          setTimeout(triggerHeroReveal, 80);
+      // Check if 3D Radio is present on page and has cinematic intro active
+      const hasRadio3D = Boolean(document.querySelector('[data-auralink-radio-3d]'));
+      const prefersReduced = Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      const isDesignMode = Boolean(window.Shopify && window.Shopify.designMode);
+
+      if (hasRadio3D && !window.auralinkRadioDocked && !prefersReduced && !isDesignMode) {
+        const onRadioDocked = function () {
+          document.removeEventListener('auralink:radio:docked', onRadioDocked);
+          showHeaderAndRevealHero();
         };
-        document.addEventListener('auralink:loading:done', onLoadingDone);
+        document.addEventListener('auralink:radio:docked', onRadioDocked);
 
-        // Fallback safety timeout
+        // Safety fallback timeout: never block content if 3D scene takes too long
         setTimeout(function () {
-          if (!revealTriggered) triggerHeroReveal();
-        }, 3200);
+          if (!revealTriggered) {
+            showHeaderAndRevealHero();
+          }
+        }, 4500);
       } else {
-        if ('IntersectionObserver' in window) {
-          const observer = new IntersectionObserver(
-            function (entries) {
-              if (entries[0].isIntersecting) {
-                observer.disconnect();
-                triggerHeroReveal();
-              }
-            },
-            { threshold: 0.1 }
-          );
-          observer.observe(container);
+        // Sync with theme loading screen if present
+        const loadingScreen = document.getElementById('AuraLoadingScreen');
+        const isLoadingActive = Boolean(
+          loadingScreen &&
+          !loadingScreen.classList.contains('loading-screen--done') &&
+          !window.auralinkLoadingDone
+        );
+
+        if (isLoadingActive) {
+          const onLoadingDone = function () {
+            document.removeEventListener('auralink:loading:done', onLoadingDone);
+            setTimeout(showHeaderAndRevealHero, 80);
+          };
+          document.addEventListener('auralink:loading:done', onLoadingDone);
+
+          // Fallback safety timeout
+          setTimeout(function () {
+            if (!revealTriggered) showHeaderAndRevealHero();
+          }, 3200);
         } else {
-          triggerHeroReveal();
+          if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver(
+              function (entries) {
+                if (entries[0].isIntersecting) {
+                  observer.disconnect();
+                  showHeaderAndRevealHero();
+                }
+              },
+              { threshold: 0.1 }
+            );
+            observer.observe(container);
+          } else {
+            showHeaderAndRevealHero();
+          }
         }
       }
 
-      // Absolute guarantee: never leave text hidden under any circumstance
+      // Absolute guarantee: never leave text or header hidden under any circumstance
       setTimeout(function () {
         if (!revealTriggered) {
-          triggerHeroReveal();
+          showHeaderAndRevealHero();
         }
-      }, 4000);
+      }, 5000);
     });
   }
 

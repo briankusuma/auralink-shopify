@@ -31833,7 +31833,25 @@ function initRadio3D(rootEl) {
     qTarY !== null ? parseFloat(qTarY) : -0.16,
     qTarZ !== null ? parseFloat(qTarZ) : 0
   );
-  camera.position.copy(DEFAULT_CAM_POS);
+  const CAM_P1 = new Vector3(0, 4.3, 2.9);
+  const TAR_P1 = new Vector3(0, 0.1, 0);
+  const CAM_P2 = new Vector3(0.02, 0.08, 4.9);
+  const TAR_P2 = new Vector3(0.02, -0.05, 0);
+  const CAM_P3 = DEFAULT_CAM_POS.clone();
+  const TAR_P3 = DEFAULT_TARGET.clone();
+  const prefersReduced = Boolean(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const isDesignMode = Boolean(typeof window !== "undefined" && window.Shopify && window.Shopify.designMode);
+  const skipIntro = Boolean(prefersReduced || isDesignMode || urlParams && urlParams.get("skipIntro") === "true");
+  let introActive = !skipIntro;
+  let isIntroStarted = false;
+  let introStartTime = null;
+  let hasPoweredOn = skipIntro;
+  let lcdGlowLight = null;
+  if (skipIntro) {
+    camera.position.copy(DEFAULT_CAM_POS);
+  } else {
+    camera.position.copy(CAM_P1);
+  }
   const renderer = new WebGLRenderer({
     antialias: true,
     alpha: true,
@@ -31852,7 +31870,18 @@ function initRadio3D(rootEl) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
-  controls.target.copy(DEFAULT_TARGET);
+  if (skipIntro) {
+    controls.target.copy(DEFAULT_TARGET);
+    controls.enabled = true;
+    if (typeof window !== "undefined") {
+      window.auralinkRadioDocked = true;
+      document.dispatchEvent(new CustomEvent("auralink:radio:docked"));
+    }
+  } else {
+    controls.target.copy(TAR_P1);
+    camera.lookAt(TAR_P1);
+    controls.enabled = false;
+  }
   controls.minDistance = 4;
   controls.maxDistance = 7.5;
   controls.maxPolarAngle = Math.PI * 0.58;
@@ -32071,7 +32100,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     { freq: 92, name: "CYBER FM", genre: "ELECTRO" }
   ];
   const state = {
-    power: true,
+    power: skipIntro,
     stationIdx: 0,
     freq: 98.4,
     volume: 0.75,
@@ -32152,7 +32181,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     metalness: 0,
     emissive: new Color(12570636),
     emissiveMap: lcdTexture,
-    emissiveIntensity: 0.16
+    emissiveIntensity: skipIntro ? 0.16 : 0.02
   });
   function createPillShape(width, height) {
     const shape = new Shape();
@@ -32550,7 +32579,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     label: "LCD Display"
   };
   lcdGroup.add(lcdScreenMesh);
-  const lcdGlowLight = new PointLight(13953816, 0.15, 1.2);
+  lcdGlowLight = new PointLight(13953816, skipIntro ? 0.15 : 0, 1.2);
   lcdGlowLight.position.set(0, 0, 0.15);
   lcdGroup.add(lcdGlowLight);
   const buttonsGroup = new Group();
@@ -32878,12 +32907,98 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   });
   updateVolumeUI();
   knobRotatable.rotation.z = state.knobAngle;
+  function startIntroTimeline() {
+    if (isIntroStarted || skipIntro) return;
+    isIntroStarted = true;
+    introStartTime = performance.now();
+  }
+  if (!skipIntro) {
+    const loadingScreen = document.getElementById("AuraLoadingScreen");
+    const isLoadingActive = Boolean(
+      loadingScreen && !loadingScreen.classList.contains("loading-screen--done") && !window.auralinkLoadingDone
+    );
+    if (isLoadingActive) {
+      const onLoadingDone = () => {
+        document.removeEventListener("auralink:loading:done", onLoadingDone);
+        startIntroTimeline();
+      };
+      document.addEventListener("auralink:loading:done", onLoadingDone);
+      setTimeout(startIntroTimeline, 3200);
+    } else {
+      startIntroTimeline();
+    }
+  }
   const clock = new Clock();
   let isLooping = false;
   function animate() {
     if (!isLooping) return;
     animId = requestAnimationFrame(animate);
     const elapsed = clock.getElapsedTime();
+    if (introActive && isIntroStarted && introStartTime !== null) {
+      const now = performance.now();
+      const progressMs = now - introStartTime;
+      const tSec = progressMs / 1e3;
+      const smoothCubic = (t) => {
+        const clamped = Math.max(0, Math.min(1, t));
+        return clamped * clamped * (3 - 2 * clamped);
+      };
+      if (tSec < 0.35) {
+        camera.position.copy(CAM_P1);
+        controls.target.copy(TAR_P1);
+      } else if (tSec < 1.25) {
+        const p = smoothCubic((tSec - 0.35) / 0.9);
+        camera.position.lerpVectors(CAM_P1, CAM_P2, p);
+        controls.target.lerpVectors(TAR_P1, TAR_P2, p);
+      } else if (tSec < 1.55) {
+        camera.position.copy(CAM_P2);
+        controls.target.copy(TAR_P2);
+      } else if (tSec < 2.5) {
+        const p = smoothCubic((tSec - 1.55) / 0.95);
+        camera.position.lerpVectors(CAM_P2, CAM_P3, p);
+        controls.target.lerpVectors(TAR_P2, TAR_P3, p);
+        if (tSec >= 2 && !hasPoweredOn) {
+          hasPoweredOn = true;
+          state.power = true;
+          lcdMat.emissiveIntensity = 0.16;
+          if (lcdGlowLight) lcdGlowLight.intensity = 0.1;
+          try {
+            playClickSound(680);
+          } catch (e) {
+          }
+          if (powerLabel) powerLabel.textContent = "ON";
+          if (uiPower) uiPower.classList.add("active");
+          if (statusDot) {
+            statusDot.style.background = "#d6ea18";
+            statusDot.style.boxShadow = "0 0 10px #d6ea18";
+          }
+        }
+      } else {
+        introActive = false;
+        camera.position.copy(CAM_P3);
+        controls.target.copy(TAR_P3);
+        controls.enabled = true;
+        if (!hasPoweredOn) {
+          hasPoweredOn = true;
+          state.power = true;
+          lcdMat.emissiveIntensity = 0.16;
+          if (lcdGlowLight) lcdGlowLight.intensity = 0.1;
+          try {
+            playClickSound(680);
+          } catch (e) {
+          }
+          if (powerLabel) powerLabel.textContent = "ON";
+          if (uiPower) uiPower.classList.add("active");
+          if (statusDot) {
+            statusDot.style.background = "#d6ea18";
+            statusDot.style.boxShadow = "0 0 10px #d6ea18";
+          }
+        }
+        if (typeof window !== "undefined") {
+          window.auralinkRadioDocked = true;
+          document.dispatchEvent(new CustomEvent("auralink:radio:docked"));
+        }
+      }
+    }
     radioRoot.position.y = 0;
     updateLCD(elapsed);
     buttonObjects.forEach((btn) => {
@@ -32921,7 +33036,6 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   }
   startLoop();
   const autoRotateAttr = rootEl.getAttribute("data-auto-rotate");
-  const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if ((autoRotateAttr === "true" || autoRotateAttr === true) && !prefersReduced) {
     state.autoRotate = true;
     controls.autoRotate = true;
@@ -32939,7 +33053,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
       if (w > 0 && h > 0) {
         const aspect2 = w / h;
         camera.aspect = aspect2;
-        if (aspect2 < 0.95) {
+        if (aspect2 < 0.95 && !introActive) {
           const zoomFactor = Math.max(1, 1.18 / aspect2);
           camera.position.set(DEFAULT_CAM_POS.x * zoomFactor, DEFAULT_CAM_POS.y * zoomFactor, DEFAULT_CAM_POS.z * zoomFactor);
         }

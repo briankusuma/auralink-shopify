@@ -24,6 +24,31 @@
   transition: background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease, top 0.3s ease;
 }
 
+/* Cinematic entrance for Overlay Header on Index page */
+.template-index .header-wrapper--overlay:not(.shopify-section-header-sticky .header-wrapper--overlay):not(.scrolled-past-header .header-wrapper--overlay) {
+  opacity: 0;
+  transform: translateY(-24px);
+  pointer-events: none;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+.template-index .header-wrapper--overlay.header--visible,
+.shopify-design-mode .template-index .header-wrapper--overlay,
+.no-js .template-index .header-wrapper--overlay {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .template-index .header-wrapper--overlay:not(.shopify-section-header-sticky .header-wrapper--overlay):not(.scrolled-past-header .header-wrapper--overlay) {
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    transition: none !important;
+  }
+}
+
 .header-wrapper--overlay .header {
   max-width: var(--page-width, 1408px);
   margin: 0 auto;
