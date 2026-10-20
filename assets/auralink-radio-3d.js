@@ -31816,8 +31816,8 @@ function initRadio3D(rootEl) {
     0.1,
     100
   );
-  const DEFAULT_CAM_POS = new Vector3(1.89, 0.59, 4.24);
-  const DEFAULT_TARGET = new Vector3(0.12, -0.11, 0);
+  const DEFAULT_CAM_POS = new Vector3(2.5, 1.72, 6.1);
+  const DEFAULT_TARGET = new Vector3(-0.04, 0.55, 0);
   camera.position.copy(DEFAULT_CAM_POS);
   const renderer = new WebGLRenderer({
     antialias: true,
@@ -31838,8 +31838,8 @@ function initRadio3D(rootEl) {
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
   controls.target.copy(DEFAULT_TARGET);
-  controls.minDistance = 3;
-  controls.maxDistance = 7.5;
+  controls.minDistance = 2.5;
+  controls.maxDistance = 8.5;
   controls.maxPolarAngle = Math.PI * 0.58;
   const ambientLight = new AmbientLight(16776178, 0.22);
   scene.add(ambientLight);
