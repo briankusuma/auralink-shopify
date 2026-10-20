@@ -31824,12 +31824,12 @@ function initRadio3D(rootEl) {
   const qTarY = urlParams ? urlParams.get("tarY") : null;
   const qTarZ = urlParams ? urlParams.get("tarZ") : null;
   const DEFAULT_CAM_POS = new Vector3(
-    qCamX !== null ? parseFloat(qCamX) : 1.89,
+    qCamX !== null ? parseFloat(qCamX) : 2.04,
     // ← X: makin besar, makin miring (kiri masuk, kanan menonjol)
-    qCamY !== null ? parseFloat(qCamY) : 0.59,
-    // ← Y: makin besar, kamera makin dari atas
-    qCamZ !== null ? parseFloat(qCamZ) : 4.24
-    // ← Z: makin kecil (dengan X naik), makin menyamping
+    qCamY !== null ? parseFloat(qCamY) : 1.05,
+    // ← Y: 1.5x sudut pandang dari atas
+    qCamZ !== null ? parseFloat(qCamZ) : 4.58
+    // ← Z: zoom out 1x
   );
   const DEFAULT_TARGET = new Vector3(
     qTarX !== null ? parseFloat(qTarX) : 0.02,
@@ -31860,6 +31860,41 @@ function initRadio3D(rootEl) {
   controls.minDistance = 4;
   controls.maxDistance = 7.5;
   controls.maxPolarAngle = Math.PI * 0.58;
+  function logCameraStats() {
+    const cx = parseFloat(camera.position.x.toFixed(2));
+    const cy = parseFloat(camera.position.y.toFixed(2));
+    const cz = parseFloat(camera.position.z.toFixed(2));
+    const tx = parseFloat(controls.target.x.toFixed(2));
+    const ty = parseFloat(controls.target.y.toFixed(2));
+    const tz = parseFloat(controls.target.z.toFixed(2));
+    const dist = parseFloat(camera.position.distanceTo(controls.target).toFixed(2));
+    const dx = camera.position.x - controls.target.x;
+    const dy = camera.position.y - controls.target.y;
+    const dz = camera.position.z - controls.target.z;
+    const yawDeg = parseFloat((Math.atan2(dx, dz) * (180 / Math.PI)).toFixed(1));
+    const pitchDeg = parseFloat((Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180 / Math.PI)).toFixed(1));
+    console.log(
+      `%c\u{1F4FB} [3D RADIO KAMERA STATS]
+\u2022 Camera Position (X, Y, Z) : (${cx}, ${cy}, ${cz})
+\u2022 Camera Target   (X, Y, Z) : (${tx}, ${ty}, ${tz})
+\u2022 Jarak / Zoom    (Distance): ${dist}
+\u2022 Sudut Miring    (Yaw)     : ${yawDeg}\xB0
+\u2022 Sudut Elevasi   (Pitch)   : ${pitchDeg}\xB0 (dari atas)
+
+\u{1F4CB} Baris Code Siap Pakai:
+const DEFAULT_CAM_POS = new THREE.Vector3(${cx}, ${cy}, ${cz});
+const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
+
+\u{1F517} URL Test Cepat:
+?camX=${cx}&camY=${cy}&camZ=${cz}&tarX=${tx}&tarY=${ty}&tarZ=${tz}`,
+      "color: #00e676; font-weight: bold; background: #1a1a1a; padding: 6px 10px; border-radius: 4px;"
+    );
+  }
+  controls.addEventListener("end", logCameraStats);
+  if (typeof window !== "undefined") {
+    window.logRadioPosition = logCameraStats;
+  }
+  logCameraStats();
   const ambientLight = new AmbientLight(16776178, 0.22);
   scene.add(ambientLight);
   const keyLight = new DirectionalLight(16775404, 1.25);
