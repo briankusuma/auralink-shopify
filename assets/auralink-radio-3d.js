@@ -31816,8 +31816,23 @@ function initRadio3D(rootEl) {
     0.1,
     100
   );
-  const DEFAULT_CAM_POS = new Vector3(2.5, 1.72, 6.1);
-  const DEFAULT_TARGET = new Vector3(-0.04, 0.55, 0);
+  const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const qCamX = urlParams ? urlParams.get("camX") : null;
+  const qCamY = urlParams ? urlParams.get("camY") : null;
+  const qCamZ = urlParams ? urlParams.get("camZ") : null;
+  const qTarX = urlParams ? urlParams.get("tarX") : null;
+  const qTarY = urlParams ? urlParams.get("tarY") : null;
+  const qTarZ = urlParams ? urlParams.get("tarZ") : null;
+  const DEFAULT_CAM_POS = new Vector3(
+    qCamX !== null ? parseFloat(qCamX) : 1.89,
+    qCamY !== null ? parseFloat(qCamY) : 0.59,
+    qCamZ !== null ? parseFloat(qCamZ) : 4.24
+  );
+  const DEFAULT_TARGET = new Vector3(
+    qTarX !== null ? parseFloat(qTarX) : 0.02,
+    qTarY !== null ? parseFloat(qTarY) : -0.16,
+    qTarZ !== null ? parseFloat(qTarZ) : 0
+  );
   camera.position.copy(DEFAULT_CAM_POS);
   const renderer = new WebGLRenderer({
     antialias: true,
