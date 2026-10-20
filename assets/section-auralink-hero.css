@@ -192,6 +192,219 @@
 }
 
 /* ==========================================================================
+   3D Interactive Retro Radio (Three.js WebGL Model & Controls)
+   ========================================================================== */
+.auralink-radio-3d-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auralink-radio-canvas-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auralink-radio-3d-root.is-ready .auralink-radio-canvas-wrap {
+  opacity: 1;
+}
+
+.auralink-radio-canvas-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: grab;
+  touch-action: none;
+}
+
+.auralink-radio-canvas-wrap canvas:active {
+  cursor: grabbing;
+}
+
+.auralink-radio-fallback-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 1;
+  opacity: 1;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auralink-radio-3d-root.is-ready .auralink-radio-fallback-img {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Top Status Overlay */
+.auralink-radio-top-bar {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.auralink-radio-glass-badge {
+  background: rgba(20, 21, 25, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.auralink-radio-status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d6ea18;
+  box-shadow: 0 0 10px #d6ea18;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auralink-radio-info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.auralink-radio-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auralink-radio-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.auralink-radio-freq-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fde68a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 500;
+}
+
+.auralink-radio-subtitle-hint {
+  font-size: 10px;
+  color: #a3a3a3;
+  line-height: 1.2;
+}
+
+/* Interactive Hover Tooltip */
+.auralink-radio-tooltip {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 9999;
+  background: rgba(20, 21, 25, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 11px;
+  color: #bef264;
+  font-weight: 500;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.35);
+  transform: translate(0, 0);
+  white-space: nowrap;
+}
+
+/* Bottom Controls Bar */
+.auralink-radio-ctrls-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(20, 21, 25, 0.76);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 6px 12px;
+  max-width: 96%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+}
+
+.auralink-radio-ctrl-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f3f1ea;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.18s ease, transform 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  line-height: 1;
+  font-family: inherit;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.auralink-radio-ctrl-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.auralink-radio-ctrl-btn:focus-visible {
+  outline: 2px solid var(--auralink-color-accent, #d6ea18);
+  outline-offset: 2px;
+}
+
+.auralink-radio-ctrl-btn.active {
+  background: rgba(212, 232, 24, 0.22);
+  border-color: rgba(212, 232, 24, 0.65);
+  color: #e6fa3c;
+}
+
+
+/* ==========================================================================
    bleibtgleich.dev Liquid Goo Reveal (Initial Screen Load Only)
    ========================================================================== */
 
@@ -423,4 +636,35 @@
     margin-top: 32px;
     padding-top: 0;
   }
+
+  .auralink-radio-top-bar {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+
+  .auralink-radio-glass-badge {
+    padding: 6px 10px;
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .auralink-radio-subtitle-hint {
+    display: none;
+  }
+
+  .auralink-radio-ctrls-bar {
+    bottom: 10px;
+    padding: 4px 8px;
+    gap: 4px;
+    max-width: 98%;
+  }
+
+  .auralink-radio-ctrl-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+    min-height: 28px;
+  }
 }
+
