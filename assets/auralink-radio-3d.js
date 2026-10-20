@@ -31824,9 +31824,9 @@ function initRadio3D(rootEl) {
   const qTarY = urlParams ? urlParams.get("tarY") : null;
   const qTarZ = urlParams ? urlParams.get("tarZ") : null;
   const DEFAULT_CAM_POS = new Vector3(
-    qCamX !== null ? parseFloat(qCamX) : 2.31,
-    qCamY !== null ? parseFloat(qCamY) : 2.17,
-    qCamZ !== null ? parseFloat(qCamZ) : 4.67
+    qCamX !== null ? parseFloat(qCamX) : 1.67,
+    qCamY !== null ? parseFloat(qCamY) : 1.86,
+    qCamZ !== null ? parseFloat(qCamZ) : 5.07
   );
   const DEFAULT_TARGET = new Vector3(
     qTarX !== null ? parseFloat(qTarX) : 0.02,
