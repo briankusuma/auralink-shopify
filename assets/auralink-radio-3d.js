@@ -31817,6 +31817,7 @@ function initRadio3D(rootEl) {
     100
   );
   const DEFAULT_CAM_POS = new Vector3(2.28, 0.76, 4.9);
+  const DEFAULT_TARGET = new Vector3(0.04, -0.46, 0);
   camera.position.copy(DEFAULT_CAM_POS);
   const renderer = new WebGLRenderer({
     antialias: true,
@@ -31836,7 +31837,7 @@ function initRadio3D(rootEl) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
-  controls.target.set(0.04, -0.46, 0);
+  controls.target.copy(DEFAULT_TARGET);
   controls.minDistance = 4.85;
   controls.maxDistance = 7.5;
   controls.maxPolarAngle = Math.PI * 0.58;
@@ -32765,11 +32766,17 @@ function initRadio3D(rootEl) {
   });
   renderer.domElement.addEventListener("pointerup", (e) => {
     const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
-    if (dist > 6) return;
-    if (hoveredObj) {
-      const type = hoveredObj.userData.type;
-      if (hoveredObj.userData.baseZ !== void 0) {
-        triggerButtonAnimation(hoveredObj);
+    if (dist > 8) return;
+    const rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = (e.clientX - rect.left) / rect.width * 2 - 1;
+    pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+    const intersects2 = raycaster.intersectObjects(interactiveMeshes, false);
+    const targetObj = intersects2.length > 0 ? intersects2[0].object : hoveredObj;
+    if (targetObj) {
+      const type = targetObj.userData.type;
+      if (targetObj.userData.baseZ !== void 0) {
+        triggerButtonAnimation(targetObj);
       }
       if (type === "power") togglePower();
       else if (type === "station" || type === "screen") nextStation();
@@ -32816,14 +32823,16 @@ function initRadio3D(rootEl) {
   if (uiReset) uiReset.addEventListener("click", () => {
     playClickSound(600);
     camera.position.copy(DEFAULT_CAM_POS);
-    controls.target.set(0.04, -0.46, 0);
+    controls.target.copy(DEFAULT_TARGET);
     controls.update();
   });
   updateVolumeUI();
   knobRotatable.rotation.z = state.knobAngle;
   const clock = new Clock();
+  let isLooping = false;
   function animate() {
-    if (isVisible) animId = requestAnimationFrame(animate);
+    if (!isLooping) return;
+    animId = requestAnimationFrame(animate);
     const elapsed = clock.getElapsedTime();
     radioRoot.position.y = 0;
     updateLCD(elapsed);
@@ -32845,7 +32854,22 @@ function initRadio3D(rootEl) {
     controls.update();
     renderer.render(scene, camera);
   }
-  animate();
+  function startLoop() {
+    if (!isLooping) {
+      isLooping = true;
+      animId = requestAnimationFrame(animate);
+    }
+  }
+  function stopLoop() {
+    if (isLooping) {
+      isLooping = false;
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
+    }
+  }
+  startLoop();
   const autoRotateAttr = rootEl.getAttribute("data-auto-rotate");
   const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if ((autoRotateAttr === "true" || autoRotateAttr === true) && !prefersReduced) {
@@ -32867,11 +32891,7 @@ function initRadio3D(rootEl) {
         camera.aspect = aspect2;
         if (aspect2 < 0.95) {
           const zoomFactor = Math.max(1, 1.18 / aspect2);
-          camera.position.set(1.72 * zoomFactor, 1.05 * zoomFactor, 3.82 * zoomFactor);
-          controls.target.set(-0.06, -0.12 * zoomFactor, 0);
-        } else {
-          camera.position.copy(DEFAULT_CAM_POS);
-          controls.target.set(-0.06, -0.12, 0);
+          camera.position.set(DEFAULT_CAM_POS.x * zoomFactor, DEFAULT_CAM_POS.y * zoomFactor, DEFAULT_CAM_POS.z * zoomFactor);
         }
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
@@ -32881,19 +32901,19 @@ function initRadio3D(rootEl) {
   resizeObserver.observe(container);
   const intersectionObserver = new IntersectionObserver((entries) => {
     for (const entry of entries) {
-      const prev = isVisible;
-      isVisible = entry.isIntersecting;
-      if (isVisible && !prev && !animId) {
-        animId = requestAnimationFrame(animate);
+      if (entry.isIntersecting) {
+        startLoop();
+      } else {
+        stopLoop();
       }
     }
-  }, { threshold: 0.05 });
+  }, { threshold: 0.01 });
   intersectionObserver.observe(rootEl);
   requestAnimationFrame(() => {
     rootEl.classList.add("is-ready");
   });
   function destroy() {
-    if (animId) cancelAnimationFrame(animId);
+    stopLoop();
     stopRadioSynth();
     if (audioCtx) {
       try {
