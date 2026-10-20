@@ -180,6 +180,19 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* Initially center the 3D radio canvas before gliding to the right pedestal/table */
+.auralink-hero-media.is-intro-center {
+  transform: translateX(-30.46%);
+}
+
+.auralink-hero-media.is-docked,
+.no-js .auralink-hero-media,
+.shopify-design-mode .auralink-hero-media {
+  transform: translateX(0);
 }
 
 .auralink-hero-device-img {
@@ -438,6 +451,12 @@
     transition: none !important;
   }
 
+  .auralink-hero-media,
+  .auralink-hero-media.is-intro-center {
+    transform: none !important;
+    transition: none !important;
+  }
+
   .liquid-text-base {
     -webkit-mask-image: none !important;
     mask-image: none !important;
@@ -494,6 +513,11 @@
     margin: 24px auto 0;
     display: flex;
     justify-content: center;
+    transform: none !important;
+  }
+
+  .auralink-hero-media.is-intro-center {
+    transform: none !important;
   }
 
   .auralink-hero-device-img {

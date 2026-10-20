@@ -65,7 +65,7 @@
     </div>
 
     {% comment %} Right: Device Image & 3D Interactive Model - Figma Node 2899:1059 {% endcomment %}
-    <div class="auralink-hero-media">
+    <div class="auralink-hero-media{% if section.settings.enable_3d_device %} is-intro-center{% endif %}">
       {%- if section.settings.enable_3d_device -%}
         <div 
           class="auralink-radio-3d-root" 

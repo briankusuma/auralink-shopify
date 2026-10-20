@@ -31846,11 +31846,21 @@ function initRadio3D(rootEl) {
   let isIntroStarted = false;
   let introStartTime = null;
   let hasPoweredOn = skipIntro;
+  let hasStartedGlide = skipIntro;
   let lcdGlowLight = null;
+  const heroMedia = rootEl.closest(".auralink-hero-media");
   if (skipIntro) {
     camera.position.copy(DEFAULT_CAM_POS);
+    if (heroMedia) {
+      heroMedia.classList.remove("is-intro-center");
+      heroMedia.classList.add("is-docked");
+    }
   } else {
     camera.position.copy(CAM_P1);
+    if (heroMedia) {
+      heroMedia.classList.add("is-intro-center");
+      heroMedia.classList.remove("is-docked");
+    }
   }
   const renderer = new WebGLRenderer({
     antialias: true,
@@ -32953,6 +32963,16 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
         camera.position.copy(CAM_P2);
         controls.target.copy(TAR_P2);
       } else if (tSec < 2.5) {
+        if (tSec >= 1.55 && !hasStartedGlide) {
+          hasStartedGlide = true;
+          if (heroMedia) {
+            heroMedia.classList.remove("is-intro-center");
+            heroMedia.classList.add("is-docked");
+          }
+          if (typeof document !== "undefined") {
+            document.dispatchEvent(new CustomEvent("auralink:radio:glide"));
+          }
+        }
         const p = smoothCubic((tSec - 1.55) / 0.95);
         camera.position.lerpVectors(CAM_P2, CAM_P3, p);
         controls.target.lerpVectors(TAR_P2, TAR_P3, p);
@@ -32977,6 +32997,10 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
         camera.position.copy(CAM_P3);
         controls.target.copy(TAR_P3);
         controls.enabled = true;
+        if (heroMedia) {
+          heroMedia.classList.remove("is-intro-center");
+          heroMedia.classList.add("is-docked");
+        }
         if (!hasPoweredOn) {
           hasPoweredOn = true;
           state.power = true;

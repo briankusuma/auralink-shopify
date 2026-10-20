@@ -701,6 +701,11 @@
         if (headerOverlay) {
           headerOverlay.classList.add('header--visible');
         }
+        const heroMedia = container.querySelector('.auralink-hero-media');
+        if (heroMedia) {
+          heroMedia.classList.remove('is-intro-center');
+          heroMedia.classList.add('is-docked');
+        }
         setTimeout(triggerHeroReveal, 160);
       }
 
@@ -710,6 +715,15 @@
       const isDesignMode = Boolean(window.Shopify && window.Shopify.designMode);
 
       if (hasRadio3D && !window.auralinkRadioDocked && !prefersReduced && !isDesignMode) {
+        const onRadioGlide = function () {
+          const heroMedia = container.querySelector('.auralink-hero-media');
+          if (heroMedia) {
+            heroMedia.classList.remove('is-intro-center');
+            heroMedia.classList.add('is-docked');
+          }
+        };
+        document.addEventListener('auralink:radio:glide', onRadioGlide, { once: true });
+
         const onRadioDocked = function () {
           document.removeEventListener('auralink:radio:docked', onRadioDocked);
           showHeaderAndRevealHero();
