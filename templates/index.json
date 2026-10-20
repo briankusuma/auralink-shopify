@@ -20,6 +20,9 @@
         "tag_1": "Smart",
         "tag_2": "Safe",
         "tag_3": "Secure",
+        "enable_3d_device": true,
+        "radio_title": "BRAUN / TE RETRO RADIO 3D",
+        "radio_auto_rotate": false,
         "padding_top": 16,
         "padding_bottom": 40
       }
@@ -176,6 +179,7 @@
       "name": "Customer reviews",
       "settings": {
         "color_scheme": "",
+        "layout": "text_first",
         "heading": "Here’s what people says",
         "subheading": "Real stories from real homes—discover how our AI-powered devices are making everyday life smarter, safer, and more effortless.",
         "button_label": "Case study",
@@ -225,7 +229,7 @@
         "color_scheme": "scheme-1",
         "image_ratio": "adapt",
         "image_shape": "default",
-        "show_secondary_image": false,
+        "show_secondary_image": true,
         "show_vendor": false,
         "show_rating": false,
         "quick_add": "none",
