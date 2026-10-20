@@ -31816,7 +31816,7 @@ function initRadio3D(rootEl) {
     0.1,
     100
   );
-  const DEFAULT_CAM_POS = new Vector3(1.76, 0.78, 3.58);
+  const DEFAULT_CAM_POS = new Vector3(2.28, 0.76, 4.9);
   camera.position.copy(DEFAULT_CAM_POS);
   const renderer = new WebGLRenderer({
     antialias: true,
@@ -31836,7 +31836,7 @@ function initRadio3D(rootEl) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
-  controls.target.set(0.14, -0.2, 0);
+  controls.target.set(0.04, -0.46, 0);
   controls.minDistance = 1.8;
   controls.maxDistance = 7.5;
   controls.maxPolarAngle = Math.PI * 0.58;
@@ -32816,7 +32816,7 @@ function initRadio3D(rootEl) {
   if (uiReset) uiReset.addEventListener("click", () => {
     playClickSound(600);
     camera.position.copy(DEFAULT_CAM_POS);
-    controls.target.set(0.14, -0.2, 0);
+    controls.target.set(0.04, -0.46, 0);
     controls.update();
   });
   updateVolumeUI();
