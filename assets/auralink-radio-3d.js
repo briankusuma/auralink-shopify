@@ -32960,11 +32960,14 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
 
   // --- 6. CONTACT SHADOW FLOOR ---
   const shadowPlaneGeo = new PlaneGeometry(12, 12);
-  const shadowPlaneMat = new ShadowMaterial({ opacity: 0.16 });
+  const shadowPlaneMat = new ShadowMaterial({ opacity: 0 });
+  let shadowRevealStart = null;
+  const heroContainer = rootEl.closest(".auralink-hero-container");
   const shadowPlane = new Mesh(shadowPlaneGeo, shadowPlaneMat);
   shadowPlane.rotation.x = -Math.PI / 2;
   shadowPlane.position.y = -BODY_H / 2 * RADIO_HEIGHT_SCALE - 0.005;
   shadowPlane.receiveShadow = true;
+  shadowPlane.visible = false;
   scene.add(shadowPlane);
 
   // Fit the complete radio, including its dial, inside the current canvas.
@@ -33299,6 +33302,13 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     state.speakerPulse *= 0.88;
     controls.update();
     if (wasIntroActive) fitRadioInCanvas();
+    const heroRevealed = !heroContainer || heroContainer.dataset.heroRevealComplete === "true";
+    if (!introActive && heroRevealed) {
+      if (shadowRevealStart === null) shadowRevealStart = performance.now();
+      const progress = prefersReduced ? 1 : Math.min(1, (performance.now() - shadowRevealStart) / 800);
+      shadowPlane.visible = true;
+      shadowPlaneMat.opacity = 0.16 * progress * progress * (3 - 2 * progress);
+    }
     renderer.render(scene, camera);
   }
   function startLoop() {

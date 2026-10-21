@@ -171,6 +171,7 @@
   function runTextRevealAnimation(lineElements, baseStdDev, delayOffset, onCompleteAll) {
     const startDelay = typeof delayOffset === 'number' ? delayOffset : 0;
     let completedCount = 0;
+    if (!lineElements.length && onCompleteAll) onCompleteAll();
 
     lineElements.forEach(function (lineEl, lineIndex) {
       const filterId = attachGooFilter(lineEl, baseStdDev);
@@ -307,7 +308,9 @@
   }
 
   // Exact replication of animateDivReveal() / data-reveal="fade" from bleibtgleich.dev
-  function runFadeRevealAnimation(fadeElements, delayOffset) {
+  function runFadeRevealAnimation(fadeElements, delayOffset, onCompleteAll) {
+    let completedCount = 0;
+    if (!fadeElements.length && onCompleteAll) onCompleteAll();
     const startDelay = typeof delayOffset === 'number' ? delayOffset : 350;
 
     fadeElements.forEach(function (el, idx) {
@@ -339,6 +342,8 @@
         } else {
           el.style.opacity = '1';
           el.style.filter = '';
+          completedCount++;
+          if (completedCount === fadeElements.length && onCompleteAll) onCompleteAll();
         }
       }
 
@@ -632,7 +637,10 @@
       const subtitleEl = container.querySelector('.auralink-hero-subtitle[data-reveal="text"]');
       const fadeElements = Array.from(container.querySelectorAll('[data-reveal="fade"]'));
 
-      if (!titleEl) return;
+      if (!titleEl) {
+        container.dataset.heroRevealComplete = 'true';
+        return;
+      }
 
       // Check prefers-reduced-motion or plain mode
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -644,6 +652,7 @@
             window.AuraLinkSettings.animationsRevealOnScroll === false));
 
       if (prefersReducedMotion || isPlainMode) {
+        container.dataset.heroRevealComplete = 'true';
         container.querySelectorAll('[data-reveal]').forEach(function (el) {
           el.style.visibility = 'visible';
           el.style.opacity = '1';
@@ -676,6 +685,12 @@
         if (revealTriggered) return;
         revealTriggered = true;
 
+        let completedReveals = 0;
+        function completeReveal() {
+          completedReveals++;
+          if (completedReveals === 3) container.dataset.heroRevealComplete = 'true';
+        }
+
         // Make elements visible & start gooey coalescence
         if (titleEl) titleEl.style.visibility = 'visible';
         if (subtitleEl) subtitleEl.style.visibility = 'visible';
@@ -683,17 +698,19 @@
         // 1. Run title text reveal (initial blur 48 -> mercury drops merge & condense into letters)
         runTextRevealAnimation(titleLines, 48, 80, function () {
           if (syncOverlay) syncOverlay();
+          completeReveal();
         });
 
         // 2. Run subtitle text reveal (initial blur 24, staggered right after title)
         const subDelay = Math.max(200, titleLines.length * STAGGER + 80);
         runTextRevealAnimation(subtitleLines, 24, subDelay, function () {
           if (syncOverlay) syncOverlay();
+          completeReveal();
         });
 
         // 3. Run fade reveal for CTA button & badges
         const fadeDelay = subDelay + (subtitleLines.length * STAGGER) + 80;
-        runFadeRevealAnimation(fadeElements, fadeDelay);
+        runFadeRevealAnimation(fadeElements, fadeDelay, completeReveal);
       }
 
       function showHeaderAndRevealHero() {
