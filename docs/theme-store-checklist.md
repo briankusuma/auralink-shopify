@@ -294,3 +294,12 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - [ ] Third-party assets and licenses recorded in `docs/third-party-licenses.md`
 - [ ] Figma deviations recorded in `docs/figma-deviations.md`
 - [ ] Final re-read of the official requirements page completed on: ____-__-__
+
+## Radio canvas change — 2026-10-21
+
+- Source: user-supplied HTML radio reference; this task explicitly uses that reference instead of a new Figma frame.
+- Mapping: retain the existing hero section, canvas container, settings, fallback image, intro timeline, and Theme Editor lifecycle; replace radio geometry, procedural materials, LCD, and studio lighting in the existing asset. No new section, block, setting, or external host.
+- Reference navbar and control bar excluded. Power, station, bass, volume, and orbit remain on the radio; keyboard shortcuts added without visible controls. Synthetic audio starts only after a user power-on action.
+- Local checks: JavaScript syntax, added geometry construction, and Theme Check passed (176 files, no offenses).
+- Still pending: storefront desktop/mobile visual comparison, keyboard/focus and touch interaction, Theme Editor reload, and Lighthouse with real content. Chrome automation encountered an unrelated extension-install permission dialog; no extension permissions were granted. These submission gates remain unchecked.
+- Official requirements page retrieved on 2026-10-21 for this change; this is not a full re-verification of every checklist item.

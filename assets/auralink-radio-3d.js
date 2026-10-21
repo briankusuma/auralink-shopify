@@ -31785,21 +31785,359 @@ function createAreaLightMaterial(intensity) {
 }
 
 // ../../.gemini/antigravity-ide/brain/725375f8-6803-443f-8dd8-46753d89d805/scratch/bundle_src/radio_module_entry.js
+// Three.js geometry helpers from the MIT-licensed supplied reference.
+class ShapeGeometry extends BufferGeometry {
+
+	/**
+	 * Constructs a new shape geometry.
+	 *
+	 * @param {Shape|Array<Shape>} [shapes] - A shape or an array of shapes.
+	 * @param {number} [curveSegments=12] - Number of segments per shape.
+	 */
+	constructor( shapes = new Shape( [ new Vector2( 0, 0.5 ), new Vector2( -0.5, -0.5 ), new Vector2( 0.5, -0.5 ) ] ), curveSegments = 12 ) {
+
+		super();
+
+		this.type = 'ShapeGeometry';
+
+		/**
+		 * Holds the constructor parameters that have been
+		 * used to generate the geometry. Any modification
+		 * after instantiation does not change the geometry.
+		 *
+		 * @type {Object}
+		 */
+		this.parameters = {
+			shapes: shapes,
+			curveSegments: curveSegments
+		};
+
+		// buffers
+
+		const indices = [];
+		const vertices = [];
+		const normals = [];
+		const uvs = [];
+
+		// helper variables
+
+		let groupStart = 0;
+		let groupCount = 0;
+
+		// allow single and array values for "shapes" parameter
+
+		if ( Array.isArray( shapes ) === false ) {
+
+			addShape( shapes );
+
+		} else {
+
+			for ( let i = 0; i < shapes.length; i ++ ) {
+
+				addShape( shapes[ i ] );
+
+				this.addGroup( groupStart, groupCount, i ); // enables MultiMaterial support
+
+				groupStart += groupCount;
+				groupCount = 0;
+
+			}
+
+		}
+
+		// build geometry
+
+		this.setIndex( indices );
+		this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+		this.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+		this.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
+
+
+		// helper functions
+
+		function addShape( shape ) {
+
+			const indexOffset = vertices.length / 3;
+			const points = shape.extractPoints( curveSegments );
+
+			let shapeVertices = points.shape;
+			const shapeHoles = points.holes;
+
+			// check direction of vertices
+
+			if ( ShapeUtils.isClockWise( shapeVertices ) === false ) {
+
+				shapeVertices = shapeVertices.reverse();
+
+			}
+
+			for ( let i = 0, l = shapeHoles.length; i < l; i ++ ) {
+
+				const shapeHole = shapeHoles[ i ];
+
+				if ( ShapeUtils.isClockWise( shapeHole ) === true ) {
+
+					shapeHoles[ i ] = shapeHole.reverse();
+
+				}
+
+			}
+
+			const faces = ShapeUtils.triangulateShape( shapeVertices, shapeHoles );
+
+			// join vertices of inner and outer paths to a single array
+
+			for ( let i = 0, l = shapeHoles.length; i < l; i ++ ) {
+
+				const shapeHole = shapeHoles[ i ];
+				shapeVertices = shapeVertices.concat( shapeHole );
+
+			}
+
+			// vertices, normals, uvs
+
+			for ( let i = 0, l = shapeVertices.length; i < l; i ++ ) {
+
+				const vertex = shapeVertices[ i ];
+
+				vertices.push( vertex.x, vertex.y, 0 );
+				normals.push( 0, 0, 1 );
+				uvs.push( vertex.x, vertex.y ); // world uvs
+
+			}
+
+			// indices
+
+			for ( let i = 0, l = faces.length; i < l; i ++ ) {
+
+				const face = faces[ i ];
+
+				const a = face[ 0 ] + indexOffset;
+				const b = face[ 1 ] + indexOffset;
+				const c = face[ 2 ] + indexOffset;
+
+				indices.push( a, b, c );
+				groupCount += 3;
+
+			}
+
+		}
+
+	}
+
+	copy( source ) {
+
+		super.copy( source );
+
+		this.parameters = Object.assign( {}, source.parameters );
+
+		return this;
+
+	}
+
+	toJSON() {
+
+		const data = super.toJSON();
+
+		const shapes = this.parameters.shapes;
+
+		return toJSON( shapes, data );
+
+	}
+
+	/**
+	 * Factory method for creating an instance of this class from the given
+	 * JSON object.
+	 *
+	 * @param {Object} data - A JSON object representing the serialized geometry.
+	 * @param {Array<Shape>} shapes - An array of shapes.
+	 * @return {ShapeGeometry} A new instance.
+	 */
+	static fromJSON( data, shapes ) {
+
+		const geometryShapes = [];
+
+		for ( let j = 0, jl = data.shapes.length; j < jl; j ++ ) {
+
+			const shape = shapes[ data.shapes[ j ] ];
+
+			geometryShapes.push( shape );
+
+		}
+
+		return new ShapeGeometry( geometryShapes, data.curveSegments );
+
+	}
+
+}
+
+class SphereGeometry extends BufferGeometry {
+
+	/**
+	 * Constructs a new sphere geometry.
+	 *
+	 * @param {number} [radius=1] - The sphere radius.
+	 * @param {number} [widthSegments=32] - The number of horizontal segments. Minimum value is `3`.
+	 * @param {number} [heightSegments=16] - The number of vertical segments. Minimum value is `2`.
+	 * @param {number} [phiStart=0] - The horizontal starting angle in radians.
+	 * @param {number} [phiLength=Math.PI*2] - The horizontal sweep angle size.
+	 * @param {number} [thetaStart=0] - The vertical starting angle in radians.
+	 * @param {number} [thetaLength=Math.PI] - The vertical sweep angle size.
+	 */
+	constructor( radius = 1, widthSegments = 32, heightSegments = 16, phiStart = 0, phiLength = Math.PI * 2, thetaStart = 0, thetaLength = Math.PI ) {
+
+		super();
+
+		this.type = 'SphereGeometry';
+
+		/**
+		 * Holds the constructor parameters that have been
+		 * used to generate the geometry. Any modification
+		 * after instantiation does not change the geometry.
+		 *
+		 * @type {Object}
+		 */
+		this.parameters = {
+			radius: radius,
+			widthSegments: widthSegments,
+			heightSegments: heightSegments,
+			phiStart: phiStart,
+			phiLength: phiLength,
+			thetaStart: thetaStart,
+			thetaLength: thetaLength
+		};
+
+		widthSegments = Math.max( 3, Math.floor( widthSegments ) );
+		heightSegments = Math.max( 2, Math.floor( heightSegments ) );
+
+		const thetaEnd = Math.min( thetaStart + thetaLength, Math.PI );
+
+		let index = 0;
+		const grid = [];
+
+		const vertex = new Vector3();
+		const normal = new Vector3();
+
+		// buffers
+
+		const indices = [];
+		const vertices = [];
+		const normals = [];
+		const uvs = [];
+
+		// generate vertices, normals and uvs
+
+		for ( let iy = 0; iy <= heightSegments; iy ++ ) {
+
+			const verticesRow = [];
+
+			const v = iy / heightSegments;
+			const theta = thetaStart + v * thetaLength;
+
+			const y = radius * Math.cos( theta );
+			const ringRadius = Math.sqrt( radius * radius - y * y );
+
+			// special case for the poles
+
+			let uOffset = 0;
+
+			if ( iy === 0 && thetaStart === 0 ) {
+
+				uOffset = 0.5 / widthSegments;
+
+			} else if ( iy === heightSegments && thetaEnd === Math.PI ) {
+
+				uOffset = -0.5 / widthSegments;
+
+			}
+
+			for ( let ix = 0; ix <= widthSegments; ix ++ ) {
+
+				const u = ix / widthSegments;
+				const phi = phiStart + u * phiLength;
+
+				// vertex
+
+				vertex.x = - ringRadius * Math.cos( phi );
+				vertex.y = y;
+				vertex.z = ringRadius * Math.sin( phi );
+
+				vertices.push( vertex.x, vertex.y, vertex.z );
+
+				// normal
+
+				normal.copy( vertex ).normalize();
+				normals.push( normal.x, normal.y, normal.z );
+
+				// uv
+
+				uvs.push( u + uOffset, 1 - v );
+
+				verticesRow.push( index ++ );
+
+			}
+
+			grid.push( verticesRow );
+
+		}
+
+		// indices
+
+		for ( let iy = 0; iy < heightSegments; iy ++ ) {
+
+			for ( let ix = 0; ix < widthSegments; ix ++ ) {
+
+				const a = grid[ iy ][ ix + 1 ];
+				const b = grid[ iy ][ ix ];
+				const c = grid[ iy + 1 ][ ix ];
+				const d = grid[ iy + 1 ][ ix + 1 ];
+
+				if ( iy !== 0 || thetaStart > 0 ) indices.push( a, b, d );
+				if ( iy !== heightSegments - 1 || thetaEnd < Math.PI ) indices.push( b, c, d );
+
+			}
+
+		}
+
+		// build geometry
+
+		this.setIndex( indices );
+		this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+		this.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+		this.setAttribute( 'uv', new Float32BufferAttribute( uvs, 2 ) );
+
+	}
+
+	copy( source ) {
+
+		super.copy( source );
+
+		this.parameters = Object.assign( {}, source.parameters );
+
+		return this;
+
+	}
+
+	/**
+	 * Factory method for creating an instance of this class from the given
+	 * JSON object.
+	 *
+	 * @param {Object} data - A JSON object representing the serialized geometry.
+	 * @return {SphereGeometry} A new instance.
+	 */
+	static fromJSON( data ) {
+
+		return new SphereGeometry( data.radius, data.widthSegments, data.heightSegments, data.phiStart, data.phiLength, data.thetaStart, data.thetaLength );
+
+	}
+
+}
+
 function initRadio3D(rootEl) {
   if (!rootEl) return null;
   const container = rootEl.querySelector(".auralink-radio-canvas-wrap");
   if (!container) return null;
   const tooltip = rootEl.querySelector("[data-radio-tooltip]");
-  const freqBadge = rootEl.querySelector("[data-radio-freq]");
-  const statusDot = rootEl.querySelector("[data-radio-status]");
-  const uiPower = rootEl.querySelector("[data-radio-power]");
-  const powerLabel = rootEl.querySelector("[data-radio-power-label]");
-  const uiChannel = rootEl.querySelector("[data-radio-channel]");
-  const uiAudio = rootEl.querySelector("[data-radio-audio]");
-  const audioLabel = rootEl.querySelector("[data-radio-audio-label]");
-  const uiExplode = rootEl.querySelector("[data-radio-explode]");
-  const uiAutoRotate = rootEl.querySelector("[data-radio-autorotate]");
-  const uiReset = rootEl.querySelector("[data-radio-reset]");
   try {
     const testCanvas = document.createElement("canvas");
     const gl = testCanvas.getContext("webgl") || testCanvas.getContext("experimental-webgl");
@@ -31870,13 +32208,19 @@ function initRadio3D(rootEl) {
   renderer.setSize(container.clientWidth || 600, container.clientHeight || 500);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 2, 2));
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = PCFSoftShadowMap;
+  renderer.shadowMap.type = PCFShadowMap;
   renderer.toneMapping = ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.78;
+  renderer.toneMappingExposure = 0.88;
+  renderer.domElement.tabIndex = 0;
+  renderer.domElement.setAttribute("role", "group");
+  renderer.domElement.setAttribute("aria-label", "Interactive radio. P: power and sound. S: station. B: bass. Up and down arrows: volume. Left and right arrows: rotate.");
   container.appendChild(renderer.domElement);
   const pmremGenerator = new PMREMGenerator(renderer);
-  scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
-  scene.environmentIntensity = 0.28;
+  const environmentRoom = new RoomEnvironment();
+  const environmentTarget = pmremGenerator.fromScene(environmentRoom, 0.04);
+  scene.environment = environmentTarget.texture;
+  environmentRoom.dispose();
+  scene.environmentIntensity = 0.38;
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.06;
@@ -31930,10 +32274,13 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     window.logRadioPosition = logCameraStats;
   }
   logCameraStats();
-  const ambientLight = new AmbientLight(16776178, 0.22);
+  // --- 2. STUDIO LIGHTING ---
+  const ambientLight = new AmbientLight(0xfffbf2, 0.30);
   scene.add(ambientLight);
-  const keyLight = new DirectionalLight(16775404, 1.25);
-  keyLight.position.set(-4.5, 6.5, 5);
+
+  // Key light from top-left-front (matching highlight on the top/left bezel and dial top)
+  const keyLight = new DirectionalLight(0xfff8ec, 1.85);
+  keyLight.position.set(-4.5, 6.5, 4.0);
   keyLight.castShadow = true;
   keyLight.shadow.mapSize.width = 2048;
   keyLight.shadow.mapSize.height = 2048;
@@ -31944,171 +32291,142 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   keyLight.shadow.camera.right = d;
   keyLight.shadow.camera.top = d;
   keyLight.shadow.camera.bottom = -d;
-  keyLight.shadow.bias = -5e-4;
+  keyLight.shadow.bias = -0.0005;
   keyLight.shadow.radius = 3.5;
   scene.add(keyLight);
-  const fillLight = new DirectionalLight(16771012, 0.28);
-  fillLight.position.set(5, 2, 3);
+
+  // Warm fill from right
+  const fillLight = new DirectionalLight(0xfff5e7, 0.12);
+  fillLight.position.set(5.0, 2.0, 3.0);
   scene.add(fillLight);
-  const rimLight = new DirectionalLight(14412542, 0.3);
-  rimLight.position.set(0, 4, -5.5);
+
+  // Back rim light for 3D separation
+  const rimLight = new DirectionalLight(0xfff9ef, 0.12);
+  rimLight.position.set(0.0, 4.0, -5.5);
   scene.add(rimLight);
-  function createFineNoiseTextures() {
+
+  // --- 3. PROCEDURAL TEXTURES (Fine Matte Plastic Grain & Dynamic LCD Screen) ---
+  // Fine molded-plastic stipple: dense rounded grains with shallow relief.
+  function createPlasticBumpTexture() {
     const size = 512;
-    const height = new Float32Array(size * size);
-    function hash(x, y) {
-      let n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
-      return n - Math.floor(n);
-    }
-    function smoothNoise(x, y, s) {
-      const gridN = Math.round(size / s);
-      const gx = Math.floor(x / s), gy = Math.floor(y / s);
-      const fx = x / s - gx, fy = y / s - gy;
-      const wx = fx * fx * (3 - 2 * fx), wy = fy * fy * (3 - 2 * fy);
-      const x0 = (gx % gridN + gridN) % gridN;
-      const x1 = (x0 + 1) % gridN;
-      const y0 = (gy % gridN + gridN) % gridN;
-      const y1 = (y0 + 1) % gridN;
-      const v00 = hash(x0, y0), v10 = hash(x1, y0);
-      const v01 = hash(x0, y1), v11 = hash(x1, y1);
-      return (v00 * (1 - wx) + v10 * wx) * (1 - wy) + (v01 * (1 - wx) + v11 * wx) * wy;
-    }
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    const image = ctx.createImageData(size, size);
+    let seed = 4317;
+    const random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+    // Periodic low-resolution height field gives the grain visible body,
+    // while fine noise keeps the plastic from looking smoothly embossed.
+    const grainSize = 192;
+    const grains = Float32Array.from({ length: grainSize * grainSize }, () => random() * 2 - 1);
+    const grainAt = (x, y) => grains[(y % grainSize) * grainSize + x % grainSize];
+    const ease = t => t * t * (3 - 2 * t);
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
-        let nMed = smoothNoise(x, y, 8) * 0.35;
-        let nFine = smoothNoise(x, y, 4) * 0.35;
-        let nMicro = smoothNoise(x, y, 2) * 0.15;
-        let nSharp = hash(x, y) * 0.15;
-        height[y * size + x] = nMed + nFine + nMicro + nSharp;
+        const gx = x / size * grainSize, gy = y / size * grainSize;
+        const ix = Math.floor(gx), iy = Math.floor(gy);
+        const u = ease(gx - ix), v = ease(gy - iy);
+        const top = grainAt(ix, iy) * (1 - u) + grainAt(ix + 1, iy) * u;
+        const bottom = grainAt(ix, iy + 1) * (1 - u) + grainAt(ix + 1, iy + 1) * u;
+        const coarse = top * (1 - v) + bottom * v;
+        const fine = random() + random() - 1;
+        const value = Math.round(128 + coarse * 42 + fine * 14);
+        const i = (y * size + x) * 4;
+        image.data[i] = image.data[i + 1] = image.data[i + 2] = value;
+        image.data[i + 3] = 255;
       }
     }
-    const canvasNormal = document.createElement("canvas");
-    canvasNormal.width = size;
-    canvasNormal.height = size;
-    const ctxNorm = canvasNormal.getContext("2d");
-    const imgNorm = ctxNorm.createImageData(size, size);
-    const canvasColor = document.createElement("canvas");
-    canvasColor.width = size;
-    canvasColor.height = size;
-    const ctxCol = canvasColor.getContext("2d");
-    const imgCol = ctxCol.createImageData(size, size);
-    const canvasRough = document.createElement("canvas");
-    canvasRough.width = size;
-    canvasRough.height = size;
-    const ctxRough = canvasRough.getContext("2d");
-    const imgRough = ctxRough.createImageData(size, size);
-    const canvasBump = document.createElement("canvas");
-    canvasBump.width = size;
-    canvasBump.height = size;
-    const ctxBump = canvasBump.getContext("2d");
-    const imgBump = ctxBump.createImageData(size, size);
-    const strength = 3.2;
-    const baseR = 236, baseG = 231, baseB = 220;
-    for (let y = 0; y < size; y++) {
-      const ym = (y - 1 + size) % size, yp = (y + 1) % size;
-      for (let x = 0; x < size; x++) {
-        const xm = (x - 1 + size) % size, xp = (x + 1) % size;
-        const dx = height[y * size + xp] - height[y * size + xm];
-        const dy = height[yp * size + x] - height[ym * size + x];
-        let nx = -dx * strength;
-        let ny = -dy * strength;
-        let nz = 1;
-        const len = Math.hypot(nx, ny, nz);
-        nx /= len;
-        ny /= len;
-        nz /= len;
-        const idx = (y * size + x) * 4;
-        imgNorm.data[idx] = Math.round((nx * 0.5 + 0.5) * 255);
-        imgNorm.data[idx + 1] = Math.round((ny * 0.5 + 0.5) * 255);
-        imgNorm.data[idx + 2] = Math.round((nz * 0.5 + 0.5) * 255);
-        imgNorm.data[idx + 3] = 255;
-        const hVal = height[y * size + x];
-        const cDelta = Math.round((hVal - 0.5) * 28);
-        imgCol.data[idx] = Math.min(255, Math.max(0, baseR + cDelta));
-        imgCol.data[idx + 1] = Math.min(255, Math.max(0, baseG + cDelta));
-        imgCol.data[idx + 2] = Math.min(255, Math.max(0, baseB + cDelta));
-        imgCol.data[idx + 3] = 255;
-        const rVal = Math.round((0.82 + (hVal - 0.5) * 0.18) * 255);
-        imgRough.data[idx] = rVal;
-        imgRough.data[idx + 1] = rVal;
-        imgRough.data[idx + 2] = rVal;
-        imgRough.data[idx + 3] = 255;
-        const hByte = Math.round(hVal * 255);
-        imgBump.data[idx] = hByte;
-        imgBump.data[idx + 1] = hByte;
-        imgBump.data[idx + 2] = hByte;
-        imgBump.data[idx + 3] = 255;
-      }
-    }
-    ctxNorm.putImageData(imgNorm, 0, 0);
-    ctxCol.putImageData(imgCol, 0, 0);
-    ctxRough.putImageData(imgRough, 0, 0);
-    ctxBump.putImageData(imgBump, 0, 0);
-    function setupTex(canvas, isColor = false) {
-      const tex = new CanvasTexture(canvas);
-      tex.wrapS = RepeatWrapping;
-      tex.wrapT = RepeatWrapping;
-      tex.repeat.set(7, 7);
-      if (isColor) tex.colorSpace = SRGBColorSpace;
-      return tex;
-    }
-    return {
-      normalMap: setupTex(canvasNormal),
-      colorMap: setupTex(canvasColor, true),
-      roughnessMap: setupTex(canvasRough),
-      bumpMap: setupTex(canvasBump)
-    };
+    ctx.putImageData(image, 0, 0);
+    const texture = new CanvasTexture(canvas);
+    texture.wrapS = texture.wrapT = RepeatWrapping;
+    texture.repeat.set(2.8, 2.8);
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    return texture;
   }
-  const noiseTextures = createFineNoiseTextures();
+
+  const plasticBump = createPlasticBumpTexture();
+  // Subtle pigment variation complements the physical bump grain on the body.
+  const plasticGrainCanvas = document.createElement('canvas');
+  plasticGrainCanvas.width = plasticGrainCanvas.height = 512;
+  const plasticGrainCtx = plasticGrainCanvas.getContext('2d');
+  plasticGrainCtx.drawImage(plasticBump.image, 0, 0);
+  const plasticGrainPixels = plasticGrainCtx.getImageData(0, 0, 512, 512);
+  for (let i = 0; i < plasticGrainPixels.data.length; i += 4) {
+    const tone = Math.min(255, Math.max(0, Math.round(239 + (plasticGrainPixels.data[i] - 128) * 0.16)));
+    plasticGrainPixels.data[i] = plasticGrainPixels.data[i + 1] = plasticGrainPixels.data[i + 2] = tone;
+  }
+  plasticGrainCtx.putImageData(plasticGrainPixels, 0, 0);
+  const plasticColorGrain = new CanvasTexture(plasticGrainCanvas);
+  plasticColorGrain.colorSpace = SRGBColorSpace;
+  plasticColorGrain.wrapS = plasticColorGrain.wrapT = RepeatWrapping;
+  plasticColorGrain.repeat.copy(plasticBump.repeat);
+  plasticColorGrain.anisotropy = plasticBump.anisotropy;
+
+  // Subtle local roughness changes make the grain catch light without glitter.
+  const plasticRoughnessCanvas = document.createElement('canvas');
+  plasticRoughnessCanvas.width = plasticRoughnessCanvas.height = 512;
+  const plasticRoughnessCtx = plasticRoughnessCanvas.getContext('2d');
+  plasticRoughnessCtx.drawImage(plasticBump.image, 0, 0);
+  const roughnessPixels = plasticRoughnessCtx.getImageData(0, 0, 512, 512);
+  for (let i = 0; i < roughnessPixels.data.length; i += 4) {
+    const tone = Math.round(242 + (roughnessPixels.data[i] - 128) * 0.18);
+    roughnessPixels.data[i] = roughnessPixels.data[i + 1] = roughnessPixels.data[i + 2] = tone;
+  }
+  plasticRoughnessCtx.putImageData(roughnessPixels, 0, 0);
+  const plasticRoughness = new CanvasTexture(plasticRoughnessCanvas);
+  plasticRoughness.wrapS = plasticRoughness.wrapT = RepeatWrapping;
+  plasticRoughness.repeat.copy(plasticBump.repeat);
+  plasticRoughness.anisotropy = plasticBump.anisotropy;
+
+  // Shared Materials matching the uploaded image
   const creamBodyMat = new MeshStandardMaterial({
-    color: 16777215,
-    map: noiseTextures.colorMap,
-    normalMap: noiseTextures.normalMap,
-    normalScale: new Vector2(1.1, 1.1),
-    // Pronounced tactile micro-stippling
-    bumpMap: noiseTextures.bumpMap,
-    bumpScale: 2e-3,
-    // Deep physical pore shading
-    roughnessMap: noiseTextures.roughnessMap,
-    roughness: 0.84,
-    metalness: 0.02
+    color: 0xe5dfcd,      // Soft grey-cream matte plastic (matches reference)
+    roughness: 0.92,
+    metalness: 0.0,
+    map: plasticColorGrain,
+    roughnessMap: plasticRoughness,
+    bumpMap: plasticBump,
+    bumpScale: 0.014
   });
+
   const creamRecessMat = new MeshStandardMaterial({
-    color: 14209473,
-    // Warm slightly shaded tone for sockets and cavity transitions
-    normalMap: noiseTextures.normalMap,
-    normalScale: new Vector2(0.6, 0.6),
-    bumpMap: noiseTextures.bumpMap,
-    bumpScale: 12e-4,
-    roughnessMap: noiseTextures.roughnessMap,
-    roughness: 0.9,
-    metalness: 0
+    color: 0xc5bda6,      // Slightly darker warm tone for recessed cavities
+    roughness: 0.94,
+    metalness: 0.0,
+    map: plasticColorGrain,
+    roughnessMap: plasticRoughness,
+    bumpMap: plasticBump,
+    bumpScale: 0.010
   });
+
   const darkCavityMat = new MeshStandardMaterial({
-    color: 1842722,
-    // Deep dark acoustic backing behind speaker slats (reference)
-    roughness: 0.96,
-    metalness: 0.04
+    color: 0x30312d,
+    roughness: 0.95,
+    metalness: 0.0
   });
+
   const silverSlatMat = new MeshStandardMaterial({
-    color: 13948892,
-    // Crisp brushed silver/aluminum metallic louvers matching reference
-    roughness: 0.3,
-    metalness: 0.8
+    color: 0xa1a29d,      // Satin silver grille, with highlights on the rolled lips
+    roughness: 0.48,
+    metalness: 0.48
   });
-  const lcdCanvas = document.createElement("canvas");
-  lcdCanvas.width = 768;
-  lcdCanvas.height = 166;
-  const lcdCtx = lcdCanvas.getContext("2d");
+
+  // --- 4. DYNAMIC LCD CANVAS TEXTURE ---
+  const lcdCanvas = document.createElement('canvas');
+  lcdCanvas.width = 512;
+  lcdCanvas.height = 192;
+  const lcdCtx = lcdCanvas.getContext('2d');
   const lcdTexture = new CanvasTexture(lcdCanvas);
   lcdTexture.colorSpace = SRGBColorSpace;
+
   const stations = [
-    { freq: 98.4, name: "RETRO FM", genre: "SYNTHWAVE" },
-    { freq: 101.2, name: "AURALINK", genre: "LO-FI JAZZ" },
-    { freq: 89.6, name: "BRAUN 3D", genre: "CHILLHOP" },
-    { freq: 104.8, name: "CLASSIC", genre: "AMBIENT" },
-    { freq: 92, name: "CYBER FM", genre: "ELECTRO" }
+    { freq: 98.4, name: 'RETRO FM', genre: 'SYNTHWAVE' },
+    { freq: 101.2, name: 'JAKARTA', genre: 'LO-FI JAZZ' },
+    { freq: 89.6, name: 'BRAUN 3D', genre: 'CHILLHOP' },
+    { freq: 104.8, name: 'CLASSIC', genre: 'AMBIENT' },
+    { freq: 92.0, name: 'CYBER FM', genre: 'ELECTRO' }
   ];
+
   const state = {
     power: skipIntro,
     stationIdx: 0,
@@ -32118,457 +32436,336 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     exploded: false,
     autoRotate: false,
     audioEnabled: false,
-    knobAngle: 0,
-    // set from volume below
+    knobAngle: 0, // set from volume below
     speakerPulse: 0
   };
+
   function updateLCD(time = 0) {
-    const w = lcdCanvas.width;
-    const h = lcdCanvas.height;
-    if (!state.power) {
-      lcdCtx.fillStyle = "#3c4218";
-      lcdCtx.fillRect(0, 0, w, h);
-      lcdCtx.fillStyle = "rgba(20, 24, 8, 0.35)";
-      lcdCtx.font = "bold 36px monospace";
-      lcdCtx.textAlign = "center";
-      lcdCtx.fillText("STANDBY", w / 2, h / 2 + 14);
-      lcdTexture.needsUpdate = true;
-      return;
-    }
-    const grad = lcdCtx.createLinearGradient(0, 0, w, h);
-    grad.addColorStop(0, "#c4d40a");
-    grad.addColorStop(0.5, "#cddc0e");
-    grad.addColorStop(1, "#bccb08");
+    // Keep readouts inside the straight, readable portion of the pill display.
+    const grad = lcdCtx.createLinearGradient(0, 0, 0, lcdCanvas.height);
+    grad.addColorStop(0, state.power ? '#b4c500' : '#767b38');
+    grad.addColorStop(0.35, state.power ? '#c8db00' : '#85894a');
+    grad.addColorStop(1, state.power ? '#c3d300' : '#797d3b');
     lcdCtx.fillStyle = grad;
-    lcdCtx.fillRect(0, 0, w, h);
-    lcdCtx.strokeStyle = "rgba(60, 70, 0, 0.28)";
-    lcdCtx.lineWidth = 8;
-    lcdCtx.strokeRect(4, 4, w - 8, h - 8);
-    lcdCtx.fillStyle = "rgba(40, 48, 0, 0.06)";
-    for (let x = 16; x < w - 16; x += 8) {
-      for (let y = 12; y < h - 12; y += 8) {
-        lcdCtx.fillRect(x, y, 5, 5);
+    lcdCtx.fillRect(0, 0, lcdCanvas.width, lcdCanvas.height);
+    lcdCtx.fillStyle = state.power ? '#293005' : '#353b1c';
+    lcdCtx.textBaseline = 'alphabetic';
+    if (state.power) {
+      lcdCtx.textAlign = 'center';
+      lcdCtx.font = 'bold 20px monospace';
+      lcdCtx.fillText(stations[state.stationIdx].name, 256, 51);
+      lcdCtx.textAlign = 'left';
+      lcdCtx.font = 'bold 64px monospace';
+      lcdCtx.fillText(state.freq.toFixed(1), 84, 116);
+      lcdCtx.font = 'bold 24px monospace';
+      lcdCtx.fillText('MHz', 294, 112);
+      lcdCtx.font = 'bold 21px monospace';
+      lcdCtx.fillText(`VOL ${Math.round(state.volume * 100)}`, 86, 151);
+      lcdCtx.textAlign = 'right';
+      lcdCtx.fillText(state.bassBoost ? 'BASS+' : 'FLAT', 426, 151);
+
+      // Decorative equalizer runs whenever powered, including while muted.
+      // Kept beside the frequency so the readouts remain unobstructed.
+      for (let i = 0; i < 7; i++) {
+        const wave = 0.5 + 0.30 * Math.sin(time * (3.8 + i * 0.23) + i * 1.4)
+          + 0.20 * Math.sin(time * 7.1 + i * 0.8);
+        const level = Math.max(1, Math.min(8, Math.round(1 + wave * 7)));
+        for (let segment = 0; segment < level; segment++) {
+          lcdCtx.fillRect(358 + i * 10, 115 - segment * 6, 6, 4);
+        }
       }
     }
-    lcdCtx.fillStyle = "#252b04";
-    lcdCtx.font = "bold 24px monospace";
-    lcdCtx.textAlign = "left";
-    const st = stations[state.stationIdx];
-    lcdCtx.fillText(`FM ${st.name}`, 64, 40);
-    lcdCtx.textAlign = "right";
-    lcdCtx.fillText((state.bassBoost ? "BASS+ " : "") + "VOL " + Math.round(state.volume * 100), w - 64, 40);
-    lcdCtx.font = "bold 64px monospace";
-    lcdCtx.textAlign = "left";
-    lcdCtx.fillText(`${state.freq.toFixed(1)}`, 60, 106);
-    lcdCtx.font = "bold 22px monospace";
-    lcdCtx.fillText("MHz", 270, 104);
-    const barCount = 8;
-    const startX = 460;
-    const baseW = 16;
-    const gap = 8;
-    for (let i = 0; i < barCount; i++) {
-      const wave = Math.sin(time * 8.5 + i * 1.1) * 0.5 + 0.5;
-      const barH = Math.max(6, Math.floor((8 + wave * 46) * (0.4 + state.volume * 0.6)));
-      lcdCtx.fillStyle = "#252b04";
-      lcdCtx.fillRect(startX + i * (baseW + gap), 108 - barH, baseW, barH);
-    }
-    lcdCtx.fillStyle = "rgba(37, 43, 4, 0.55)";
-    for (let i = 0; i <= 32; i++) {
-      const tx = 60 + i / 32 * (w - 120);
-      const th = i % 4 === 0 ? 12 : 6;
-      lcdCtx.fillRect(tx, h - 14 - th, 2.5, th);
-    }
-    const normFreq = Math.min(1, Math.max(0, (state.freq - 88) / (108 - 88)));
-    const needleX = 60 + normFreq * (w - 120);
-    lcdCtx.fillStyle = "#1a1f02";
-    lcdCtx.fillRect(needleX - 3, h - 30, 6, 18);
     lcdTexture.needsUpdate = true;
   }
-  updateLCD(0);
+
+  updateLCD();
+
   const lcdMat = new MeshStandardMaterial({
     map: lcdTexture,
-    roughness: 0.6,
-    metalness: 0,
-    emissive: new Color(12570636),
+    roughness: 0.35,
+    metalness: 0.0,
+    emissive: new Color(0xbfd00c),
     emissiveMap: lcdTexture,
-    emissiveIntensity: skipIntro ? 0.16 : 0.02
+    emissiveIntensity: 0.08
   });
+
+  // Helper: Create 3D stadium/pill shape (used for LCD screen, pill button, speaker mask)
   function createPillShape(width, height) {
     const shape = new Shape();
     const r = height / 2;
-    const halfLine = Math.max(1e-3, width / 2 - r);
+    const halfLine = Math.max(0.001, width / 2 - r);
     shape.absarc(-halfLine, 0, r, Math.PI / 2, Math.PI * 1.5, false);
     shape.absarc(halfLine, 0, r, -Math.PI / 2, Math.PI / 2, false);
     shape.closePath();
     return shape;
   }
+
+  // Circular corner arcs match the pocket and the clipped grille blades.
   function createRoundedRectShape(w, h, r) {
     const shape = new Shape();
-    const hw = Math.max(1e-3, w / 2 - r);
-    const hh = Math.max(1e-3, h / 2 - r);
-    shape.absarc(hw, hh, r, 0, Math.PI / 2, false);
-    shape.absarc(-hw, hh, r, Math.PI / 2, Math.PI, false);
-    shape.absarc(-hw, -hh, r, Math.PI, Math.PI * 1.5, false);
-    shape.absarc(hw, -hh, r, Math.PI * 1.5, Math.PI * 2, false);
+    const x = w / 2 - r, y = h / 2 - r;
+    shape.moveTo(-x, -h / 2);
+    shape.lineTo(x, -h / 2);
+    shape.absarc(x, -y, r, -Math.PI / 2, 0, false);
+    shape.lineTo(w / 2, y);
+    shape.absarc(x, y, r, 0, Math.PI / 2, false);
+    shape.lineTo(-x, h / 2);
+    shape.absarc(-x, y, r, Math.PI / 2, Math.PI, false);
+    shape.lineTo(-w / 2, -y);
+    shape.absarc(-x, -y, r, Math.PI, Math.PI * 1.5, false);
     shape.closePath();
     return shape;
   }
+
+  // --- 5. BUILD THE 3D RADIO MODEL ---
+  const RADIO_HEIGHT_SCALE = 0.92;
   const radioRoot = new Group();
+  radioRoot.scale.y = RADIO_HEIGHT_SCALE;
   scene.add(radioRoot);
-  const PX_SCALE = 0.14 / 32;
-  const LCD_W_180PX = 180 * PX_SCALE;
-  const LCD_PAD_26PX = 26 * PX_SCALE;
-  const GAP_32PX = 32 * PX_SCALE;
-  const GAP_40PX = 40 * PX_SCALE;
-  const PAD_BODY_X = LCD_PAD_26PX;
-  const SPK_W = 1.16, SPK_H = 1.34, SPK_R = 0.22;
-  const BODY_W = PAD_BODY_X + SPK_W + LCD_PAD_26PX + LCD_W_180PX + PAD_BODY_X;
-  const BODY_H = SPK_H + 2 * PAD_BODY_X;
-  const BODY_D = 1.26;
-  const BODY_R = 0.32;
-  const FRONT_Z = BODY_D / 2;
+
+  // Dimensions carefully proportioned to the image
+  const BODY_W = 3.15;
+  const BODY_H = 2.32;
+  const BODY_D = 1.92;
+  const FRONT_Z = BODY_D / 2; // +0.96
+
+  // 5A. Main Cream Rounded Body
   const chassisGroup = new Group();
   radioRoot.add(chassisGroup);
-  const SPK_CX = -BODY_W / 2 + PAD_BODY_X + SPK_W / 2;
-  const SPK_CY = 0;
-  const POCKET_PAD = 0.04;
-  const POCKET_DEPTH = 0.042;
+
+  // Speaker pocket (recess) parameters - the grille sits INSIDE the body, not on top of it
+  // cavity floor; opening = floor + 2*PAD -> 1.575 x 1.84 (50 % of body width)
+  const SPK_W = 1.46, SPK_H = 2.10, SPK_R = 0.44;
+  const SPK_LEFT = -1.46; // fixed left edge preserves the cream body margin
+  const SPK_CX = SPK_LEFT + SPK_W / 2, SPK_CY = 0.0;
+  const POCKET_PAD = 0.040;      // rounded inward shoulder, contained inside the grille opening
+  const POCKET_DEPTH = 0.085;
+
   function pocketSDF(x, y) {
-    const bx = SPK_W / 2 + POCKET_PAD, by = SPK_H / 2 + POCKET_PAD, rr = SPK_R + POCKET_PAD;
+    const bx = SPK_W / 2, by = SPK_H / 2, rr = SPK_R;
     const qx = Math.abs(x - SPK_CX) - (bx - rr);
     const qy = Math.abs(y - SPK_CY) - (by - rr);
     return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - rr;
   }
-  const LCD_CX = SPK_CX + SPK_W / 2 + LCD_PAD_26PX + LCD_W_180PX / 2;
-  const LCD_CY = 0.455;
-  const LCD_FW = LCD_W_180PX, LCD_FH = 0.17;
-  const LCD_PAD = 0.065, LCD_DEPTH = 0.065;
+  // LCD pocket (pill shaped) - screen is sunk into the body as well
+  const LCD_CX = 0.80, LCD_CY = 0.47;
+  const LCD_HEIGHT_REDUCTION = 0.020; // approximately 4px at the default 1440px header view
+  const LCD_SCALE = 0.88;
+  const LCD_FW = 1.10 * LCD_SCALE, LCD_FH = (0.41 - LCD_HEIGHT_REDUCTION) * LCD_SCALE;     // LCD footprint meets the recessed wall directly
+  const LCD_PAD = 0.075, LCD_DEPTH = 0.070; // broad sloped pocket with softly rolled lips
   function lcdSDF(x, y) {
     const hl = (LCD_FW - LCD_FH) / 2;
-    const px2 = x - LCD_CX, py2 = y - LCD_CY;
-    const cx = Math.min(hl, Math.max(-hl, px2));
-    return Math.hypot(px2 - cx, py2) - (LCD_FH / 2 + LCD_PAD);
+    const px = x - LCD_CX, py = y - LCD_CY;
+    const cx = Math.min(hl, Math.max(-hl, px));
+    return Math.hypot(px - cx, py) - (LCD_FH / 2 + LCD_PAD);
   }
-  const smooth = (t) => {
+  const smooth = (t) => { t = Math.min(1, Math.max(0, t)); return t * t * (3 - 2 * t); };
+  function lcdRecessProfile(t) {
+    // Rounded entry and floor, with a broad slanted wall between them.
+    // This creates the reference's scooped rim rather than a flat bezel.
     t = Math.min(1, Math.max(0, t));
-    return t * t * (3 - 2 * t);
-  };
+    const rounding = 0.24;
+    if (t < rounding) return t * t / (2 * rounding * (1 - rounding));
+    if (t > 1 - rounding) return 1 - (1 - t) ** 2 / (2 * rounding * (1 - rounding));
+    return (t - rounding / 2) / (1 - rounding);
+  }
   function pocketHeight(x, y) {
     const a = -POCKET_DEPTH * smooth(-pocketSDF(x, y) / POCKET_PAD);
-    const b = -LCD_DEPTH * smooth(-lcdSDF(x, y) / LCD_PAD);
+    const b = -LCD_DEPTH * lcdRecessProfile(-lcdSDF(x, y) / LCD_PAD);
     return Math.min(a, b);
   }
-  function buildBodyGeometry(W, H, D, R_xy, R_front, R_back) {
-    const g = new BoxGeometry(W, H, D, 360, 270, 70);
+
+  // Dense rounded box so the pocket can be carved smoothly into the front face
+  function buildBodyGeometry(W, H, D, R, edgeRadius = 0.19) {
+    const g = new BoxGeometry(W, H, D, 360, 280, 64);
     const pos = g.attributes.position;
     const nor = g.attributes.normal;
-    const hw_xy = W / 2 - R_xy, hh_xy = H / 2 - R_xy;
-    const core_r_front = R_xy - R_front;
-    const core_z_front = D / 2 - R_front;
-    const core_r_back = R_xy - R_back;
-    const core_z_back = -D / 2 + R_back;
-    const clamp2 = (v, a, b) => Math.min(b, Math.max(a, v));
-    const eps = 15e-4;
+    // Rounded rectangular silhouette extruded in depth, with a smaller
+    // front/back edge roll. Large outline corners do not dome the front face.
+    const hw = W / 2 - R, hh = H / 2 - R;
+    const hd = D / 2 - edgeRadius;
+    const innerCornerRadius = R - edgeRadius;
+    const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+    const eps = 0.0015;
     for (let i = 0; i < pos.count; i++) {
       let x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-      const ix = clamp2(x, -hw_xy, hw_xy), iy = clamp2(y, -hh_xy, hh_xy);
-      const dx = x - ix, dy = y - iy;
-      const len_xy = Math.hypot(dx, dy);
-      const ux = len_xy > 1e-9 ? dx / len_xy : 0;
-      const uy = len_xy > 1e-9 ? dy / len_xy : 0;
-      let cur_r = len_xy;
-      let cur_z = z;
-      let nr = 0;
-      let nz = 0;
-      if (z >= 0) {
-        const delta_r = cur_r - core_r_front;
-        const delta_z = cur_z - core_z_front;
-        if (delta_r > 0 && delta_z > 0) {
-          const dist = Math.hypot(delta_r, delta_z);
-          if (dist > 1e-9) {
-            cur_r = core_r_front + delta_r / dist * R_front;
-            cur_z = core_z_front + delta_z / dist * R_front;
-            nr = delta_r / dist;
-            nz = delta_z / dist;
-          }
-        } else if (delta_z > 0) {
-          cur_z = D / 2;
-          nz = 1;
-        } else if (delta_r > 0) {
-          cur_r = R_xy;
-          nr = 1;
-        } else {
-          nz = 1;
-        }
+      const cx = clamp(x, -hw, hw), cy = clamp(y, -hh, hh);
+      const dx = x - cx, dy = y - cy;
+      const cornerDistance = Math.hypot(dx, dy);
+      let ix = x, iy = y;
+      if (cornerDistance > innerCornerRadius) {
+        ix = cx + dx / cornerDistance * innerCornerRadius;
+        iy = cy + dy / cornerDistance * innerCornerRadius;
+      }
+      const iz = clamp(z, -hd, hd);
+      let nx = x - ix, ny = y - iy, nz = z - iz;
+      const len = Math.hypot(nx, ny, nz);
+      if (len > 1e-9) {
+        nx /= len; ny /= len; nz /= len;
+        x = ix + nx * edgeRadius; y = iy + ny * edgeRadius; z = iz + nz * edgeRadius;
       } else {
-        const delta_r = cur_r - core_r_back;
-        const delta_z = cur_z - core_z_back;
-        if (delta_r > 0 && delta_z < 0) {
-          const dist = Math.hypot(delta_r, delta_z);
-          if (dist > 1e-9) {
-            cur_r = core_r_back + delta_r / dist * R_back;
-            cur_z = core_z_back + delta_z / dist * R_back;
-            nr = delta_r / dist;
-            nz = delta_z / dist;
-          }
-        } else if (delta_z < 0) {
-          cur_z = -D / 2;
-          nz = -1;
-        } else if (delta_r > 0) {
-          cur_r = R_xy;
-          nr = 1;
-        } else {
-          nz = -1;
-        }
+        nx = nor.getX(i); ny = nor.getY(i); nz = nor.getZ(i);
       }
-      x = ix + cur_r * ux;
-      y = iy + cur_r * uy;
-      z = cur_z;
-      let nx = nr * ux;
-      let ny = nr * uy;
-      const nl = Math.hypot(nx, ny, nz);
-      if (nl > 1e-9) {
-        nx /= nl;
-        ny /= nl;
-        nz /= nl;
-      }
-      if (nz > 0.25 && z > 0) {
+      // Displace continuously instead of clamping vertices onto a flat z plane.
+      // Clamping cut a visible crease into the rounded outside of the chassis.
+      if (nz > 0 && z > 0) {
         const h = pocketHeight(x, y);
         if (h < 0) {
-          z += h * Math.min(1, nz * 1.2);
+          const frontWeight = nz * nz * nz * nz;
+          z += h * frontWeight;
           const gx = (pocketHeight(x + eps, y) - pocketHeight(x - eps, y)) / (2 * eps);
           const gy = (pocketHeight(x, y + eps) - pocketHeight(x, y - eps)) / (2 * eps);
-          const gl = Math.hypot(gx, gy, 1);
-          nx = -gx / gl;
-          ny = -gy / gl;
-          nz = 1 / gl;
+          nx -= gx * nz * frontWeight;
+          ny -= gy * nz * frontWeight;
+          const length = Math.hypot(nx, ny, nz);
+          nx /= length; ny /= length; nz /= length;
         }
       }
       pos.setXYZ(i, x, y, z);
       nor.setXYZ(i, nx, ny, nz);
     }
-    pos.needsUpdate = true;
-    nor.needsUpdate = true;
-    g.computeBoundingSphere();
-    g.computeBoundingBox();
+    pos.needsUpdate = true; nor.needsUpdate = true;
+    g.computeBoundingSphere(); g.computeBoundingBox();
     return g;
   }
-  const R_XY = 0.32;
-  const R_FRONT = 0.08;
-  const R_BACK = 0.16;
-  const mainBodyGeo = buildBodyGeometry(BODY_W, BODY_H, BODY_D, R_XY, R_FRONT, R_BACK);
+  const BODY_CORNER_RADIUS = 0.64; // retain the rounded body independently of the grille corners
+  const mainBodyGeo = buildBodyGeometry(BODY_W, BODY_H, BODY_D, BODY_CORNER_RADIUS);
   const mainBodyMesh = new Mesh(mainBodyGeo, creamBodyMat);
   mainBodyMesh.castShadow = true;
   mainBodyMesh.receiveShadow = true;
   chassisGroup.add(mainBodyMesh);
+
+  // Rear acoustic vents detail (so rotating to the back looks equally authentic)
   const backVentGroup = new Group();
   for (let i = -3; i <= 3; i++) {
-    const slotGeo = new BoxGeometry(0.6, 0.045, 0.04);
+    const slotGeo = new BoxGeometry(0.85, 0.045, 0.04);
     const slot = new Mesh(slotGeo, darkCavityMat);
-    slot.position.set(LCD_CX, 0.35 + i * 0.1, -BODY_D / 2 + 0.01);
+    slot.position.set(0.65, 0.35 + i * 0.1, -BODY_D / 2 + 0.01);
     backVentGroup.add(slot);
   }
   chassisGroup.add(backVentGroup);
+
+  // 5B. Recessed Ribbed Speaker Grille (sits inside the pocket carved in the body)
   const speakerGroup = new Group();
   speakerGroup.position.set(SPK_CX, SPK_CY, FRONT_Z);
   radioRoot.add(speakerGroup);
-  const spkW = SPK_W;
-  const spkH = SPK_H;
-  const spkR = SPK_R;
-  const slatsContainer = new Group();
-  speakerGroup.add(slatsContainer);
-  const numSlats = 25;
-  const halfW = spkW / 2;
-  const halfH = spkH / 2;
-  const slatSpacing = spkH / (numSlats - 1);
-  const slatH = slatSpacing * 0.88;
-  const slatDepth = 0.015;
-  const slatR = 4e-3;
-  const DOME_BULGE = 0.065;
-  const baseZ0 = -POCKET_DEPTH + 3e-3;
-  function getSlatHalfWidth(sy) {
-    const bx = halfW + POCKET_PAD;
-    const by = halfH + POCKET_PAD;
-    const rr = spkR + POCKET_PAD;
-    const cornerY = by - rr;
-    const absY = Math.abs(sy);
-    let openingW;
-    if (absY <= cornerY) {
-      openingW = bx;
-    } else {
-      const dy = Math.min(rr - 1e-3, absY - cornerY);
-      openingW = bx - rr + Math.sqrt(Math.max(0, rr * rr - dy * dy));
-    }
-    return openingW + 0.026;
-  }
-  function getRoundBoxPerimeterPoint(theta, hw, hh, r) {
-    const cos = Math.cos(theta), sin = Math.sin(theta);
-    const absCos = Math.abs(cos), absSin = Math.abs(sin);
-    const sgnX = Math.sign(cos) || 1, sgnY = Math.sign(sin) || 1;
-    const cx = hw - r, cy = hh - r;
-    const tx = hw / Math.max(1e-6, absCos);
-    const yAtTx = tx * absSin;
-    if (yAtTx <= cy) {
-      return { x: sgnX * hw, y: sgnY * yAtTx };
-    }
-    const ty = hh / Math.max(1e-6, absSin);
-    const xAtTy = ty * absCos;
-    if (xAtTy <= cx) {
-      return { x: sgnX * xAtTy, y: sgnY * hh };
-    }
-    const b = absCos * cx + absSin * cy;
-    const c = cx * cx + cy * cy - r * r;
-    const disc = Math.max(0, b * b - c);
-    const t = b + Math.sqrt(disc);
-    return { x: sgnX * t * absCos, y: sgnY * t * absSin };
-  }
-  function createCurvedRoundedBackGeometry(hw, hh, r, numRings, numSegments) {
-    const positions = [];
-    const indices = [];
-    const uvs = [];
-    const centerZ = baseZ0 + DOME_BULGE - 3e-3;
-    positions.push(0, 0, centerZ);
-    uvs.push(0.5, 0.5);
-    for (let ri = 1; ri <= numRings; ri++) {
-      const ringFrac = ri / numRings;
-      for (let si = 0; si < numSegments; si++) {
-        const theta = si / numSegments * Math.PI * 2;
-        const p = getRoundBoxPerimeterPoint(theta, hw, hh, r);
-        const x = p.x * ringFrac;
-        const y = p.y * ringFrac;
-        const bu = Math.min(1, Math.max(-1, x / halfW));
-        const bv = Math.min(1, Math.max(-1, y / halfH));
-        const bArchX = Math.cos(bu * (Math.PI / 2));
-        const bArchY = Math.cos(bv * (Math.PI / 2));
-        const z = baseZ0 + DOME_BULGE * (bArchX * bArchY) - 3e-3;
-        positions.push(x, y, z);
-        uvs.push(0.5 + x / (hw * 2), 0.5 + y / (hh * 2));
-      }
-    }
-    for (let si = 0; si < numSegments; si++) {
-      const nextSi = (si + 1) % numSegments;
-      indices.push(0, 1 + si, 1 + nextSi);
-    }
-    for (let ri = 1; ri < numRings; ri++) {
-      const prevRingStart = 1 + (ri - 1) * numSegments;
-      const currRingStart = 1 + ri * numSegments;
-      for (let si = 0; si < numSegments; si++) {
-        const nextSi = (si + 1) % numSegments;
-        const a = prevRingStart + si;
-        const b = currRingStart + si;
-        const c = currRingStart + nextSi;
-        const d2 = prevRingStart + nextSi;
-        indices.push(a, b, d2);
-        indices.push(b, c, d2);
-      }
-    }
-    const geo = new BufferGeometry();
-    geo.setAttribute("position", new Float32BufferAttribute(positions, 3));
-    geo.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
-    geo.setIndex(indices);
-    geo.computeVertexNormals();
-    return geo;
-  }
-  const backHw = halfW + POCKET_PAD + 0.016;
-  const backHh = halfH + POCKET_PAD + 0.016;
-  const backR = spkR + POCKET_PAD + 0.016;
-  const backGeo = createCurvedRoundedBackGeometry(backHw, backHh, backR, 18, 64);
-  const spkBackMesh = new Mesh(backGeo, darkCavityMat);
+
+  // Seat the insert inside the rounded shoulder, rather than over its lip.
+  const spkW = SPK_W - POCKET_PAD * 2;
+  const spkH = SPK_H - POCKET_PAD * 2;
+  const spkR = SPK_R - POCKET_PAD;
+
+  // Dark acoustic floor at the bottom of the pocket (no protruding rim)
+  const spkBackShape = createRoundedRectShape(spkW - 0.006, spkH - 0.006, spkR - 0.003);
+  const spkBackGeo = new ShapeGeometry(spkBackShape, 32);
+  const spkBackMesh = new Mesh(spkBackGeo, darkCavityMat);
+  spkBackMesh.position.z = -POCKET_DEPTH + 0.004;
   spkBackMesh.receiveShadow = true;
   speakerGroup.add(spkBackMesh);
-  function createSquarishSlatGeometry(curHalfW, sy, slatH2, slatDepth2, slatR2) {
-    const nx = 64;
-    const ny = 16;
-    const positions = [];
-    const indices = [];
-    const uvs = [];
-    const vNorm = Math.min(1, Math.max(-1, sy / halfH));
-    const archY = Math.cos(vNorm * (Math.PI / 2));
-    for (let ix = 0; ix <= nx; ix++) {
-      const t = ix / nx;
-      const u = t * 2 - 1;
-      const x = curHalfW * u;
-      const archX = Math.cos(u * (Math.PI / 2));
-      const dome2D = archX * archY;
-      const curBaseZ = baseZ0 + DOME_BULGE * dome2D;
-      for (let iy = 0; iy <= ny; iy++) {
-        const tau = iy / ny;
-        let dy, dz;
-        if (tau < 0.15) {
-          const st = tau / 0.15;
-          dy = -slatH2 / 2 + slatR2 * (1 - Math.cos(st * Math.PI / 2));
-          dz = slatDepth2 * Math.sin(st * Math.PI / 2);
-        } else if (tau <= 0.85) {
-          const st = (tau - 0.15) / 0.7;
-          dy = -slatH2 / 2 + slatR2 + st * (slatH2 - 2 * slatR2);
-          dz = slatDepth2;
-        } else {
-          const st = (tau - 0.85) / 0.15;
-          dy = slatH2 / 2 - slatR2 + slatR2 * Math.sin(st * Math.PI / 2);
-          dz = slatDepth2 * Math.cos(st * Math.PI / 2);
-        }
-        const y = sy + dy;
-        const z = curBaseZ + dz;
-        positions.push(x, y, z);
-        uvs.push(t, tau);
+
+  // Broad, shallow silver louvers with fine dark seams, as in the reference.
+  // Clip every point along each blade to the panel, including the corner rows.
+  const slatsContainer = new Group();
+  speakerGroup.add(slatsContainer);
+  const numSlats = 24;
+  const rimGap = 0; // no exposed black perimeter around the insert
+  const pitch = (spkH - rimGap * 2) / numSlats;
+  const bladeHeight = pitch * 0.76; // wider dark gaps between the grille slats
+  const halfW = spkW / 2;
+  const halfH = spkH / 2;
+  function grilleHalfWidth(y) {
+    const dy = Math.max(0, Math.abs(y) - (halfH - spkR));
+    return halfW - spkR + Math.sqrt(Math.max(0, spkR * spkR - dy * dy)) + 0.008; // tuck ends under the cream shoulder
+  }
+  function grilleCrown(x, y) {
+    // A restrained crown; the entire grille face remains recessed in the body.
+    const nx = x / halfW, ny = y / halfH;
+    const crown = 0.012 * Math.max(0, 1 - nx * nx) * Math.max(0, 1 - ny * ny);
+    const edgeX = Math.min(1, Math.abs(x) / grilleHalfWidth(y));
+    const edgeY = Math.min(1, Math.abs(ny));
+    // Roll the insert into its seat on all four sides, without a black frame.
+    return crown - 0.010 * Math.max(edgeX ** 10, edgeY ** 16);
+  }
+  function createGrilleBlade(centerY) {
+    // Rectangular slats: broad flat face and small rounded corner radii.
+    // The assembly retains its shallow crown, while each blade reads as a box.
+    const section = [];
+    const corners = [
+      [-0.38, -0.058, Math.PI], [0.38, -0.058, Math.PI / 2],
+      [0.38, -0.072, 0], [-0.38, -0.072, -Math.PI / 2]
+    ];
+    for (const [cy, cz, startAngle] of corners) {
+      for (let i = 0; i <= 8; i++) {
+        const angle = startAngle - i / 8 * Math.PI / 2;
+        section.push([cy + 0.12 * Math.cos(angle), cz + 0.006 * Math.sin(angle)]);
       }
     }
-    for (let ix = 0; ix < nx; ix++) {
-      for (let iy = 0; iy < ny; iy++) {
-        const a = ix * (ny + 1) + iy;
-        const b = (ix + 1) * (ny + 1) + iy;
-        const c = (ix + 1) * (ny + 1) + (iy + 1);
-        const d2 = ix * (ny + 1) + (iy + 1);
-        indices.push(a, b, d2);
-        indices.push(b, c, d2);
+    const vertices = [], indices = [];
+    const columns = 48;
+    for (const [dy, z] of section) {
+      let y = centerY + dy * bladeHeight;
+      // Extend only the outer halves of the end rows to close the top/bottom rim.
+      if (centerY < -halfH + pitch && dy < 0) y = centerY + dy * (pitch + 0.012);
+      if (centerY > halfH - pitch && dy > 0) y = centerY + dy * (pitch + 0.012);
+      const width = grilleHalfWidth(y);
+      for (let j = 0; j <= columns; j++) {
+        const x = (j / columns * 2 - 1) * width;
+        vertices.push(x, y, z + grilleCrown(x, y));
       }
     }
-    const leftCenterIdx = positions.length / 3;
-    positions.push(-curHalfW, sy, baseZ0);
-    uvs.push(0, 0.5);
-    for (let iy = 0; iy < ny; iy++) {
-      const vCurr = iy;
-      const vNext = iy + 1;
-      indices.push(leftCenterIdx, vNext, vCurr);
+    const stride = columns + 1;
+    for (let row = 0; row < section.length; row++) {
+      const next = (row + 1) % section.length;
+      for (let col = 0; col < columns; col++) {
+        const a = row * stride + col, b = a + 1;
+        const c = next * stride + col, d = c + 1;
+        indices.push(a, b, c, b, d, c);
+      }
     }
-    const rightCenterIdx = positions.length / 3;
-    positions.push(curHalfW, sy, baseZ0);
-    uvs.push(1, 0.5);
-    const rightOffset = nx * (ny + 1);
-    for (let iy = 0; iy < ny; iy++) {
-      const vCurr = rightOffset + iy;
-      const vNext = rightOffset + iy + 1;
-      indices.push(rightCenterIdx, vCurr, vNext);
+    // Separate end-cap vertices keep the blade face smooth and its edges crisp.
+    for (const side of [0, columns]) {
+      const start = vertices.length / 3;
+      for (let row = 0; row < section.length; row++) {
+        const index = (row * stride + side) * 3;
+        vertices.push(...vertices.slice(index, index + 3));
+      }
+      for (let row = 1; row < section.length - 1; row++) {
+        if (side === 0) indices.push(start, start + row, start + row + 1);
+        else indices.push(start, start + row + 1, start + row);
+      }
     }
-    const geo = new BufferGeometry();
-    geo.setAttribute("position", new Float32BufferAttribute(positions, 3));
-    geo.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
-    geo.setIndex(indices);
-    geo.computeVertexNormals();
-    return geo;
+    const geometry = new BufferGeometry();
+    geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    return geometry;
   }
   for (let i = 0; i < numSlats; i++) {
-    const sy = -halfH + i * slatSpacing;
-    const curHalfW = getSlatHalfWidth(sy);
-    const slatGeo = createSquarishSlatGeometry(curHalfW, sy, slatH, slatDepth, slatR);
-    const slatMesh = new Mesh(slatGeo, silverSlatMat);
-    slatMesh.castShadow = true;
-    slatMesh.receiveShadow = true;
-    slatsContainer.add(slatMesh);
+    const y = -halfH + rimGap + pitch * (i + 0.5);
+    const blade = new Mesh(createGrilleBlade(y), silverSlatMat);
+    blade.castShadow = blade.receiveShadow = true;
+    slatsContainer.add(blade);
   }
+
+  // 5C. Recessed Lime-Green Pill LCD Screen (Top-Right)
   const lcdGroup = new Group();
   lcdGroup.position.set(LCD_CX, LCD_CY, FRONT_Z);
   radioRoot.add(lcdGroup);
+
+  // Fill the recess floor completely; no cream border or landing around the LCD.
   const lcdW = LCD_FW;
   const lcdH = LCD_FH;
-  const lcdScreenShape = createPillShape(lcdW, lcdH);
+  const lcdScreenShape = createPillShape(lcdW + 0.006, lcdH + 0.006);
   const lcdScreenGeo = new ExtrudeGeometry(lcdScreenShape, {
-    depth: 0.015,
+    depth: 0.02,
     bevelEnabled: true,
-    bevelThickness: 8e-3,
-    bevelSize: 8e-3,
-    bevelSegments: 4
+    bevelThickness: 0.004,
+    bevelSize: 0.004,
+    bevelSegments: 4,
+    curveSegments: 48
   });
+
+  // Normalize UVs of ExtrudeGeometry to [0..1] so the dynamic canvas texture maps cleanly
   lcdScreenGeo.computeBoundingBox();
   const lcdBBox = lcdScreenGeo.boundingBox;
   const lcdPosAttr = lcdScreenGeo.attributes.position;
@@ -32581,49 +32778,61 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     lcdUvAttr.setXY(i, u, v);
   }
   lcdUvAttr.needsUpdate = true;
+
   const lcdScreenMesh = new Mesh(lcdScreenGeo, lcdMat);
-  lcdScreenMesh.position.z = -LCD_DEPTH + 5e-3;
+  lcdScreenMesh.position.z = -LCD_DEPTH - 0.020; // screen face rests at the foot of the sloped wall
   lcdScreenMesh.userData = {
     interactive: true,
-    type: "screen",
-    label: "LCD Display"
+    type: 'screen',
+    label: 'Stasiun'
   };
   lcdGroup.add(lcdScreenMesh);
-  lcdGlowLight = new PointLight(13953816, skipIntro ? 0.15 : 0, 1.2);
-  lcdGlowLight.position.set(0, 0, 0.15);
+
+  // Soft green point light emitted by the LCD screen onto the surrounding cream bezel
+  lcdGlowLight = new PointLight(0xd4eb18, 0.1, 1.0);
+  lcdGlowLight.position.set(0, 0, 0.18);
   lcdGroup.add(lcdGlowLight);
+
+  // 5D. Three Tactile Buttons (2 Round + 1 Pill) in the Middle-Right
   const buttonsGroup = new Group();
   buttonsGroup.position.set(0, 0, FRONT_Z);
   radioRoot.add(buttonsGroup);
+
   const interactiveMeshes = [lcdScreenMesh];
   const buttonObjects = [];
+
   function createRoundButton(x, y, actionType, labelText) {
     const holder = new Group();
     holder.position.set(x, y, 0);
-    const socketGeo = new CylinderGeometry(0.084, 0.084, 0.05, 32);
+    holder.scale.set(0.82, 0.82, 0.90); // smaller cap and socket, original placement
+
+    // Dark shadow gap ring (socket)
+    const socketGeo = new CylinderGeometry(0.145, 0.145, 0.05, 32);
     socketGeo.rotateX(Math.PI / 2);
     const socketMesh = new Mesh(socketGeo, creamRecessMat);
-    socketMesh.position.z = -0.012;
+    socketMesh.position.z = -0.015;
     holder.add(socketMesh);
+
+    // Tactile cream cylindrical cap
     const btnShape = new Shape();
-    btnShape.absarc(0, 0, 0.075, 0, Math.PI * 2, false);
+    btnShape.absarc(0, 0, 0.118, 0, Math.PI * 2, false);
     const btnGeo = new ExtrudeGeometry(btnShape, {
-      depth: 0.082,
+      depth: 0.085,
       bevelEnabled: true,
-      bevelThickness: 0.016,
-      bevelSize: 0.014,
-      bevelSegments: 4,
+      bevelThickness: 0.022,
+      bevelSize: 0.018,
+      bevelSegments: 5,
       curveSegments: 32
     });
     const btnMesh = new Mesh(btnGeo, creamBodyMat);
-    btnMesh.position.z = -0.018;
+    btnMesh.position.z = -0.02;
     btnMesh.castShadow = true;
     btnMesh.receiveShadow = true;
     btnMesh.userData = {
       interactive: true,
       type: actionType,
       label: labelText,
-      baseZ: -0.018,
+      baseZ: -0.02,
       pressOffset: 0
     };
     holder.add(btnMesh);
@@ -32632,31 +32841,37 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     buttonObjects.push(btnMesh);
     return btnMesh;
   }
+
   function createPillButton(x, y, actionType, labelText) {
     const holder = new Group();
     holder.position.set(x, y, 0);
-    const socketShape = createPillShape(0.215, 0.137);
-    const socketGeo = new ExtrudeGeometry(socketShape, { depth: 0.045, bevelEnabled: false });
+    holder.scale.set(0.82, 0.82, 0.90); // smaller cap and socket, original placement
+
+    // Dark shadow gap pill socket
+    const socketShape = createPillShape(0.355, 0.255);
+    const socketGeo = new ExtrudeGeometry(socketShape, { depth: 0.05, bevelEnabled: false });
     const socketMesh = new Mesh(socketGeo, creamRecessMat);
-    socketMesh.position.z = -0.025;
+    socketMesh.position.z = -0.035;
     holder.add(socketMesh);
-    const pillShape = createPillShape(0.195, 0.117);
+
+    // Tactile cream pill cap
+    const pillShape = createPillShape(0.305, 0.205);
     const pillGeo = new ExtrudeGeometry(pillShape, {
-      depth: 0.082,
+      depth: 0.085,
       bevelEnabled: true,
-      bevelThickness: 0.016,
-      bevelSize: 0.014,
-      bevelSegments: 4
+      bevelThickness: 0.022,
+      bevelSize: 0.018,
+      bevelSegments: 5
     });
     const pillMesh = new Mesh(pillGeo, creamBodyMat);
-    pillMesh.position.z = -0.018;
+    pillMesh.position.z = -0.02;
     pillMesh.castShadow = true;
     pillMesh.receiveShadow = true;
     pillMesh.userData = {
       interactive: true,
       type: actionType,
       label: labelText,
-      baseZ: -0.018,
+      baseZ: -0.02,
       pressOffset: 0
     };
     holder.add(pillMesh);
@@ -32665,64 +32880,93 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     buttonObjects.push(pillMesh);
     return pillMesh;
   }
-  const BTN_Y = 0.12;
-  const KNOB_Y = -0.335;
-  createRoundButton(LCD_CX - 0.275, BTN_Y, "power", "Power");
-  createRoundButton(LCD_CX, BTN_Y, "station", "FM Station");
-  createPillButton(LCD_CX + 0.295, BTN_Y, "bass", "Bass+");
+
+  // Align the compact button row to the outer LCD edge, away from the grille
+  createRoundButton(0.48, -0.03, 'power', 'On/Off');
+  createRoundButton(0.84, -0.03, 'station', 'Stasiun');
+  createPillButton(1.21, -0.03, 'bass', 'Bass');
+
+  // 5E. Large Knurled Rotary Tuning / Volume Dial (Bottom-Right)
   const dialHolder = new Group();
-  dialHolder.position.set(LCD_CX, KNOB_Y, FRONT_Z);
+  dialHolder.position.set(0.76, -0.59, FRONT_Z);
   radioRoot.add(dialHolder);
+
+  // Rotating Knob Group
   const knobRotatable = new Group();
-  knobRotatable.position.z = 0;
+  knobRotatable.position.z = 0.0;
+  knobRotatable.scale.set(0.85, 0.85, 0.88); // smaller face and shallower projection
   dialHolder.add(knobRotatable);
-  const knobRadius = 0.24;
-  const knobDepth = 0.16;
+
+  const knobRadius = 0.345;   // + 0.026 bevel -> face diameter ~23.5 % of front width
+  const knobDepth = 0.27;
+
+  // Main cylinder of the rotary dial with smooth front bevel
   const knobShape = new Shape();
   knobShape.absarc(0, 0, knobRadius, 0, Math.PI * 2, false);
   const knobMainGeo = new ExtrudeGeometry(knobShape, {
-    depth: knobDepth,
+    depth: knobDepth + 0.10,
     bevelEnabled: true,
-    bevelThickness: 0.012,
-    bevelSize: 8e-3,
-    bevelSegments: 4,
-    curveSegments: 64
+    bevelThickness: 0.032,
+    bevelSize: 0.026,
+    bevelSegments: 6,
+    curveSegments: 48
   });
   const knobMainMesh = new Mesh(knobMainGeo, creamBodyMat);
-  knobMainMesh.position.z = -0.01;
+  knobMainMesh.position.z = -0.12;
   knobMainMesh.castShadow = true;
   knobMainMesh.receiveShadow = true;
   knobMainMesh.userData = {
     interactive: true,
-    type: "knob",
-    label: "Volume"
+    type: 'knob',
+    label: 'Volume'
   };
   knobRotatable.add(knobMainMesh);
   interactiveMeshes.push(knobMainMesh);
-  const ridgeCount = 44;
-  const ridgeR = 55e-4;
-  const ridgeLen = knobDepth * 0.92;
-  const ridgeGeo = new CylinderGeometry(ridgeR, ridgeR, ridgeLen, 12);
+
+  // Fine axial flutes catch the studio light along the dial sidewall.
+  const ridgeCount = 52;
+  const ridgeGeo = new CylinderGeometry(0.009, 0.009, 0.24, 6);
   ridgeGeo.rotateX(Math.PI / 2);
-  const ridgeGroup = new Group();
   for (let i = 0; i < ridgeCount; i++) {
-    const theta = i / ridgeCount * Math.PI * 2;
-    const rx = Math.cos(theta) * (knobRadius + 35e-4);
-    const ry = Math.sin(theta) * (knobRadius + 35e-4);
+    const angle = i / ridgeCount * Math.PI * 2;
     const ridge = new Mesh(ridgeGeo, creamBodyMat);
-    ridge.position.set(rx, ry, ridgeLen / 2);
+    ridge.position.set(Math.cos(angle) * (knobRadius + 0.019), Math.sin(angle) * (knobRadius + 0.019), 0.055);
     ridge.castShadow = true;
     ridge.receiveShadow = true;
-    ridgeGroup.add(ridge);
+    knobRotatable.add(ridge);
   }
-  knobRotatable.add(ridgeGroup);
+
+  // Broad, softly convex front face (flattened dome) on top of the knob
+  const knobFrontZ = -0.02 + knobDepth + 0.032;
+  const CAP_H = 0.04;
+  const capGeo = new SphereGeometry(1, 64, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+  capGeo.rotateX(Math.PI / 2);
+  const capMesh = new Mesh(capGeo, creamBodyMat);
+  capMesh.scale.set(knobRadius + 0.004, knobRadius + 0.004, CAP_H);
+  capMesh.position.z = knobFrontZ - 0.002;
+  capMesh.castShadow = true;
+  capMesh.receiveShadow = true;
+  capMesh.userData = knobMainMesh.userData;
+  knobRotatable.add(capMesh);
+  interactiveMeshes.push(capMesh);
+
+  // Tiny indicator dimple on the dome
+  const dimpleGeo = new CylinderGeometry(0.024, 0.024, 0.012, 16);
+  dimpleGeo.rotateX(Math.PI / 2);
+  const dimpleMesh = new Mesh(dimpleGeo, creamRecessMat);
+  const dimR = knobRadius * 0.68;
+  dimpleMesh.position.set(0, dimR, knobFrontZ + CAP_H * Math.sqrt(1 - 0.68 * 0.68) - 0.004);
+  // The reference dial has a clean, unmarked face.
+
+  // --- 6. CONTACT SHADOW FLOOR ---
   const shadowPlaneGeo = new PlaneGeometry(12, 12);
-  const shadowPlaneMat = new ShadowMaterial({ opacity: 0.28 });
+  const shadowPlaneMat = new ShadowMaterial({ opacity: 0.16 });
   const shadowPlane = new Mesh(shadowPlaneGeo, shadowPlaneMat);
   shadowPlane.rotation.x = -Math.PI / 2;
-  shadowPlane.position.y = -BODY_H / 2 - 5e-3;
+  shadowPlane.position.y = -BODY_H / 2 * RADIO_HEIGHT_SCALE - 0.005;
   shadowPlane.receiveShadow = true;
   scene.add(shadowPlane);
+
   let audioCtx = null;
   let musicInterval = null;
   function ensureAudio() {
@@ -32792,11 +33036,12 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   }
   function togglePower() {
     state.power = !state.power;
+    state.audioEnabled = state.power;
     playClickSound(state.power ? 680 : 320);
-    if (powerLabel) powerLabel.textContent = state.power ? "ON" : "OFF";
-    if (uiPower) uiPower.classList.toggle("active", state.power);
-    if (statusDot) statusDot.style.background = state.power ? "#d6ea18" : "#ef4444";
-    if (statusDot) statusDot.style.boxShadow = state.power ? "0 0 10px #d6ea18" : "none";
+
+
+
+
     lcdMat.emissiveIntensity = state.power ? 0.16 : 0.02;
     lcdGlowLight.intensity = state.power ? 0.1 : 0;
     if (state.power && state.audioEnabled) startRadioSynth();
@@ -32817,7 +33062,6 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   }
   function updateVolumeUI() {
     state.knobAngle = volumeToAngle(state.volume);
-    if (freqBadge) freqBadge.textContent = `FM ${state.freq.toFixed(1)} \xB7 VOL ${Math.round(state.volume * 100)}`;
   }
   function rotateTuningKnob(deltaSteps = 1) {
     state.volume = Math.min(1, Math.max(0, +(state.volume + deltaSteps * 0.05).toFixed(2)));
@@ -32880,40 +33124,29 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
       rotateTuningKnob(dir);
     }
   }, { passive: false });
-  if (uiPower) uiPower.addEventListener("click", () => {
-    triggerButtonAnimation(buttonObjects[0]);
-    togglePower();
+  renderer.domElement.addEventListener("keydown", (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    switch (event.key.toLowerCase()) {
+      case "p": togglePower(); break;
+      case "s": nextStation(); break;
+      case "b": toggleBassMode(); break;
+      case "arrowup": rotateTuningKnob(1); break;
+      case "arrowdown": rotateTuningKnob(-1); break;
+      case "arrowleft":
+      case "arrowright": {
+        if (introActive) return;
+        const offset = camera.position.clone().sub(controls.target);
+        offset.applyAxisAngle(new Vector3(0, 1, 0), event.key === "ArrowLeft" ? -0.1 : 0.1);
+        camera.position.copy(controls.target).add(offset);
+        break;
+      }
+      default: return;
+    }
+    event.preventDefault();
   });
-  if (uiChannel) uiChannel.addEventListener("click", () => {
-    triggerButtonAnimation(buttonObjects[1]);
-    nextStation();
-  });
-  if (uiAudio) uiAudio.addEventListener("click", (e) => {
-    state.audioEnabled = !state.audioEnabled;
-    const btn = e.currentTarget;
-    btn.classList.toggle("active", state.audioEnabled);
-    if (audioLabel) audioLabel.textContent = state.audioEnabled ? "Sound: ON" : "Sound: MUTE";
-    playClickSound(620);
-    if (state.audioEnabled) startRadioSynth();
-    else stopRadioSynth();
-  });
-  if (uiExplode) uiExplode.addEventListener("click", (e) => {
-    state.exploded = !state.exploded;
-    e.currentTarget.classList.toggle("active", state.exploded);
-    playClickSound(500);
-  });
-  if (uiAutoRotate) uiAutoRotate.addEventListener("click", (e) => {
-    state.autoRotate = !state.autoRotate;
-    controls.autoRotate = state.autoRotate;
-    controls.autoRotateSpeed = 2.2;
-    e.currentTarget.classList.toggle("active", state.autoRotate);
-    playClickSound(540);
-  });
-  if (uiReset) uiReset.addEventListener("click", () => {
-    playClickSound(600);
-    camera.position.copy(DEFAULT_CAM_POS);
-    controls.target.copy(DEFAULT_TARGET);
-    controls.update();
+  renderer.domElement.addEventListener("pointerleave", () => {
+    hoveredObj = null;
+    if (tooltip) tooltip.style.opacity = "0";
   });
   updateVolumeUI();
   knobRotatable.rotation.z = state.knobAngle;
@@ -32985,12 +33218,6 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
             playClickSound(680);
           } catch (e) {
           }
-          if (powerLabel) powerLabel.textContent = "ON";
-          if (uiPower) uiPower.classList.add("active");
-          if (statusDot) {
-            statusDot.style.background = "#d6ea18";
-            statusDot.style.boxShadow = "0 0 10px #d6ea18";
-          }
         }
       } else {
         introActive = false;
@@ -33010,12 +33237,6 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
             playClickSound(680);
           } catch (e) {
           }
-          if (powerLabel) powerLabel.textContent = "ON";
-          if (uiPower) uiPower.classList.add("active");
-          if (statusDot) {
-            statusDot.style.background = "#d6ea18";
-            statusDot.style.boxShadow = "0 0 10px #d6ea18";
-          }
         }
         if (typeof window !== "undefined") {
           window.auralinkRadioDocked = true;
@@ -33024,7 +33245,11 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
       }
     }
     radioRoot.position.y = 0;
-    updateLCD(elapsed);
+    const lcdStateKey = `${state.power}|${state.stationIdx}|${state.freq}|${state.volume}|${state.bassBoost}|${state.power ? Math.floor(elapsed * (prefersReduced ? 0 : 30)) : 0}`;
+    if (lcdCanvas.dataset.state !== lcdStateKey) {
+      updateLCD(elapsed);
+      lcdCanvas.dataset.state = lcdStateKey;
+    }
     buttonObjects.forEach((btn) => {
       btn.userData.pressOffset *= 0.82;
       btn.position.z = btn.userData.baseZ + btn.userData.pressOffset;
@@ -33064,7 +33289,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     state.autoRotate = true;
     controls.autoRotate = true;
     controls.autoRotateSpeed = 2;
-    if (uiAutoRotate) uiAutoRotate.classList.add("active");
+
   }
   controls.enableZoom = true;
   if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) {
@@ -33113,6 +33338,24 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     resizeObserver.disconnect();
     intersectionObserver.disconnect();
     controls.dispose();
+    const geometries = new Set();
+    const materials = new Set();
+    const textures = new Set();
+    scene.traverse((object) => {
+      if (object.geometry) geometries.add(object.geometry);
+      const objectMaterials = Array.isArray(object.material) ? object.material : [object.material];
+      objectMaterials.filter(Boolean).forEach((material) => {
+        materials.add(material);
+        Object.values(material).forEach((value) => {
+          if (value && value.isTexture) textures.add(value);
+        });
+      });
+    });
+    textures.forEach((texture) => texture.dispose());
+    materials.forEach((material) => material.dispose());
+    geometries.forEach((geometry) => geometry.dispose());
+    environmentTarget.dispose();
+    keyLight.shadow.dispose();
     renderer.dispose();
     pmremGenerator.dispose();
     if (renderer.domElement && renderer.domElement.parentNode) {
