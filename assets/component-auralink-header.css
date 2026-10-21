@@ -177,10 +177,38 @@
 
 /* 3. Right: Icons & Localization */
 .header__icons {
+  --header-control-gap: 12px;
   justify-self: end;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--header-control-gap);
+  padding: 0;
+}
+
+.header__icons > * {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.header__icons .header__icon {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.header__icons .desktop-localization-wrapper {
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: var(--header-control-gap);
+  padding: 0;
+}
+
+.header__icons .desktop-localization-wrapper > div {
+  display: flex;
+  align-items: center;
+}
+
+.header__icons .desktop-localization-wrapper:not(:has(localization-form, auralink-lang-slider)) {
+  display: none;
 }
 
 /* Language & Country Capsule */
@@ -589,13 +617,14 @@ header-drawer summary::before,
 
   /* 3. Right: Exactly 2 icons (Cart and Menu) with 8px gap */
   .header__icons {
+    --header-control-gap: 8px;
     order: 2 !important;
     margin-left: auto !important;
     margin-right: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     padding: 0 !important;
-    gap: 8px;
+    gap: var(--header-control-gap);
     justify-self: end !important;
     flex-shrink: 0 !important;
   }
@@ -709,9 +738,9 @@ header-drawer summary::before,
   0% { gap: 0; opacity: 0; }
   20%, 28% { gap: 0; opacity: 1; }
   48% { gap: 0; }
-  76% { gap: 22px; }
-  90% { gap: 9px; }
-  100% { gap: 12px; opacity: 1; }
+  76% { gap: calc(var(--header-control-gap) + 10px); }
+  90% { gap: calc(var(--header-control-gap) - 3px); }
+  100% { gap: var(--header-control-gap); opacity: 1; }
 }
 
 @keyframes auralink-nav-icons-outline {
@@ -725,16 +754,6 @@ header-drawer summary::before,
   64% { transform: scaleX(0.94); }
   80% { transform: scaleX(1.04); }
   100% { transform: scaleX(1); }
-}
-
-@media screen and (max-width: 989px) {
-  @keyframes auralink-nav-icons-separate {
-    0% { gap: 0; opacity: 0; }
-    20%, 28%, 48% { gap: 0; opacity: 1; }
-    76% { gap: 14px; }
-    90% { gap: 6px; }
-    100% { gap: 8px; opacity: 1; }
-  }
 }
 
 @keyframes auralink-nav-release {

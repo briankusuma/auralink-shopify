@@ -452,3 +452,10 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Tag opacity now belongs to its single CSS separation animation, instead of an additional JavaScript fade envelope. Final opacity is explicitly 1, preventing a fade-out/snap at completion. Existing text-completion gate retained; per-element guard prevents intro/fallback callbacks from restarting fades.
 - Controlled function test verified only initial/final JS opacity writes and no new RAF/class restart on a repeated call. Local browser harness observed starting icon/tag gaps of 0, final gaps of 12px/8px and tag opacity 1 with one reveal group; downward scroll still hides the navbar. JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses).
 - No Liquid/schema/API changes or dependencies. Updated storefront/mobile/editor/Lighthouse visual checks remain pending; user screenshots are the reference and Figma timing remains unavailable.
+
+### Final single tag fade and equal navbar gaps — 2026-10-21
+
+- Removed tag capsule separation, shared-outline pseudo-element and per-pill animations. The existing text-completion gate now starts one 700ms monotonic fade into the final three-pill layout. Per-element replay guard retained; only the hero reveal script controls opacity.
+- Navbar uses one gap variable (12px desktop / 8px mobile), including the final capsule animation state. Reset inherited icon margins/padding and align localization wrappers; absent localization content no longer reserves a flex slot.
+- Controlled tag test passed monotonic opacity, one completion and suppression of repeated calls; confirmed no tag separation keyframes remain. Local browser harness with search/details, account host, nested language form and cart measured final visible-control gaps of 12px, 12px, 12px and tag opacity 1. Directional navbar hide retained.
+- JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes or dependencies. Real storefront/mobile/editor/Lighthouse verification remains pending.
