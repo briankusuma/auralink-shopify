@@ -1,4 +1,5 @@
 {{ 'section-auralink-bento.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'auralink-bento-motion.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
   .section-{{ section.id }}-padding {
@@ -7,7 +8,9 @@
   }
 {%- endstyle -%}
 
-<div class="auralink-bento-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+<div class="auralink-bento-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding"
+  data-gsap-url="{{ 'gsap.js' | asset_url }}"
+  data-scrolltrigger-url="{{ 'ScrollTrigger.js' | asset_url }}">
   <div class="auralink-bento-container">
     
     {%- if section.settings.heading != blank or section.settings.subheading != blank -%}

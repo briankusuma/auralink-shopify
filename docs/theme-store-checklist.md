@@ -404,3 +404,18 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Reuses existing entrance filters on the original text lines, with no cloned overlay or additional image/filter graph. Each line plays once per pointer entry; repeated entry during an active animation is ignored. Hover remains gated on completed hero reveal and fine-pointer/non-reduced-motion preferences. Blur, visibility changes and section unload cancel active hover cleanly.
 - Executed the actual hover function with controlled animation timestamps: verified both peak blur values, duplicate-trigger suppression, and final removal of filter/RAF state. JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses).
 - No Liquid/schema/Shopify API changes or new dependencies. Real-store visual preference, browser coverage, mobile, Theme Editor and Lighthouse checks remain pending.
+
+### Four-stage bento scroll sequence — 2026-10-21
+
+- Existing bento section, settings, assets and layout retained. Added a local GSAP/ScrollTrigger enhancement: centered heading, centered stat card, centered stacked/stat pair, then full grid with the large device card. Scroll reverses the sequence; explicit pin spacing reserves room for the following section.
+- Mapping: existing section owns content; assets/auralink-bento-motion.js owns the timeline. Existing local GSAP libraries load only for desktop motion and reuse loaded scripts. No new dependencies, external hosts or merchant settings. Shopify asset_url documentation and current Theme Store requirements consulted.
+- Excluded bento from the global text reveal to avoid duplicate animation ownership. Mobile/tablet, reduced motion, Theme Editor, missing JavaScript and library failures retain the readable static layout. Media changes and section unload revert animation state.
+- Figma context, screenshot, variables and motion requests failed with Unknown tool despite the installed connector. Implemented the user's supplied four-frame reference; exact Figma timing/tokens remain unverified. Existing mobile layout is not in the supplied reference.
+- Local desktop browser harness verified all four stages: stat centered at x735, paired stat at x864, final stat at x1122; large card hidden until the last stage. Following-section gap remained non-negative and reached 0 after unpin. This is not a development-store or Theme Editor test.
+- JavaScript syntax and diff whitespace passed. Theme Check: 176 files inspected, no offenses. Actual storefront integration with the hero pin, mobile visual comparison, Theme Editor, keyboard and Lighthouse checks remain pending; no submission gates marked complete from the harness alone.
+
+### Bento count and content reveals — 2026-10-21
+
+- Percentage card counts from zero to the merchant-configured integer percentage in the existing scroll timeline; other statistic formats remain unchanged. Numeric spacing is stable and original merchant text is restored on animation cleanup.
+- Card contents now reveal after their surfaces: stat badge/description, staggered connected label and shield icon/text, then large-card glass panel and its text. Existing sequence, local libraries, static/reduced-motion/editor fallbacks retained.
+- JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). Actual counter tween exercised with local GSAP at initial, intermediate, final and reversed progress. No Liquid/schema/Shopify API changes. Updated visual playback, real-store integration, Theme Editor and Lighthouse remain pending; Figma motion source remains unavailable as recorded above.

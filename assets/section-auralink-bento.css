@@ -245,6 +245,8 @@
 }
 
 .auralink-bento-stat__number {
+  font-variant-numeric: tabular-nums;
+  min-width: 4ch;
   position: relative;
   z-index: 2;
   font-size: 56px;
@@ -361,5 +363,28 @@
   }
   .auralink-bento-stat__desc {
     font-size: 20px;
+  }
+}
+
+/* One fixed layout supports the four supplied desktop reveal stages. */
+@media (min-width: 990px) and (prefers-reduced-motion: no-preference) {
+  .auralink-bento-wrapper.is-bento-sequenced {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+  }
+
+  .is-bento-sequenced .auralink-bento-container {
+    width: 100%;
+    position: relative;
+  }
+
+  .is-bento-sequenced .auralink-bento-grid {
+    position: relative;
+  }
+
+  .is-bento-sequenced .auralink-bento-card {
+    transition: box-shadow 0.35s ease;
   }
 }
