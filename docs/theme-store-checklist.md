@@ -320,3 +320,8 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 
 - Contact shadow starts hidden. It fades to the existing opacity over 800ms only after the radio docks and the title, subtitle, CTA, and badge reveals finish. Empty reveal groups complete immediately; plain/reduced-motion modes signal readiness directly, and reduced motion skips the shadow fade.
 - Changed assets/auralink-radio-3d.js and assets/section-auralink-hero.js; no Liquid, schema, or Shopify APIs changed. JavaScript syntax and diff whitespace checks passed. Storefront playback and Theme Editor verification remain pending.
+
+### Radio camera view — 2026-10-21
+
+- Set the default final camera position to the user-specified (2.94, 2.9, 6.07), targeting (0.02, -0.16, 0). Existing intro framing and shadow reveal timing retained.
+- JavaScript syntax and diff whitespace checks passed; browser visual confirmation remains pending. No Shopify APIs, Liquid, or schema changed.
