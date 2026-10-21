@@ -181,10 +181,11 @@
         const t = Math.max(0, Math.min(1, (progress * total - index * 60) / EXACT_DURATION));
         renderLiquidFrame(filters[index].blur, filters[index].matrix, blur, t);
         line.style.filter = t >= 1 ? '' : 'url(#' + filters[index].id + ')';
-        line.style.visibility = 'inherit';
+        line.style.visibility = t <= 0 ? 'hidden' : 'inherit';
       });
     }
-    render(1);
+    // Prepare hidden; the owning section starts the reveal when its stage enters.
+    render(0);
     return {
       render: render,
       play: function () { runTextRevealAnimation(lines, blur, 0); },

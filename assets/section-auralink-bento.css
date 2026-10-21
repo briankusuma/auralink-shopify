@@ -374,6 +374,10 @@
 
 /* One fixed layout supports the four supplied desktop reveal stages. */
 @media (min-width: 990px) and (prefers-reduced-motion: no-preference) {
+  .is-bento-pending .auralink-bento-header {
+    visibility: hidden;
+  }
+
   .auralink-bento-wrapper.is-bento-sequenced {
     position: relative;
     min-height: 100svh;

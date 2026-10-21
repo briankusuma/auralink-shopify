@@ -38,10 +38,12 @@
           if (context) context.revert();
           context = null;
           wrapper.classList.remove('is-bento-sequenced');
+          wrapper.classList.remove('is-bento-pending');
           return;
         }
         if (context || pending) return;
         pending = true;
+        wrapper.classList.add('is-bento-pending');
         loadLibrary(wrapper.dataset.gsapUrl, function () { return Boolean(window.gsap); })
           .then(function () {
             return loadLibrary(wrapper.dataset.scrolltriggerUrl, function () { return Boolean(window.ScrollTrigger); });
@@ -74,6 +76,7 @@
               return reveal;
             }
             const headingReveals = header ? Array.from(header.querySelectorAll('[data-liquid-reveal="text"]')).map(prepareText).filter(Boolean) : [];
+            let headingPlayed = false;
             let positions;
             function measure() {
               const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
@@ -98,7 +101,11 @@
                   scrub: 0.6,
                   refreshPriority: -1,
                   invalidateOnRefresh: true,
-                  onEnter: function () { headingReveals.forEach(function (reveal) { reveal.play(); }); },
+                  onEnter: function () {
+                    if (headingPlayed) return;
+                    headingPlayed = true;
+                    headingReveals.forEach(function (reveal) { reveal.play(); });
+                  },
                   onRefreshInit: measure
                 }
               });
@@ -173,7 +180,10 @@
             if (context) context.revert();
             context = null;
             wrapper.classList.remove('is-bento-sequenced');
-          }).finally(function () { pending = false; });
+          }).finally(function () {
+            pending = false;
+            wrapper.classList.remove('is-bento-pending');
+          });
       }
 
       media.addEventListener('change', update);
@@ -182,6 +192,7 @@
         media.removeEventListener('change', update);
         if (context) context.revert();
         wrapper.classList.remove('is-bento-sequenced');
+        wrapper.classList.remove('is-bento-pending');
         delete wrapper._bentoMotionDestroy;
       };
       update();

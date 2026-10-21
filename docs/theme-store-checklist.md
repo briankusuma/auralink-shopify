@@ -433,3 +433,8 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Bento remains excluded from automatic global observers, avoiding duplicate ownership. Controlled filters and split markup are removed when the bento timeline is destroyed. Plain/reduced-motion paths skip the controlled effect; static visibility fix retained.
 - Renderer samples passed for heading/body/span blur strengths and forward/reverse progress against the existing formula. Local browser with both scripts verified three heading/subheading lines, visible centered heading with hidden cards, then visible heading at y70 with all card content available during the final stage. JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses).
 - No Liquid/schema/API changes, dependencies or new assets. Real storefront, mobile, Theme Editor and Lighthouse remain pending; Figma motion access limitation remains unchanged.
+
+### Single bento heading entrance — 2026-10-21
+
+- Controlled liquid text now prepares hidden instead of rendering completed text first. The pending desktop enhancement hides the heading while libraries prepare; completion/failure/media change/unload removes that state. The section entry callback guards against replaying the heading in the same timeline lifecycle.
+- Controlled-reveal test passed hidden preparation, playback, crisp completion, reset and filter/markup cleanup. JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes or new dependencies. Updated visual storefront/Theme Editor/Lighthouse checks remain pending.
