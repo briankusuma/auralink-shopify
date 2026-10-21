@@ -167,6 +167,30 @@
   user-select: none;
 }
 
+/* A single JS progress value owns all three stages; no second CSS entrance. */
+.auralink-hero-tags.is-tags-revealing {
+  width: max-content;
+  max-width: 100%;
+  gap: var(--tag-gap, 0px);
+}
+
+.auralink-hero-tags.is-tags-revealing::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: var(--tag-pill-height, 34px);
+  box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--auralink-radius-badge, 40px);
+  opacity: var(--tag-outline-opacity, 1);
+  pointer-events: none;
+}
+
+.is-tags-revealing .auralink-tag-pill {
+  border-color: rgb(255 255 255 / calc(0.6 * var(--tag-pill-border-opacity, 0)));
+  background: rgb(255 255 255 / calc(0.05 * var(--tag-pill-border-opacity, 0)));
+}
+
 /* Right: Device Media (Figma Node 2899:1059) */
 .auralink-hero-media {
   position: absolute;

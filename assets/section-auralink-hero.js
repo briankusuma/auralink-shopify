@@ -326,7 +326,7 @@
       el.style.visibility = 'visible';
 
       const delay = startDelay + (idx * 100);
-      const duration = isTagGroup ? 700 : 1400;
+      const duration = 1400;
       let startTime = null;
 
       function renderFrame(now) {
@@ -341,8 +341,22 @@
         const t = Math.min((elapsed - delay) / duration, 1);
         const eased = easeOut(t);
 
-        // Tags have one monotonic entrance, with their final borders and spacing.
-        el.style.opacity = (eased).toFixed(3);
+        if (isTagGroup) {
+          if (!el.classList.contains('is-tags-revealing')) {
+            const pill = el.querySelector('.auralink-tag-pill');
+            if (pill) el.style.setProperty('--tag-pill-height', pill.offsetHeight + 'px');
+            el.classList.add('is-tags-revealing');
+          }
+          // One clock: fade once, exchange outlines, then spring the pills apart.
+          const outlineProgress = Math.max(0, Math.min(1, (t - 0.3) / 0.2));
+          const separationProgress = Math.max(0, Math.min(1, (t - 0.5) / 0.5));
+          el.style.setProperty('--tag-outline-opacity', (1 - outlineProgress).toFixed(3));
+          el.style.setProperty('--tag-pill-border-opacity', outlineProgress.toFixed(3));
+          el.style.setProperty('--tag-gap', (8 * elasticOut(separationProgress, 1, 0.45)).toFixed(2) + 'px');
+          el.style.opacity = easeOut(Math.min(t / 0.18, 1)).toFixed(3);
+        } else {
+          el.style.opacity = (eased).toFixed(3);
+        }
         if (!isTagGroup) el.style.filter = 'blur(' + ((1 - eased) * 20).toFixed(2) + 'px)';
 
         if (t < 1) {

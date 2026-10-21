@@ -459,3 +459,9 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Navbar uses one gap variable (12px desktop / 8px mobile), including the final capsule animation state. Reset inherited icon margins/padding and align localization wrappers; absent localization content no longer reserves a flex slot.
 - Controlled tag test passed monotonic opacity, one completion and suppression of repeated calls; confirmed no tag separation keyframes remain. Local browser harness with search/details, account host, nested language form and cart measured final visible-control gaps of 12px, 12px, 12px and tag opacity 1. Directional navbar hide retained.
 - JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes or dependencies. Real storefront/mobile/editor/Lighthouse verification remains pending.
+
+### Three-stage tags with one animation owner — 2026-10-21
+
+- Per the user's explicit three-frame reference, restored the shared-outline -> touching pills -> separated pills sequence after the existing text-completion gate. One hero RAF drives opacity, outline exchange and spring gap together over 1.4s; there are no separate tag CSS keyframes or secondary fade. Opacity rises once in the opening 18% and stays at 1; final gap remains 8px.
+- Controlled test of the actual function verified the delay, all three stages, one animation start/completion, monotonic opacity and replay suppression. JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses).
+- Navbar spacing retained. No Liquid/schema/API changes, dependencies or new assets. Screenshot is the motion reference; real-store/mobile/editor/Lighthouse visual checks remain pending.
