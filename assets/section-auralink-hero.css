@@ -192,11 +192,12 @@
 }
 
 @keyframes auralink-tags-separate {
-  0%, 28% { gap: 0; }
+  0% { gap: 0; opacity: 0; }
+  20%, 28% { gap: 0; opacity: 1; }
   48% { gap: 0; }
   76% { gap: 18px; }
   90% { gap: 6px; }
-  100% { gap: 8px; }
+  100% { gap: 8px; opacity: 1; }
 }
 
 @keyframes auralink-tags-outline {

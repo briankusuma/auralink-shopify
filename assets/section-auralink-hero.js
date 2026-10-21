@@ -309,6 +309,12 @@
 
   // Exact replication of animateDivReveal() / data-reveal="fade" from bleibtgleich.dev
   function runFadeRevealAnimation(fadeElements, delayOffset, onCompleteAll) {
+    // One owner per element: repeated intro/fallback callbacks cannot restart it.
+    fadeElements = fadeElements.filter(function (el) {
+      if (el.dataset.heroFadeStarted === 'true') return false;
+      el.dataset.heroFadeStarted = 'true';
+      return true;
+    });
     let completedCount = 0;
     if (!fadeElements.length && onCompleteAll) onCompleteAll();
     const startDelay = typeof delayOffset === 'number' ? delayOffset : 350;
@@ -341,8 +347,10 @@
           el.classList.add('is-tags-revealing');
         }
 
-        el.style.opacity = (eased).toFixed(3);
-        if (!isTagGroup) el.style.filter = 'blur(' + ((1 - eased) * 20).toFixed(2) + 'px)';
+        if (!isTagGroup) {
+          el.style.opacity = (eased).toFixed(3);
+          el.style.filter = 'blur(' + ((1 - eased) * 20).toFixed(2) + 'px)';
+        }
 
         if (t < 1) {
           requestAnimationFrame(renderFrame);

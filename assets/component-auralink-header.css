@@ -595,7 +595,7 @@ header-drawer summary::before,
     display: inline-flex !important;
     align-items: center !important;
     padding: 0 !important;
-    gap: 8px !important;
+    gap: 8px;
     justify-self: end !important;
     flex-shrink: 0 !important;
   }
@@ -679,13 +679,61 @@ header-drawer summary::before,
   }
 
   .header--visible .header__icons {
-    --nav-entry-x: -28px;
-    animation: auralink-nav-release 1.3s 0.08s both;
+    position: relative;
+    width: max-content;
+    max-width: 100%;
+    animation: auralink-nav-icons-separate 1.4s 0.08s both;
+  }
+
+  .header--visible .header__icons::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: var(--auralink-radius-pill, 100px);
+    pointer-events: none;
+    animation: auralink-nav-icons-outline 1.4s 0.08s both;
+  }
+
+  .header--visible .header__icons :is(.header__icon, .auralink-lang-slider) {
+    animation: auralink-nav-icon-release 1.4s 0.08s backwards;
   }
 
   .header--visible .header__heading-link {
     --nav-entry-x: 0px;
     animation: auralink-nav-release 1.3s 0.04s both;
+  }
+}
+
+@keyframes auralink-nav-icons-separate {
+  0% { gap: 0; opacity: 0; }
+  20%, 28% { gap: 0; opacity: 1; }
+  48% { gap: 0; }
+  76% { gap: 22px; }
+  90% { gap: 9px; }
+  100% { gap: 12px; opacity: 1; }
+}
+
+@keyframes auralink-nav-icons-outline {
+  0%, 28% { opacity: 1; }
+  48%, 100% { opacity: 0; }
+}
+
+@keyframes auralink-nav-icon-release {
+  0%, 28% { border-color: transparent; background: transparent; transform: scaleX(1); }
+  48% { transform: scaleX(1); }
+  64% { transform: scaleX(0.94); }
+  80% { transform: scaleX(1.04); }
+  100% { transform: scaleX(1); }
+}
+
+@media screen and (max-width: 989px) {
+  @keyframes auralink-nav-icons-separate {
+    0% { gap: 0; opacity: 0; }
+    20%, 28%, 48% { gap: 0; opacity: 1; }
+    76% { gap: 14px; }
+    90% { gap: 6px; }
+    100% { gap: 8px; opacity: 1; }
   }
 }
 
@@ -696,8 +744,12 @@ header-drawer summary::before,
   100% { opacity: 1; transform: translate(0, 0) scale(1); }
 }
 
-:is(.text-animations--plain, .animations--disabled, .shopify-design-mode) .header--visible :is(.header__inline-menu, .header__icons, .header__heading-link) {
+:is(.text-animations--plain, .animations--disabled, .shopify-design-mode) .header--visible :is(.header__inline-menu, .header__icons, .header__heading-link, .header__icon, .auralink-lang-slider) {
   animation: none;
+}
+
+:is(.text-animations--plain, .animations--disabled, .shopify-design-mode) .header--visible .header__icons::before {
+  content: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
