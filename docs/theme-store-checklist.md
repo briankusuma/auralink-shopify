@@ -389,3 +389,18 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - The same scrubbed GSAP timeline now drives both rounded frame and header white-background opacity. Header remains transparent at zero progress, becomes white as the frame rounds, and reverses together on upward scroll; overrides existing sticky-threshold background behavior. Reduced motion retains the native header behavior.
 - Local browser harness: repeated zoom-in attempts stop at distance 6.410 / minimum 6.410. Header opacity was 0 at initial frame, approximately 0.882 at partial rounded progress, then solid white at the 32px final radius. Scene/buffer dimensions remained stable and the following-section gap remained 0 after unpin.
 - JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes. Screenshot is the user-approved reference; exact screenshot matching on the real store, mobile, Theme Editor and Lighthouse remain pending.
+
+### Single-layer smooth text ripple — 2026-10-21
+
+- Replaced the cloned text overlay and mismatched five-lobe/base cutout masks with one cursor-local SVG displacement applied to the original semantic text wrapper. The neutral field outside a feathered embedded radial mask preserves untouched glyphs; no duplicate text or thresholded blur layer remains.
+- Position and strength use frame-time-based exponential easing. Strength eases out on pointer leave; filter/RAF are removed when settled. Touch/reduced motion are excluded; tab hiding, window blur, preference changes and section unload stop the effect. Intro text completion only remeasures filter bounds; hover waits until hero reveal completion.
+- Native SVG feImage/feDisplacementMap behavior checked against MDN. No external requests, dependencies, Shopify API, Liquid or schema changes.
+- Local desktop browser harness verified zero overlay nodes and an active filter on the original text; screenshot inspected during hover with no ghost copy behind glyphs. Exact motion preference in the real storefront, Safari/Firefox, mobile, Theme Editor and Lighthouse remain pending.
+- JavaScript syntax, diff whitespace, and Theme Check passed (176 files, no offenses).
+
+### Hover matches the thick entrance dissolve — 2026-10-21
+
+- Replaced the subtle cursor displacement with the same per-line Gaussian blur and alpha threshold used during text entrance. Hover melts into the effect over 280ms, then resolves using the entrance easing and 1600ms duration; heading peak blur is 48px and body peak blur 24px.
+- Reuses existing entrance filters on the original text lines, with no cloned overlay or additional image/filter graph. Each line plays once per pointer entry; repeated entry during an active animation is ignored. Hover remains gated on completed hero reveal and fine-pointer/non-reduced-motion preferences. Blur, visibility changes and section unload cancel active hover cleanly.
+- Executed the actual hover function with controlled animation timestamps: verified both peak blur values, duplicate-trigger suppression, and final removal of filter/RAF state. JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses).
+- No Liquid/schema/Shopify API changes or new dependencies. Real-store visual preference, browser coverage, mobile, Theme Editor and Lighthouse checks remain pending.

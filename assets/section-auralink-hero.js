@@ -1,26 +1,7 @@
 /**
- * AuraLink - Hero Section Liquid Goo Text Reveal & Interactive Liquid Melting Hover
- * 100% Exact Replication of bleibtgleich.dev SVG Gooey Filter Technique
- *
- * Mechanics:
- * 1. Initial Load Reveal:
- *    - Letters start as melted liquid blobs / mercury droplets using <feGaussianBlur>
- *      (stdDeviation: 48) and high-contrast <feColorMatrix> (alpha threshold: 20 -8).
- *    - The blur animates down to 0 with cubic-bezier(0.25, 1, 0.5, 1) ease, causing the liquid
- *      blobs to condense, solidify, and resolve into razor-sharp typography.
- *    - In the final 35% of the duration, the color matrix alpha threshold interpolates back
- *      from 20 -8 to 1 0, and the filter is detached (filter: "") for 100% vector sharpness.
- * 2. Interactive Liquid Melting Hover:
- *    - On mouseenter on any line of .auralink-hero-title or .auralink-hero-subtitle:
- *      a) Reactivates the SVG Goo filter (feColorMatrix: 18 -7).
- *      b) Melts stdDeviation from 0 to 14 in ~0.18s.
- *      c) Condenses back from 14 to 0 using elastic.out(1, 0.45) over ~0.55s.
- *      d) Resets color matrix to 1 0 and clears the filter style for pure crispness.
- *      e) Cancels any existing tween on rapid re-entry to prevent animation overlap.
- * 3. Accessibility & Standards:
- *    - cursor: pointer on text indicates interactivity.
- *    - Full prefers-reduced-motion & .no-js support.
- *    - Scroll framing is handled separately by locally hosted GSAP assets.
+ * AuraLink hero: staged text reveal and hover using the same liquid dissolve.
+ * Both animate the original glyphs with blur and alpha threshold, then resolve
+ * to crisp text. Hover is disabled for touch, reduced motion, and plain modes.
  */
 
 (function () {
@@ -60,22 +41,6 @@
 
   const easeOut = createBezier(0.25, 1, 0.5, 1);
 
-  // Exact elastic.out(1, 0.45) solver for spring condensation
-  function elasticOut(t, a, p) {
-    if (t <= 0) return 0;
-    if (t >= 1) return 1;
-    a = a || 1;
-    p = p || 0.45;
-    let s;
-    if (a < 1) {
-      a = 1;
-      s = p / 4;
-    } else {
-      s = (p / (2 * Math.PI)) * Math.asin(1 / a);
-    }
-    return a * Math.pow(2, -10 * t) * Math.sin(((t - s) * (2 * Math.PI)) / p) + 1;
-  }
-
   // SVG namespace & helpers from bleibtgleich.dev
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const DUR_L = 1600; // Slow liquid reveal alongside the radio glide
@@ -93,47 +58,6 @@
       svg.setAttribute('aria-hidden', 'true');
       svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none;';
       document.body.prepend(svg);
-    }
-
-    if (!document.getElementById('liquid-bubble-filter')) {
-      const filter = document.createElementNS(SVG_NS, 'filter');
-      filter.setAttribute('id', 'liquid-bubble-filter');
-      filter.setAttribute('x', '-40%');
-      filter.setAttribute('y', '-40%');
-      filter.setAttribute('width', '180%');
-      filter.setAttribute('height', '180%');
-      filter.setAttribute('color-interpolation-filters', 'sRGB');
-      filter.innerHTML =
-        '<feTurbulence id="bubble-turb" type="turbulence" baseFrequency="0.016 0.022" numOctaves="3" result="wave" seed="2"></feTurbulence>' +
-        '<feDisplacementMap in="SourceGraphic" in2="wave" scale="42" xChannelSelector="R" yChannelSelector="G" result="displaced"></feDisplacementMap>' +
-        '<feGaussianBlur in="displaced" stdDeviation="3.0" result="blurred"></feGaussianBlur>' +
-        '<feColorMatrix in="blurred" mode="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 26 -8" result="gooey"></feColorMatrix>' +
-        '<feMerge>' +
-          '<feMergeNode in="gooey"></feMergeNode>' +
-          '<feMergeNode in="displaced"></feMergeNode>' +
-        '</feMerge>';
-      svg.appendChild(filter);
-    }
-
-    // Backwards-compatible alias for goo-feather-overlay
-    if (!document.getElementById('goo-feather-overlay')) {
-      const filterLegacy = document.createElementNS(SVG_NS, 'filter');
-      filterLegacy.setAttribute('id', 'goo-feather-overlay');
-      filterLegacy.setAttribute('x', '-40%');
-      filterLegacy.setAttribute('y', '-40%');
-      filterLegacy.setAttribute('width', '180%');
-      filterLegacy.setAttribute('height', '180%');
-      filterLegacy.setAttribute('color-interpolation-filters', 'sRGB');
-      filterLegacy.innerHTML =
-        '<feTurbulence type="turbulence" baseFrequency="0.016 0.022" numOctaves="3" result="wave" seed="2"></feTurbulence>' +
-        '<feDisplacementMap in="SourceGraphic" in2="wave" scale="42" xChannelSelector="R" yChannelSelector="G" result="displaced"></feDisplacementMap>' +
-        '<feGaussianBlur in="displaced" stdDeviation="3.0" result="blurred"></feGaussianBlur>' +
-        '<feColorMatrix in="blurred" mode="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 26 -8" result="gooey"></feColorMatrix>' +
-        '<feMerge>' +
-          '<feMergeNode in="gooey"></feMergeNode>' +
-          '<feMergeNode in="displaced"></feMergeNode>' +
-        '</feMerge>';
-      svg.appendChild(filterLegacy);
     }
 
     return svg;
@@ -239,72 +163,50 @@
     });
   }
 
-  // Interactive Liquid Melting Hover Effect
+  // Hover uses the same blur, threshold, and resolving curve as the entrance.
   function triggerLineLiquidMelt(lineEl) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    // Prevent animation overlap: kill existing hover animation if user re-enters rapidly
-    if (lineEl._hoverAnimId) {
-      cancelAnimationFrame(lineEl._hoverAnimId);
-      lineEl._hoverAnimId = null;
-    }
-
+    if (lineEl._hoverAnimId) return;
     const filterId = lineEl.dataset.filterId || attachGooFilter(lineEl, 0);
-    const feBlur = document.querySelector('#' + filterId + ' feGaussianBlur');
-    const feMatrix = document.querySelector('#' + filterId + ' feColorMatrix');
-    if (!feBlur || !feMatrix) return;
-
-    // 1. Reactivate the line's SVG Goo filter with melting threshold (18 -7)
-    lineEl.style.filter = 'url(#' + filterId + ')';
-    feMatrix.setAttribute('values', MATRIX_VALUES(18, -7));
-
-    const meltDur = 180; // 0.18s melt time
-    const condenseDur = 550; // 0.55s condense time
-    const totalDur = meltDur + condenseDur;
-    const maxMeltBlur = 14; // Peak melting stdDeviation
-
+    const filter = document.getElementById(filterId);
+    const blur = filter && filter.querySelector('feGaussianBlur');
+    const matrix = filter && filter.querySelector('feColorMatrix');
+    if (!blur || !matrix) return;
+    const maxBlur = lineEl.classList.contains('split-line-h1') ? 48 : 24;
+    const meltDuration = 280;
     let startTime = null;
+    lineEl.style.filter = 'url(#' + filterId + ')';
 
-    function renderMeltFrame(now) {
-      if (!startTime) startTime = now;
+    function render(now) {
+      if (startTime === null) startTime = now;
       const elapsed = now - startTime;
-
-      if (elapsed <= meltDur) {
-        // Phase 1: Quickly melt letters from 0 to 14 stdDeviation
-        const p = elapsed / meltDur;
-        const eased = p * p * (3 - 2 * p); // Smooth cubic ease
-        const blur = maxMeltBlur * eased;
-
-        feBlur.setAttribute('stdDeviation', blur.toFixed(2));
-        feMatrix.setAttribute('values', MATRIX_VALUES(18, -7));
-        lineEl._hoverAnimId = requestAnimationFrame(renderMeltFrame);
-      } else if (elapsed <= totalDur) {
-        // Phase 2: Immediately condense back from 14 to 0 using elastic.out(1, 0.45)
-        const p = (elapsed - meltDur) / condenseDur;
-        const eased = elasticOut(p, 1, 0.45);
-        const blur = Math.max(0, maxMeltBlur * (1 - Math.min(eased, 1)));
-
-        feBlur.setAttribute('stdDeviation', blur.toFixed(2));
-
-        // In the final 30% of condensation, interpolate color matrix smoothly back to 1 0
-        if (p >= 0.7) {
-          const matrixP = (p - 0.7) / 0.3;
-          const amp = 18 + (1 - 18) * matrixP;
-          const off = -7 + (0 - -7) * matrixP;
-          feMatrix.setAttribute('values', MATRIX_VALUES(amp.toFixed(2), off.toFixed(2)));
-        }
-
-        lineEl._hoverAnimId = requestAnimationFrame(renderMeltFrame);
+      let amount;
+      let amp;
+      let off;
+      if (elapsed < meltDuration) {
+        const p = elapsed / meltDuration;
+        const melt = p * p * (3 - 2 * p);
+        amount = maxBlur * melt;
+        amp = 1 + 19 * melt;
+        off = -8 * melt;
       } else {
-        // On complete: reset feColorMatrix to 1 0 and clear filter style so text returns to pure vector crispness
-        feBlur.setAttribute('stdDeviation', '0');
-        feMatrix.setAttribute('values', MATRIX_VALUES(1, 0));
-        lineEl.style.filter = '';
-        lineEl._hoverAnimId = null;
+        const p = Math.min(1, (elapsed - meltDuration) / DUR_L);
+        amount = maxBlur * (1 - easeOut(p));
+        const resolve = Math.max(0, (p - 0.75) / 0.25);
+        amp = 20 - 19 * resolve;
+        off = -8 + 8 * resolve;
+        if (p === 1) {
+          blur.setAttribute('stdDeviation', '0');
+          matrix.setAttribute('values', MATRIX_VALUES(1, 0));
+          lineEl.style.filter = '';
+          lineEl._hoverAnimId = null;
+          return;
+        }
       }
+      blur.setAttribute('stdDeviation', amount.toFixed(3));
+      matrix.setAttribute('values', MATRIX_VALUES(amp.toFixed(3), off.toFixed(3)));
+      lineEl._hoverAnimId = requestAnimationFrame(render);
     }
-
-    lineEl._hoverAnimId = requestAnimationFrame(renderMeltFrame);
+    lineEl._hoverAnimId = requestAnimationFrame(render);
   }
 
   // Exact replication of animateDivReveal() / data-reveal="fade" from bleibtgleich.dev
@@ -353,7 +255,8 @@
 
   // Split text into line elements (preserving words & <br>)
   function splitTextLines(el) {
-    if (!el || el.dataset.splitDone === 'true') {
+    if (!el) return [];
+    if (el.dataset.splitDone === 'true') {
       return Array.from(el.querySelectorAll('.split-line-h1, .split-line'));
     }
     el.dataset.splitDone = 'true';
@@ -398,227 +301,50 @@
     return lineElements;
   }
 
-  // =========================================================================
-  // Seamless, Organic Dynamic Morphing Amoeba Liquid Blob Mask
-  // - 5-Lobe Metaball Cluster: Center body + 4 undulating satellite lobes.
-  // - Dynamic sine/cosine undulation + velocity squish & stretch.
-  // - Soft multi-stop feathered gradient falloff guarantees seamless blending.
-  // - Base static text is 100% visible & unmasked by default (never disappears).
-  // =========================================================================
-  function setupSeamlessLiquidRipple(leadEl, titleEl, subtitleEl) {
+  // Reuse each original line's entrance filter. No cloned or masked text layer.
+  function setupHeroLiquidHover(leadEl) {
     if (!leadEl || leadEl.dataset.seamlessLiquidInit === 'true') return null;
+    const base = leadEl.querySelector('.liquid-text-base');
+    if (!base) return null;
     leadEl.dataset.seamlessLiquidInit = 'true';
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const lines = Array.from(base.querySelectorAll('.split-line-h1, .split-line'));
 
-    getGooDefsSvg(); // Ensure SVG filters exist in DOM
-
-    // Ensure base text wrapper .liquid-text-base is present
-    let baseTextWrapper = leadEl.querySelector('.liquid-text-base');
-    if (!baseTextWrapper && titleEl) {
-      baseTextWrapper = document.createElement('div');
-      baseTextWrapper.className = 'liquid-text-base';
-      titleEl.parentNode.insertBefore(baseTextWrapper, titleEl);
-      baseTextWrapper.appendChild(titleEl);
-      if (subtitleEl) {
-        baseTextWrapper.appendChild(subtitleEl);
-      }
+    function onEnter(event) {
+      const hero = leadEl.closest('.auralink-hero-container');
+      if (reducedMotion.matches || !finePointer.matches || !hero || hero.dataset.heroRevealComplete !== 'true') return;
+      triggerLineLiquidMelt(event.currentTarget);
     }
-
-    let overlayEl = leadEl.querySelector('.auralink-hero-liquid-overlay');
-    if (!overlayEl) {
-      overlayEl = document.createElement('div');
-      overlayEl.className = 'auralink-hero-liquid-overlay';
-      overlayEl.setAttribute('aria-hidden', 'true');
-      leadEl.appendChild(overlayEl);
-    }
-
-    function syncOverlayContent() {
-      overlayEl.innerHTML = '';
-      const cloneTitle = titleEl.cloneNode(true);
-      cloneTitle.removeAttribute('id');
-      cloneTitle.removeAttribute('data-reveal');
-      cloneTitle.setAttribute('aria-hidden', 'true');
-      cloneTitle.style.visibility = 'visible';
-      cloneTitle.style.opacity = '1';
-      cloneTitle.style.filter = '';
-      cloneTitle.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
-      cloneTitle.querySelectorAll('*').forEach(function (n) {
-        n.style.visibility = 'visible';
-        n.style.opacity = '1';
-        n.style.filter = '';
+    function stop() {
+      lines.forEach(function (line) {
+        if (!line._hoverAnimId) return;
+        cancelAnimationFrame(line._hoverAnimId);
+        line._hoverAnimId = null;
+        const filter = document.getElementById(line.dataset.filterId);
+        if (filter) {
+          filter.querySelector('feGaussianBlur').setAttribute('stdDeviation', '0');
+          filter.querySelector('feColorMatrix').setAttribute('values', MATRIX_VALUES(1, 0));
+        }
+        line.style.filter = '';
       });
-      overlayEl.appendChild(cloneTitle);
-
-      if (subtitleEl) {
-        const cloneSub = subtitleEl.cloneNode(true);
-        cloneSub.removeAttribute('id');
-        cloneSub.removeAttribute('data-reveal');
-        cloneSub.setAttribute('aria-hidden', 'true');
-        cloneSub.style.visibility = 'visible';
-        cloneSub.style.opacity = '1';
-        cloneSub.style.filter = '';
-        cloneSub.querySelectorAll('[id]').forEach(function (n) { n.removeAttribute('id'); });
-        cloneSub.querySelectorAll('*').forEach(function (n) {
-          n.style.visibility = 'visible';
-          n.style.opacity = '1';
-          n.style.filter = '';
-        });
-        overlayEl.appendChild(cloneSub);
-      }
     }
-
-    syncOverlayContent();
-
-    let targetX = -500;
-    let targetY = -500;
-    let currentX = -500;
-    let currentY = -500;
-    let targetRadius = 0;
-    let currentRadius = 0;
-    let isHovered = false;
-    let rafId = null;
-    let animTime = 0;
-
-    function getMaxRadius() {
-      return window.innerWidth <= 768 ? 170 : 250;
-    }
-
-    const turbEl = document.getElementById('bubble-turb');
-    let frameTick = 0;
-
-    function updateLoop() {
-      const lerpPos = 0.28;
-      const lerpRad = 0.18;
-
-      const dx = targetX - currentX;
-      const dy = targetY - currentY;
-      const speed = Math.sqrt(dx * dx + dy * dy);
-
-      currentX += dx * lerpPos;
-      currentY += dy * lerpPos;
-      currentRadius += (targetRadius - currentRadius) * lerpRad;
-
-      leadEl.style.setProperty('--bubble-x', currentX.toFixed(1) + 'px');
-      leadEl.style.setProperty('--bubble-y', currentY.toFixed(1) + 'px');
-      leadEl.style.setProperty('--bubble-r', currentRadius.toFixed(1) + 'px');
-
-      if (currentRadius > 1) {
-        animTime += 0.038;
-        const stretch = Math.min(speed * 0.015, 0.40);
-        const moveAngle = Math.atan2(dy, dx);
-        const cosA = Math.cos(moveAngle);
-        const sinA = Math.sin(moveAngle);
-
-        // 1. Base static text cutout hole (scaled with squish & stretch)
-        const baseCutR = (currentRadius * (1 + stretch * 0.42) * 1.08).toFixed(1) + 'px';
-        leadEl.style.setProperty('--base-cut-r', baseCutR);
-
-        // 2. Center main blob body (Lobe 0)
-        const r0 = currentRadius * 0.92 + Math.sin(animTime * 2.2) * (currentRadius * 0.10);
-        leadEl.style.setProperty('--blob-x0', currentX.toFixed(1) + 'px');
-        leadEl.style.setProperty('--blob-y0', currentY.toFixed(1) + 'px');
-        leadEl.style.setProperty('--blob-r0', Math.max(0, r0).toFixed(1) + 'px');
-
-        // 3. Four asymmetrical undulating satellite lobes (Lobes 1 to 4)
-        for (let i = 0; i < 4; i++) {
-          const angle = (i * Math.PI / 2) + animTime * 0.25;
-          const dist = currentRadius * 0.46 +
-                       Math.sin(animTime * 2.2 + i * 1.4) * (currentRadius * 0.16) +
-                       Math.cos(animTime * 1.7 - i * 0.8) * (currentRadius * 0.09);
-          const rLobe = currentRadius * 0.60 +
-                        Math.sin(animTime * 1.9 - i * 1.1) * (currentRadius * 0.12);
-
-          let lx = dist * Math.cos(angle);
-          let ly = dist * Math.sin(angle);
-
-          // Velocity-based squish & stretch along movement vector
-          if (speed > 0.5 && stretch > 0.01) {
-            const rx = lx * cosA + ly * sinA;
-            const ry = -lx * sinA + ly * cosA;
-            const sx = rx * (1 + stretch);
-            const sy = ry * (1 - stretch * 0.45);
-            lx = sx * cosA - sy * sinA;
-            ly = sx * sinA + sy * cosA;
-          }
-
-          leadEl.style.setProperty('--blob-x' + (i + 1), (currentX + lx).toFixed(1) + 'px');
-          leadEl.style.setProperty('--blob-y' + (i + 1), (currentY + ly).toFixed(1) + 'px');
-          leadEl.style.setProperty('--blob-r' + (i + 1), Math.max(0, rLobe).toFixed(1) + 'px');
-        }
-      } else {
-        leadEl.style.setProperty('--base-cut-r', '0px');
-        leadEl.style.setProperty('--blob-r0', '0px');
-        leadEl.style.setProperty('--blob-r1', '0px');
-        leadEl.style.setProperty('--blob-r2', '0px');
-        leadEl.style.setProperty('--blob-r3', '0px');
-        leadEl.style.setProperty('--blob-r4', '0px');
-      }
-
-      // Modulate chunky water waves dynamically while cursor sweeps across text
-      if (turbEl && speed > 0.4) {
-        frameTick += 0.05;
-        const baseFreqX = (0.016 + Math.sin(frameTick) * 0.002).toFixed(4);
-        const baseFreqY = (0.022 + Math.cos(frameTick * 0.8) * 0.002).toFixed(4);
-        turbEl.setAttribute('baseFrequency', baseFreqX + ' ' + baseFreqY);
-      }
-
-      if (isHovered || currentRadius > 0.5) {
-        rafId = requestAnimationFrame(updateLoop);
-      } else {
-        currentRadius = 0;
-        leadEl.style.setProperty('--bubble-r', '0px');
-        leadEl.style.setProperty('--base-cut-r', '0px');
-        leadEl.style.setProperty('--blob-r0', '0px');
-        leadEl.style.setProperty('--blob-r1', '0px');
-        leadEl.style.setProperty('--blob-r2', '0px');
-        leadEl.style.setProperty('--blob-r3', '0px');
-        leadEl.style.setProperty('--blob-r4', '0px');
-        leadEl.classList.remove('is-liquid-active');
-        rafId = null;
-      }
-    }
-
-    function onPointerEnter(e) {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const rect = leadEl.getBoundingClientRect();
-      targetX = e.clientX - rect.left;
-      targetY = e.clientY - rect.top;
-      if (currentX < -200) {
-        currentX = targetX;
-        currentY = targetY;
-      }
-      targetRadius = getMaxRadius();
-      isHovered = true;
-      leadEl.classList.add('is-liquid-active');
-      if (!rafId) {
-        rafId = requestAnimationFrame(updateLoop);
-      }
-    }
-
-    function onPointerMove(e) {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      const rect = leadEl.getBoundingClientRect();
-      targetX = e.clientX - rect.left;
-      targetY = e.clientY - rect.top;
-      if (!isHovered) {
-        isHovered = true;
-        targetRadius = getMaxRadius();
-        leadEl.classList.add('is-liquid-active');
-        if (!rafId) {
-          rafId = requestAnimationFrame(updateLoop);
-        }
-      }
-    }
-
-    function onPointerLeave() {
-      isHovered = false;
-      targetRadius = 0;
-    }
-
-    leadEl.addEventListener('pointerenter', onPointerEnter);
-    leadEl.addEventListener('pointermove', onPointerMove);
-    leadEl.addEventListener('pointerleave', onPointerLeave);
-
-    return syncOverlayContent;
+    function onVisibilityChange() { if (document.hidden) stop(); }
+    lines.forEach(function (line) { line.addEventListener('pointerenter', onEnter); });
+    reducedMotion.addEventListener('change', stop);
+    finePointer.addEventListener('change', stop);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('blur', stop);
+    leadEl._rippleDestroy = function () {
+      stop();
+      lines.forEach(function (line) { line.removeEventListener('pointerenter', onEnter); });
+      reducedMotion.removeEventListener('change', stop);
+      finePointer.removeEventListener('change', stop);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('blur', stop);
+      delete leadEl.dataset.seamlessLiquidInit;
+    };
+    return null;
   }
 
   // =========================================================================
@@ -673,11 +399,8 @@
         attachGooFilter(line, 24);
       });
 
-      // Initialize seamless feathered radial falloff mask ripple on cursor hover
-      let syncOverlay = null;
-      if (leadEl) {
-        syncOverlay = setupSeamlessLiquidRipple(leadEl, titleEl, subtitleEl);
-      }
+      // Hover reuses the original text lines and their entrance filters.
+      if (leadEl) setupHeroLiquidHover(leadEl);
 
       let revealTriggered = false;
 
@@ -688,7 +411,6 @@
         let completedTextReveals = 0;
         let fadeStarted = false;
         function completeTextReveal() {
-          if (syncOverlay) syncOverlay();
           completedTextReveals++;
           if (completedTextReveals !== 2 || fadeStarted) return;
           fadeStarted = true;
@@ -796,6 +518,12 @@
   } else {
     initHeroGooeySection();
   }
+
+  document.addEventListener('shopify:section:unload', function (event) {
+    event.target.querySelectorAll('.auralink-hero-lead').forEach(function (lead) {
+      if (lead._rippleDestroy) lead._rippleDestroy();
+    });
+  });
 
   // Shopify Theme Editor design mode support
   if (window.Shopify && window.Shopify.designMode) {
