@@ -381,3 +381,11 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Pin spacing reserves the fixed scene height plus bottom spacing; existing quick scroll response and once-only tag sequencing retained.
 - Local browser harness confirmed identical scene (1470 x 801) and WebGL buffer (1789 x 1602) at scroll 0 and 369px, while clip insets/radius changed. Following-section gap remained non-negative. This verifies fixed layout rather than a real DOM wrapper max-width of 1440px.
 - JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes. Storefront, mobile, Theme Editor, keyboard and Lighthouse verification remain pending.
+
+### Larger radio, zoom ceiling, and synchronized white navbar — 2026-10-21
+
+- Moved the default camera from (2.96, 2.92, 6.12) to (2.55, 2.49, 5.26), keeping target (0.02, -0.16, 0). Target distance is approximately 6.410 units (previously 7.46), enlarging the default radio view. OrbitControls minimum distance now matches that framing, with an outward-only adjustment when the viewport needs extra clearance.
+- Camera fitting samples actual mesh geometry once (bounded samples per mesh), rather than the empty corners of a global bounding box that prevented enlarging the rounded radio. Uses an 8% safety margin and a reused projection vector; fitting runs during intro/resize, not during ordinary scroll.
+- The same scrubbed GSAP timeline now drives both rounded frame and header white-background opacity. Header remains transparent at zero progress, becomes white as the frame rounds, and reverses together on upward scroll; overrides existing sticky-threshold background behavior. Reduced motion retains the native header behavior.
+- Local browser harness: repeated zoom-in attempts stop at distance 6.410 / minimum 6.410. Header opacity was 0 at initial frame, approximately 0.882 at partial rounded progress, then solid white at the 32px final radius. Scene/buffer dimensions remained stable and the following-section gap remained 0 after unpin.
+- JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes. Screenshot is the user-approved reference; exact screenshot matching on the real store, mobile, Theme Editor and Lighthouse remain pending.

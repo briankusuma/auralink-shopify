@@ -32162,9 +32162,9 @@ function initRadio3D(rootEl) {
   const qTarY = urlParams ? urlParams.get("tarY") : null;
   const qTarZ = urlParams ? urlParams.get("tarZ") : null;
   const DEFAULT_CAM_POS = new Vector3(
-    qCamX !== null ? parseFloat(qCamX) : 2.96,
-    qCamY !== null ? parseFloat(qCamY) : 2.92,
-    qCamZ !== null ? parseFloat(qCamZ) : 6.12
+    qCamX !== null ? parseFloat(qCamX) : 2.55,
+    qCamY !== null ? parseFloat(qCamY) : 2.49,
+    qCamZ !== null ? parseFloat(qCamZ) : 5.26
   );
   const DEFAULT_TARGET = new Vector3(
     qTarX !== null ? parseFloat(qTarX) : 0.02,
@@ -32237,7 +32237,8 @@ function initRadio3D(rootEl) {
     camera.lookAt(TAR_P1);
     controls.enabled = false;
   }
-  controls.minDistance = 4;
+  const maximumZoomDistance = DEFAULT_CAM_POS.distanceTo(DEFAULT_TARGET);
+  controls.minDistance = maximumZoomDistance;
   controls.maxDistance = 7.5;
   controls.maxPolarAngle = Math.PI * 0.58;
   function logCameraStats() {
@@ -32974,15 +32975,19 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   // Fit the complete radio, including its dial, inside the current canvas.
   // The shadow floor is deliberately excluded from the model bounds.
   radioRoot.updateMatrixWorld(true);
-  const radioBounds = new Box3().setFromObject(radioRoot);
-  const radioCorners = [];
-  for (const x of [radioBounds.min.x, radioBounds.max.x]) {
-    for (const y of [radioBounds.min.y, radioBounds.max.y]) {
-      for (const z of [radioBounds.min.z, radioBounds.max.z]) {
-        radioCorners.push(new Vector3(x, y, z));
-      }
+  // Sample the actual silhouette, not the empty corners of a global box.
+  // Rounded casing and the projecting dial otherwise force an oversized margin.
+  const radioFitPoints = [];
+  radioRoot.traverse((object) => {
+    const positions = object.geometry && object.geometry.attributes.position;
+    if (!positions || positions.count === 0) return;
+    const budget = positions.count > 100000 ? 1024 : 64;
+    const step = Math.max(1, Math.ceil(positions.count / budget));
+    for (let index = 0; index < positions.count; index += step) {
+      radioFitPoints.push(new Vector3().fromBufferAttribute(positions, index).applyMatrix4(object.matrixWorld));
     }
-  }
+    radioFitPoints.push(new Vector3().fromBufferAttribute(positions, positions.count - 1).applyMatrix4(object.matrixWorld));
+  });
   function fitRadioInCanvas() {
     const backward = camera.position.clone().sub(controls.target).normalize();
     const right = new Vector3().crossVectors(camera.up, backward);
@@ -32992,19 +32997,22 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     else right.normalize();
     const up = new Vector3().crossVectors(backward, right).normalize();
     // Leave a little space around the silhouette throughout the camera move.
-    const tanVertical = Math.tan(camera.fov * Math.PI / 360) / 1.12;
+    const tanVertical = Math.tan(camera.fov * Math.PI / 360) / 1.08;
     const tanHorizontal = tanVertical * camera.aspect;
-    let distance = camera.position.distanceTo(controls.target);
-    for (const corner of radioCorners) {
-      const offset = corner.clone().sub(controls.target);
-      distance = Math.max(distance,
+    let requiredDistance = 0;
+    const offset = new Vector3();
+    for (const point of radioFitPoints) {
+      offset.copy(point).sub(controls.target);
+      requiredDistance = Math.max(requiredDistance,
         offset.dot(backward) + Math.abs(offset.dot(right)) / tanHorizontal,
         offset.dot(backward) + Math.abs(offset.dot(up)) / tanVertical);
     }
+    const distance = Math.max(camera.position.distanceTo(controls.target), requiredDistance);
     camera.position.copy(controls.target).addScaledVector(backward, distance);
     camera.lookAt(controls.target);
     // OrbitControls must not clamp a fitted narrow-screen camera back inward.
     controls.maxDistance = Math.max(7.5, distance);
+    if (!introActive) controls.minDistance = Math.max(maximumZoomDistance, requiredDistance);
   }
   let audioCtx = null;
   let musicInterval = null;

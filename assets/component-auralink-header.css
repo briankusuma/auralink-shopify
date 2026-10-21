@@ -634,3 +634,14 @@ header-drawer summary::before,
 .template-index .section-header:has(.header-wrapper--overlay) {
   margin-bottom: 0;
 }
+
+/* Match the hero frame's scrubbed progress rather than the sticky threshold.
+   These overrides replace the existing important overlay background rules. */
+.template-index .header-wrapper--overlay.hero-scroll-header {
+  background: rgba(255, 255, 255, var(--hero-header-opacity, 0)) !important;
+  transition: opacity 1.3s cubic-bezier(0.22, 1, 0.36, 1), transform 1.3s cubic-bezier(0.22, 1, 0.36, 1), top 0.3s ease;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 4px 20px rgb(0 0 0 / calc(var(--hero-header-opacity, 0) * 0.06));
+  border-bottom: none !important;
+}

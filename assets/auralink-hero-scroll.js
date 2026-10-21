@@ -24,6 +24,7 @@
 
       match.add('(prefers-reduced-motion: no-preference)', function () {
         let timeline = null;
+        const header = document.querySelector('.header-wrapper--overlay');
         let docked = Boolean(window.auralinkRadioDocked);
         let dimensions;
         const originalMinHeight = section.style.minHeight;
@@ -63,6 +64,11 @@
           '--hero-frame-radius': '0px'
         });
 
+        if (header) {
+          header.classList.add('hero-scroll-header');
+          gsap.set(header, { '--hero-header-opacity': 0 });
+        }
+
         function startScroll() {
           if (timeline || !docked || container.dataset.heroRevealComplete !== 'true') return;
           // Pin only after all intro reveals finish. Native scrolling is retained.
@@ -95,6 +101,13 @@
             duration: 1,
             ease: 'none'
           });
+          if (header) {
+            timeline.fromTo(header, { '--hero-header-opacity': 0 }, {
+              '--hero-header-opacity': 1,
+              duration: 1,
+              ease: 'none'
+            }, 0);
+          }
         }
 
         function onDocked() {
@@ -115,6 +128,7 @@
           }
           wrapper.classList.remove('has-scroll-framing');
           section.style.minHeight = originalMinHeight;
+          if (header) header.classList.remove('hero-scroll-header');
         };
       });
       wrapper._heroScrollDestroy = function () {
