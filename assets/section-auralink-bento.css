@@ -8,6 +8,12 @@
   box-sizing: border-box;
 }
 
+/* Bento owns its reveal timeline; the global text animator skips this section.
+   Keep semantic text visible, including static/mobile/editor fallbacks. */
+.auralink-bento-wrapper [data-liquid-reveal="text"] {
+  visibility: inherit;
+}
+
 .auralink-bento-container {
   max-width: 1064px;
   margin-left: auto;

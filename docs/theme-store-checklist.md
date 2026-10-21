@@ -419,3 +419,10 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Percentage card counts from zero to the merchant-configured integer percentage in the existing scroll timeline; other statistic formats remain unchanged. Numeric spacing is stable and original merchant text is restored on animation cleanup.
 - Card contents now reveal after their surfaces: stat badge/description, staggered connected label and shield icon/text, then large-card glass panel and its text. Existing sequence, local libraries, static/reduced-motion/editor fallbacks retained.
 - JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). Actual counter tween exercised with local GSAP at initial, intermediate, final and reversed progress. No Liquid/schema/Shopify API changes. Updated visual playback, real-store integration, Theme Editor and Lighthouse remain pending; Figma motion source remains unavailable as recorded above.
+
+### Bento heading visibility fix — 2026-10-21
+
+- Root cause: global CSS hides data-liquid-reveal text, while the bento exclusion prevents that animator from restoring visibility. Scoped bento text now inherits visibility, preserving both a readable heading/static fallback and hidden card contents until their parent reveal.
+- Moved the heading's starting position into an invalidatable timeline set at time zero. Heading starts centered, rises to its normal header position, then stays there through the remaining card reveals; refresh recalculates the centered offset.
+- Local browser regression harness now includes the production global hiding rule and bento text attributes. Verified initial heading at y328 with all cards hidden and heading still visible at y70 during the final card stage. Controlled GSAP test passed center/top/intermediate/reverse/changed-center refresh checks.
+- JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes or new assets/dependencies. Existing Figma source limitation remains; real storefront, mobile, Theme Editor and Lighthouse verification remain pending.

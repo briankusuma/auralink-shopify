@@ -93,7 +93,6 @@
                   onRefreshInit: measure
                 }
               });
-              if (header) gsap.set(header, { y: function () { return positions.headingCenter; } });
               gsap.set(stat, { autoAlpha: 0, y: 24, x: function () { return positions.statCenter; } });
               gsap.set(stacked, { autoAlpha: 0, y: 20, x: function () { return positions.stackedPair; } });
               gsap.set(large, { autoAlpha: 0, x: -32 });
@@ -103,7 +102,12 @@
               if (glass) gsap.set(glass, { autoAlpha: 0, y: 24 });
               if (glassText) gsap.set(glassText, { autoAlpha: 0, y: 10 });
               timeline.addLabel('heading', 0);
-              if (header) timeline.to(header, { y: 0, duration: 0.9 }, 0.25);
+              if (header) {
+                timeline.set(header, {
+                  y: function () { return positions.headingCenter; }, immediateRender: true, lazy: false
+                }, 0);
+                timeline.to(header, { y: 0, duration: 0.9, lazy: false }, 0.25);
+              }
               timeline.to(stat, { autoAlpha: 1, y: 0, duration: 0.7 }, 1.05);
               timeline.to(statDetails, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.5, ease: 'power2.out' }, 1.25);
               if (percentage) {
