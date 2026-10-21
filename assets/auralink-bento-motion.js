@@ -66,6 +66,14 @@
             wrapper.classList.add('is-bento-sequenced');
             const section = wrapper.closest('.shopify-section') || wrapper;
             const container = wrapper.querySelector('.auralink-bento-container');
+            const textReveals = [];
+            function prepareText(el) {
+              const engine = window.AuraLinkLiquidReveal;
+              const reveal = engine && engine.createControlled ? engine.createControlled(el) : null;
+              if (reveal) textReveals.push(reveal);
+              return reveal;
+            }
+            const headingReveals = header ? Array.from(header.querySelectorAll('[data-liquid-reveal="text"]')).map(prepareText).filter(Boolean) : [];
             let positions;
             function measure() {
               const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
@@ -90,6 +98,7 @@
                   scrub: 0.6,
                   refreshPriority: -1,
                   invalidateOnRefresh: true,
+                  onEnter: function () { headingReveals.forEach(function (reveal) { reveal.play(); }); },
                   onRefreshInit: measure
                 }
               });
@@ -136,7 +145,23 @@
               if (glassText) timeline.to(glassText, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'power2.out' }, 3.95);
               timeline.addLabel('complete', 4.5);
               timeline.to({}, { duration: 0.45 });
+              function revealText(selector, at) {
+                wrapper.querySelectorAll(selector).forEach(function (el, index) {
+                  const reveal = prepareText(el);
+                  if (!reveal) return;
+                  const state = { progress: 0 };
+                  reveal.render(0);
+                  timeline.to(state, {
+                    progress: 1, duration: 1, ease: 'none',
+                    onUpdate: function () { reveal.render(state.progress); }
+                  }, at + index * 0.06);
+                });
+              }
+              revealText('.auralink-bento-stat__desc', 1.25);
+              revealText('.auralink-bento-pill-tag, .auralink-bento-shield-text', 2.4);
+              revealText('.auralink-bento-glass-card__text', 3.95);
               return function () {
+                textReveals.forEach(function (reveal) { reveal.destroy(); });
                 // Restore merchant content when motion is disabled or the section unloads.
                 if (statNumber) statNumber.textContent = statText;
               };

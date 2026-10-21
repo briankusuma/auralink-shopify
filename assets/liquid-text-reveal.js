@@ -96,6 +96,12 @@
     return filterId;
   }
 
+  function renderLiquidFrame(feBlur, feMatrix, baseStdDev, t) {
+    if (feBlur) feBlur.setAttribute('stdDeviation', Math.max(0, baseStdDev * (1 - easeOut(t))).toFixed(2));
+    const matrixT = Math.max(0, Math.min(1, (t - 0.5) / 0.5));
+    if (feMatrix) feMatrix.setAttribute('values', MATRIX_VALUES((6 - 5 * matrixT).toFixed(2), (-1.5 + 1.5 * matrixT).toFixed(2)));
+  }
+
   function runTextRevealAnimation(lineElements, baseStdDev, startOffset, onComplete) {
     const dur = EXACT_DURATION; // 1000ms = 1s
     const stagger = 60; // 0.06s stagger between lines
@@ -129,28 +135,7 @@
         }
 
         const t = Math.min((elapsed - lineDelay) / dur, 1);
-        const easedProgress = easeOut(t);
-
-        // stdDeviation decreases smoothly from baseStdDev down to 0
-        const currentStdDev = Math.max(0, baseStdDev * (1 - easedProgress));
-        if (feBlur) {
-          feBlur.setAttribute('stdDeviation', currentStdDev.toFixed(2));
-        }
-
-        // feColorMatrix transitions to 1 0 in second half of the 1s duration
-        const matrixThreshold = 0.5;
-        if (t >= matrixThreshold) {
-          const matrixT = Math.min((t - matrixThreshold) / (1 - matrixThreshold), 1);
-          const currentAmp = 6 + (1 - 6) * matrixT;
-          const currentOff = -1.5 + (0 - -1.5) * matrixT;
-
-          if (feMatrix) {
-            feMatrix.setAttribute(
-              'values',
-              MATRIX_VALUES(currentAmp.toFixed(2), currentOff.toFixed(2))
-            );
-          }
-        }
+        renderLiquidFrame(feBlur, feMatrix, baseStdDev, t);
 
         if (t < 1) {
           requestAnimationFrame(renderFrame);
@@ -176,6 +161,41 @@
         lineEl.style.opacity = '1';
       }, dur + lineDelay + 150);
     });
+  }
+
+  // Section timelines can use the same liquid treatment without a second observer.
+  function createControlledReveal(el) {
+    if (!el || isPlainMode() || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
+    const originalHTML = el.innerHTML;
+    const originalSplit = el.dataset.linesSplitted;
+    const lines = splitTextLines(el);
+    const blur = getBaseStdDev(el);
+    const filters = lines.map(function (line) {
+      const id = attachGooFilter(line, blur);
+      const filter = document.getElementById(id);
+      return { id: id, node: filter, blur: filter.querySelector('feGaussianBlur'), matrix: filter.querySelector('feColorMatrix') };
+    });
+    function render(progress) {
+      const total = EXACT_DURATION + Math.max(0, lines.length - 1) * 60;
+      lines.forEach(function (line, index) {
+        const t = Math.max(0, Math.min(1, (progress * total - index * 60) / EXACT_DURATION));
+        renderLiquidFrame(filters[index].blur, filters[index].matrix, blur, t);
+        line.style.filter = t >= 1 ? '' : 'url(#' + filters[index].id + ')';
+        line.style.visibility = 'inherit';
+      });
+    }
+    render(1);
+    return {
+      render: render,
+      play: function () { runTextRevealAnimation(lines, blur, 0); },
+      destroy: function () {
+        lines.forEach(function (line) { line._liquidAnimId = (line._liquidAnimId || 0) + 1; });
+        filters.forEach(function (filter) { filter.node.remove(); });
+        el.innerHTML = originalHTML;
+        if (originalSplit === undefined) delete el.dataset.linesSplitted;
+        else el.dataset.linesSplitted = originalSplit;
+      }
+    };
   }
 
   function splitTextLines(el) {
@@ -479,6 +499,7 @@
 
   // Expose global controller for carousel/slider transitions and manual triggering
   window.AuraLinkLiquidReveal = {
+    createControlled: createControlledReveal,
     replay: replayLiquidReveal,
     initSingle: initSingleLiquidReveal,
     initAll: initAllLiquidReveals
