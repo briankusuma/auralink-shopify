@@ -533,29 +533,20 @@
 }
 
 
-/* The existing radio glide state also controls the hero's outer framing. */
+/* Scroll framing owns these dimensions; no CSS transition competes with GSAP. */
 @media (prefers-reduced-motion: no-preference) {
-  .auralink-hero-wrapper {
-    transition: max-width 1.6s cubic-bezier(0.16, 1, 0.3, 1),
-      padding-left 1.6s cubic-bezier(0.16, 1, 0.3, 1),
-      padding-right 1.6s cubic-bezier(0.16, 1, 0.3, 1),
-      padding-top 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+  .js .auralink-hero-wrapper.has-scroll-framing:not(.shopify-design-mode *) {
+    max-width: var(--hero-frame-width, 100%);
+    padding-top: var(--hero-frame-top, 0px);
+    padding-left: var(--hero-frame-gutter, 0px);
+    padding-right: var(--hero-frame-gutter, 0px);
   }
 
-  .auralink-hero-container {
-    transition: max-width 1.6s cubic-bezier(0.16, 1, 0.3, 1),
-      border-radius 1.6s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .auralink-hero-wrapper:has([data-auralink-radio-3d]):has(.auralink-hero-media.is-intro-center):not(.no-js *):not(.shopify-design-mode *) {
+  .js .has-scroll-framing:not(.shopify-design-mode *) .auralink-hero-container {
     max-width: 100%;
-    padding-top: 0;
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .auralink-hero-wrapper:has([data-auralink-radio-3d]):has(.auralink-hero-media.is-intro-center):not(.no-js *):not(.shopify-design-mode *) .auralink-hero-container {
-    max-width: 100%;
-    border-radius: 0;
+    height: var(--hero-frame-height, 100svh);
+    min-height: 0;
+    aspect-ratio: auto;
+    border-radius: var(--hero-frame-radius, 0px);
   }
 }

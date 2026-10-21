@@ -1,0 +1,129 @@
+/* AuraLink hero framing. GSAP and ScrollTrigger are hosted in theme assets. */
+(function () {
+  'use strict';
+  if (window.auralinkHeroScrollLoaded) return;
+  window.auralinkHeroScrollLoaded = true;
+
+  function init(scope) {
+    if (!window.gsap || !window.ScrollTrigger || (window.Shopify && window.Shopify.designMode)) {
+      scope.querySelectorAll('.has-scroll-framing').forEach(function (wrapper) {
+        wrapper.classList.remove('has-scroll-framing');
+      });
+      return;
+    }
+    const gsap = window.gsap;
+    gsap.registerPlugin(window.ScrollTrigger);
+
+    scope.querySelectorAll('.auralink-hero-wrapper').forEach(function (wrapper) {
+      const radio = wrapper.querySelector('[data-auralink-radio-3d]');
+      const container = wrapper.querySelector('.auralink-hero-container');
+      if (!radio || !container || wrapper._heroScrollDestroy) return;
+      const media = wrapper.querySelector('.auralink-hero-media');
+      const section = wrapper.closest('.shopify-section') || wrapper.parentElement;
+      const match = gsap.matchMedia();
+
+      match.add('(prefers-reduced-motion: no-preference)', function () {
+        let timeline = null;
+        let docked = Boolean(window.auralinkRadioDocked);
+        let dimensions;
+
+        function measure() {
+          // Measure the existing merchant layout before applying scroll framing.
+          const wasFramed = wrapper.classList.contains('has-scroll-framing');
+          const wasCentered = media.classList.contains('is-intro-center');
+          const maxWidth = wrapper.style.maxWidth;
+          wrapper.classList.remove('has-scroll-framing');
+          media.classList.remove('is-intro-center');
+          wrapper.style.maxWidth = '1440px';
+          const wrapperStyle = getComputedStyle(wrapper);
+          const containerStyle = getComputedStyle(container);
+          dimensions = {
+            width: Math.min(1440, section.clientWidth),
+            fullWidth: section.clientWidth,
+            top: parseFloat(wrapperStyle.paddingTop) || 0,
+            gutter: parseFloat(wrapperStyle.paddingLeft) || 0,
+            radius: parseFloat(containerStyle.borderTopLeftRadius) || 0,
+            height: container.getBoundingClientRect().height,
+            viewportHeight: document.documentElement.clientHeight
+          };
+          wrapper.style.maxWidth = maxWidth;
+          if (wasCentered) media.classList.add('is-intro-center');
+          if (wasFramed) wrapper.classList.add('has-scroll-framing');
+        }
+
+        measure();
+        wrapper.classList.add('has-scroll-framing');
+        gsap.set(wrapper, {
+          '--hero-frame-width': dimensions.fullWidth + 'px',
+          '--hero-frame-height': dimensions.viewportHeight + 'px',
+          '--hero-frame-top': '0px',
+          '--hero-frame-gutter': '0px',
+          '--hero-frame-radius': '0px'
+        });
+
+        function startScroll() {
+          if (timeline || !docked || container.dataset.heroRevealComplete !== 'true') return;
+          // Pin only after all intro reveals finish. Native scrolling is retained.
+          timeline = gsap.timeline({
+            scrollTrigger: {
+              trigger: section,
+              start: 'top top',
+              end: function () { return '+=' + Math.max(900, dimensions.viewportHeight * 1.5); },
+              pin: section,
+              scrub: 2.5,
+              invalidateOnRefresh: true,
+              onRefreshInit: measure
+            }
+          });
+          timeline.fromTo(wrapper, {
+            '--hero-frame-width': function () { return dimensions.fullWidth + 'px'; },
+            '--hero-frame-height': function () { return dimensions.viewportHeight + 'px'; },
+            '--hero-frame-top': '0px',
+            '--hero-frame-gutter': '0px',
+            '--hero-frame-radius': '0px'
+          }, {
+            '--hero-frame-width': function () { return dimensions.width + 'px'; },
+            '--hero-frame-height': function () { return dimensions.height + 'px'; },
+            '--hero-frame-top': function () { return dimensions.top + 'px'; },
+            '--hero-frame-gutter': function () { return dimensions.gutter + 'px'; },
+            '--hero-frame-radius': function () { return dimensions.radius + 'px'; },
+            duration: 1,
+            ease: 'none'
+          });
+        }
+
+        function onDocked() {
+          docked = true;
+          startScroll();
+        }
+        document.addEventListener('auralink:radio:docked', onDocked);
+        const revealObserver = new MutationObserver(startScroll);
+        revealObserver.observe(container, { attributes: true, attributeFilter: ['data-hero-reveal-complete'] });
+        startScroll();
+
+        return function () {
+          revealObserver.disconnect();
+          document.removeEventListener('auralink:radio:docked', onDocked);
+          if (timeline) {
+            timeline.scrollTrigger.kill();
+            timeline.revert();
+          }
+          wrapper.classList.remove('has-scroll-framing');
+        };
+      });
+      wrapper._heroScrollDestroy = function () {
+        match.revert();
+        delete wrapper._heroScrollDestroy;
+      };
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { init(document); });
+  else init(document);
+  document.addEventListener('shopify:section:load', function (event) { init(event.target); });
+  document.addEventListener('shopify:section:unload', function (event) {
+    event.target.querySelectorAll('.auralink-hero-wrapper').forEach(function (wrapper) {
+      if (wrapper._heroScrollDestroy) wrapper._heroScrollDestroy();
+    });
+  });
+})();

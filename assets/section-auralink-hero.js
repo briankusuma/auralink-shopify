@@ -20,7 +20,7 @@
  * 3. Accessibility & Standards:
  *    - cursor: pointer on text indicates interactivity.
  *    - Full prefers-reduced-motion & .no-js support.
- *    - Zero external script dependencies; 100% Shopify Theme Store compliant.
+ *    - Scroll framing is handled separately by locally hosted GSAP assets.
  */
 
 (function () {

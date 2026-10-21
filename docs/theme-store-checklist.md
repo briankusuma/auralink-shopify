@@ -355,3 +355,13 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Opening camera is directly above the radio at (0, 6.5, 0), targeting the model origin. Added a stable fitting basis for the overhead singularity and bypassed OrbitControls updates during the cinematic phase so polar constraints do not tilt this view.
 - Removed the permanent zero-top-padding override. Only the centered intro starts flush; the wrapper restores the merchant-configured top padding alongside the width and radius transition over 1.6s.
 - JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). An enclosing-box projection check passed five aspect ratios for the overhead pose. Browser visual confirmation and Theme Editor playback remain pending.
+
+### GSAP scroll framing — 2026-10-21
+
+- Added official, unminified local GSAP 3.15.0 and ScrollTrigger 3.15.0 assets. Scripts load only with the 3D hero. No external runtime script hosts. License source recorded in third-party-licenses.md.
+- Mapping: existing hero section and settings retained; new assets/auralink-hero-scroll.js owns wrapper width, height, gutters and radius through CSS custom properties. No new merchant settings or section types.
+- Replaced timed wrapper shrink on docking with scroll framing. Hero stays at full section width and viewport height throughout the radio/content intro, then pins its outer section for a scroll span of 1.5 viewport heights (minimum 900px). Scrub smoothing is 2.5s; final wrapper width is capped at 1440px. Native scrolling remains active; no scroll hijacking library.
+- Reduced motion, no-JS, missing library and Theme Editor retain the normal static layout. MatchMedia cleanup removes the timeline, pin and observer; section unload cleans up. Intro and delayed contact shadow retained.
+- Shopify asset_url and script inclusion verified in official docs; current Theme Store requirements and GSAP ScrollTrigger docs/license consulted.
+- Local browser harness verified fullscreen at scroll 0 (1470 x 801, radius 0) and scroll completion (1440px wrapper, 883px hero, radius 32). Reverse scrolling observed with gradual scrub interpolation. This is a local harness, not a development-store or Theme Editor test.
+- JavaScript syntax, diff whitespace, and Theme Check passed (176 files, no offenses). Performance cost: GSAP and ScrollTrigger add approximately 295KB uncompressed / 70KB gzip; production Lighthouse and mobile/keyboard checks remain pending. No submission gates marked complete based on harness alone.
