@@ -308,3 +308,10 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 
 - Increased the default camera distance using the supplied reference position (2.132, 2.426, 6.49), reducing the final radio framing by approximately 22%. The intro final pose and narrow-canvas resize use this same default.
 - JavaScript syntax and diff whitespace checks passed. Storefront visual confirmation remains pending; no additional submission gates marked complete.
+
+### Uncropped radio intro — 2026-10-21
+
+- Added camera fitting against the complete radio world-space bounding box, excluding the shadow floor. A 12% framing margin applies throughout the existing top/front/final camera sequence and on canvas resize.
+- The current camera distance is retained when it already fits; OrbitControls maximum distance accommodates narrow canvases. The final reduced camera distance from the previous change remains the baseline.
+- Verified JavaScript syntax and whitespace. A projection check using an enclosing radio-sized test box passed 310 interpolated poses across five aspect ratios (0.45–2.0). This is a mathematical framing check, not a browser visual test.
+- Storefront desktop/mobile playback, Theme Editor and Lighthouse remain pending; submission gates remain unchecked.

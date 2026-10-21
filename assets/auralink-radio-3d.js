@@ -32967,6 +32967,37 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   shadowPlane.receiveShadow = true;
   scene.add(shadowPlane);
 
+  // Fit the complete radio, including its dial, inside the current canvas.
+  // The shadow floor is deliberately excluded from the model bounds.
+  radioRoot.updateMatrixWorld(true);
+  const radioBounds = new Box3().setFromObject(radioRoot);
+  const radioCorners = [];
+  for (const x of [radioBounds.min.x, radioBounds.max.x]) {
+    for (const y of [radioBounds.min.y, radioBounds.max.y]) {
+      for (const z of [radioBounds.min.z, radioBounds.max.z]) {
+        radioCorners.push(new Vector3(x, y, z));
+      }
+    }
+  }
+  function fitRadioInCanvas() {
+    const backward = camera.position.clone().sub(controls.target).normalize();
+    const right = new Vector3().crossVectors(camera.up, backward).normalize();
+    const up = new Vector3().crossVectors(backward, right).normalize();
+    // Leave a little space around the silhouette throughout the camera move.
+    const tanVertical = Math.tan(camera.fov * Math.PI / 360) / 1.12;
+    const tanHorizontal = tanVertical * camera.aspect;
+    let distance = camera.position.distanceTo(controls.target);
+    for (const corner of radioCorners) {
+      const offset = corner.clone().sub(controls.target);
+      distance = Math.max(distance,
+        offset.dot(backward) + Math.abs(offset.dot(right)) / tanHorizontal,
+        offset.dot(backward) + Math.abs(offset.dot(up)) / tanVertical);
+    }
+    camera.position.copy(controls.target).addScaledVector(backward, distance);
+    camera.lookAt(controls.target);
+    // OrbitControls must not clamp a fitted narrow-screen camera back inward.
+    controls.maxDistance = Math.max(7.5, distance);
+  }
   let audioCtx = null;
   let musicInterval = null;
   function ensureAudio() {
@@ -33177,6 +33208,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     if (!isLooping) return;
     animId = requestAnimationFrame(animate);
     const elapsed = clock.getElapsedTime();
+    const wasIntroActive = introActive;
     if (introActive && isIntroStarted && introStartTime !== null) {
       const now = performance.now();
       const progressMs = now - introStartTime;
@@ -33266,6 +33298,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     dialHolder.position.z += (dialTargetZ - dialHolder.position.z) * 0.1;
     state.speakerPulse *= 0.88;
     controls.update();
+    if (wasIntroActive) fitRadioInCanvas();
     renderer.render(scene, camera);
   }
   function startLoop() {
@@ -33307,6 +33340,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
           camera.position.set(DEFAULT_CAM_POS.x * zoomFactor, DEFAULT_CAM_POS.y * zoomFactor, DEFAULT_CAM_POS.z * zoomFactor);
         }
         camera.updateProjectionMatrix();
+        fitRadioInCanvas();
         renderer.setSize(w, h);
       }
     }
