@@ -636,14 +636,6 @@
         const header = document.querySelector('.header-wrapper--overlay');
         if (header) header.classList.add('header--visible');
       }
-      const loadingOverlay = document.getElementById('AuraLoadingScreen');
-      if (loadingOverlay && !loadingOverlay.classList.contains('loading-screen--done') && !window.auralinkLoadingDone) {
-        document.addEventListener('auralink:loading:done', revealHeader, { once: true });
-        setTimeout(revealHeader, 3200);
-      } else {
-        requestAnimationFrame(function () { requestAnimationFrame(revealHeader); });
-      }
-
       const leadEl = container.querySelector('.auralink-hero-lead');
       const titleEl = container.querySelector('.auralink-hero-title[data-reveal="text"]');
       const subtitleEl = container.querySelector('.auralink-hero-subtitle[data-reveal="text"]');
@@ -659,6 +651,7 @@
             window.AuraLinkSettings.animationsRevealOnScroll === false));
 
       if (prefersReducedMotion || isPlainMode) {
+        revealHeader();
         container.dataset.heroRevealComplete = 'true';
         container.querySelectorAll('[data-reveal]').forEach(function (el) {
           el.style.visibility = 'visible';
@@ -731,6 +724,8 @@
       const isDesignMode = Boolean(window.Shopify && window.Shopify.designMode);
 
       if (hasRadio3D && !window.auralinkRadioDocked && !prefersReduced && !isDesignMode) {
+        document.addEventListener('auralink:radio:standing', revealHeader, { once: true });
+        if (container.querySelector('[data-radio-standing="true"]')) revealHeader();
         const onRadioGlide = function () {
           revealHeader();
           triggerHeroReveal();

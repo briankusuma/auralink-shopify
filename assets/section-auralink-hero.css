@@ -533,20 +533,42 @@
 }
 
 
-/* Scroll framing owns these dimensions; no CSS transition competes with GSAP. */
+/* Scroll changes the visible frame only. The scene never reflows or resizes. */
 @media (prefers-reduced-motion: no-preference) {
   .js .auralink-hero-wrapper.has-scroll-framing:not(.shopify-design-mode *) {
-    max-width: var(--hero-frame-width, 100%);
-    padding-top: var(--hero-frame-top, 0px);
-    padding-left: var(--hero-frame-gutter, 0px);
-    padding-right: var(--hero-frame-gutter, 0px);
+    max-width: 100%;
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .js .has-scroll-framing:not(.shopify-design-mode *) .auralink-hero-container {
     max-width: 100%;
-    height: var(--hero-frame-height, 100svh);
+    height: 100svh;
     min-height: 0;
     aspect-ratio: auto;
-    border-radius: var(--hero-frame-radius, 0px);
+    border-radius: 0;
+    clip-path: inset(var(--hero-frame-top, 0px) var(--hero-frame-side, 0px)
+      var(--hero-frame-bottom, 0px) round var(--hero-frame-radius, 0px));
+  }
+
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 769px) {
+  /* Keep the composition inside the final frame even on very wide screens. */
+  .js .has-scroll-framing:not(.shopify-design-mode *) .auralink-hero-content {
+    margin-left: max(0px, calc((100% - 1440px) / 2));
+  }
+
+  .js .has-scroll-framing:not(.shopify-design-mode *) .auralink-hero-media {
+    width: min(62.14%, 894.816px);
+    right: max(0px, calc((100% - 1440px) / 2));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (max-width: 768px) {
+  .js .has-scroll-framing:not(.shopify-design-mode *) .auralink-hero-container {
+    height: auto;
+    min-height: 100svh;
   }
 }

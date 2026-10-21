@@ -373,3 +373,11 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Pin spacing is explicit and the section reserves the maximum of fullscreen and final framed heights, including top/bottom gutters. The pin spacer therefore accounts for growth during scroll, preventing the following section from overlapping. Original min-height restored on cleanup.
 - Local browser harness with both text animation scripts: tags have zero global split-line wrappers, one Smart/Safe/Secure group appears, and at scroll 369px the wrapper is already approximately 1442px / radius 30px while scrub settles to 1440px / 32px. Following-section gap was non-negative (0px after unpin).
 - JavaScript syntax, diff whitespace, and Theme Check passed (176 files, no offenses). No Liquid, schema or Shopify APIs changed. Actual storefront, mobile, Theme Editor and Lighthouse checks remain pending.
+
+### Stable hero scene and delayed navbar — 2026-10-21
+
+- Navbar no longer reveals on loading completion. The radio emits radio:standing once when its overhead hold ends (0.65s into the intro); the navbar then descends during the overhead-to-front move. Reduced/plain and fallback paths retain a visible header.
+- Scroll framing now animates only clip-path inset and radius through GSAP variables. Wrapper/scene layout dimensions remain fixed throughout scroll; the visible frame is capped to the 1440px wrapper envelope with the existing gutters. No animated padding, height, or canvas resize. Desktop composition is centered within a stable 1440px area; mobile retains its natural content height.
+- Pin spacing reserves the fixed scene height plus bottom spacing; existing quick scroll response and once-only tag sequencing retained.
+- Local browser harness confirmed identical scene (1470 x 801) and WebGL buffer (1789 x 1602) at scroll 0 and 369px, while clip insets/radius changed. Following-section gap remained non-negative. This verifies fixed layout rather than a real DOM wrapper max-width of 1440px.
+- JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes. Storefront, mobile, Theme Editor, keyboard and Lighthouse verification remain pending.

@@ -44,28 +44,22 @@
             top: parseFloat(wrapperStyle.paddingTop) || 0,
             gutter: parseFloat(wrapperStyle.paddingLeft) || 0,
             radius: parseFloat(containerStyle.borderTopLeftRadius) || 0,
-            height: container.getBoundingClientRect().height,
             viewportHeight: document.documentElement.clientHeight,
             bottom: parseFloat(wrapperStyle.paddingBottom) || 0
           };
           wrapper.style.maxWidth = maxWidth;
           if (wasCentered) media.classList.add('is-intro-center');
           if (wasFramed) wrapper.classList.add('has-scroll-framing');
-          // The pin spacer must reserve the largest animated layout, including
-          // gutters, so a growing hero cannot overlap the following section.
-          section.style.minHeight = Math.ceil(Math.max(
-            dimensions.viewportHeight + dimensions.bottom,
-            dimensions.height + dimensions.top + dimensions.bottom
-          )) + 'px';
+          // The scene dimensions stay fixed; reserve its full height for pinning.
+          section.style.minHeight = Math.ceil(Math.max(dimensions.viewportHeight, container.getBoundingClientRect().height) + dimensions.bottom) + 'px';
         }
 
         measure();
         wrapper.classList.add('has-scroll-framing');
         gsap.set(wrapper, {
-          '--hero-frame-width': dimensions.fullWidth + 'px',
-          '--hero-frame-height': dimensions.viewportHeight + 'px',
           '--hero-frame-top': '0px',
-          '--hero-frame-gutter': '0px',
+          '--hero-frame-side': '0px',
+          '--hero-frame-bottom': '0px',
           '--hero-frame-radius': '0px'
         });
 
@@ -84,17 +78,19 @@
               onRefreshInit: measure
             }
           });
+          // Inset the clip instead of animating width/height/padding. This keeps
+          // text wrapping, background scale and the WebGL drawing buffer stable.
           timeline.fromTo(wrapper, {
-            '--hero-frame-width': function () { return dimensions.fullWidth + 'px'; },
-            '--hero-frame-height': function () { return dimensions.viewportHeight + 'px'; },
             '--hero-frame-top': '0px',
-            '--hero-frame-gutter': '0px',
+            '--hero-frame-side': '0px',
+            '--hero-frame-bottom': '0px',
             '--hero-frame-radius': '0px'
           }, {
-            '--hero-frame-width': function () { return dimensions.width + 'px'; },
-            '--hero-frame-height': function () { return dimensions.height + 'px'; },
             '--hero-frame-top': function () { return dimensions.top + 'px'; },
-            '--hero-frame-gutter': function () { return dimensions.gutter + 'px'; },
+            '--hero-frame-side': function () {
+              return ((dimensions.fullWidth - dimensions.width) / 2 + dimensions.gutter) + 'px';
+            },
+            '--hero-frame-bottom': function () { return dimensions.top + 'px'; },
             '--hero-frame-radius': function () { return dimensions.radius + 'px'; },
             duration: 1,
             ease: 'none'

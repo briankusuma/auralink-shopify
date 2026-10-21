@@ -32185,6 +32185,7 @@ function initRadio3D(rootEl) {
   let introStartTime = null;
   let hasPoweredOn = skipIntro;
   let hasStartedGlide = skipIntro;
+  let hasStartedStanding = skipIntro;
   let lcdGlowLight = null;
   const heroMedia = rootEl.closest(".auralink-hero-media");
   if (skipIntro) {
@@ -33231,6 +33232,11 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
         const clamped = Math.max(0, Math.min(1, t));
         return clamped * clamped * (3 - 2 * clamped);
       };
+      if (tSec >= 0.65 && !hasStartedStanding) {
+        hasStartedStanding = true;
+        rootEl.dataset.radioStanding = "true";
+        document.dispatchEvent(new CustomEvent("auralink:radio:standing"));
+      }
       if (tSec < 0.65) {
         camera.position.copy(CAM_P1);
         controls.target.copy(TAR_P1);
