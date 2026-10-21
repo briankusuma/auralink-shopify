@@ -314,8 +314,9 @@
     const startDelay = typeof delayOffset === 'number' ? delayOffset : 350;
 
     fadeElements.forEach(function (el, idx) {
+      const isTagGroup = el.classList.contains('auralink-hero-tags');
       el.style.opacity = '0';
-      el.style.filter = 'blur(20px)';
+      el.style.filter = isTagGroup ? '' : 'blur(20px)';
       el.style.visibility = 'visible';
 
       const delay = startDelay + (idx * 100);
@@ -334,8 +335,14 @@
         const t = Math.min((elapsed - delay) / duration, 1);
         const eased = easeOut(t);
 
+        if (isTagGroup && !el.classList.contains('is-tags-revealing')) {
+          const pill = el.querySelector('.auralink-tag-pill');
+          if (pill) el.style.setProperty('--tag-pill-height', pill.offsetHeight + 'px');
+          el.classList.add('is-tags-revealing');
+        }
+
         el.style.opacity = (eased).toFixed(3);
-        el.style.filter = 'blur(' + ((1 - eased) * 20).toFixed(2) + 'px)';
+        if (!isTagGroup) el.style.filter = 'blur(' + ((1 - eased) * 20).toFixed(2) + 'px)';
 
         if (t < 1) {
           requestAnimationFrame(renderFrame);

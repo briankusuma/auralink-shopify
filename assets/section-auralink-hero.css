@@ -167,6 +167,51 @@
   user-select: none;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .auralink-hero-tags.is-tags-revealing {
+    width: max-content;
+    max-width: 100%;
+    animation: auralink-tags-separate 1.4s both;
+  }
+
+  .auralink-hero-tags.is-tags-revealing::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: var(--tag-pill-height, 34px);
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: var(--auralink-radius-badge, 40px);
+    pointer-events: none;
+    animation: auralink-tags-outline 1.4s both;
+  }
+
+  .is-tags-revealing .auralink-tag-pill {
+    animation: auralink-tag-release 1.4s both;
+  }
+}
+
+@keyframes auralink-tags-separate {
+  0%, 28% { gap: 0; }
+  48% { gap: 0; }
+  76% { gap: 18px; }
+  90% { gap: 6px; }
+  100% { gap: 8px; }
+}
+
+@keyframes auralink-tags-outline {
+  0%, 28% { opacity: 1; }
+  48%, 100% { opacity: 0; }
+}
+
+@keyframes auralink-tag-release {
+  0%, 28% { border-color: transparent; background: transparent; backdrop-filter: none; transform: scaleX(1); }
+  48% { border-color: rgba(255, 255, 255, 0.6); transform: scaleX(1); }
+  64% { transform: scaleX(0.94); }
+  80% { transform: scaleX(1.04); }
+  100% { transform: scaleX(1); }
+}
+
 /* Right: Device Media (Figma Node 2899:1059) */
 .auralink-hero-media {
   position: absolute;

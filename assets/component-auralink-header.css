@@ -645,3 +645,66 @@ header-drawer summary::before,
   box-shadow: 0 4px 20px rgb(0 0 0 / calc(var(--hero-header-opacity, 0) * 0.06));
   border-bottom: none !important;
 }
+
+/* Animate the fixed overlay itself: moving its zero-height section cannot hide it. */
+.section-header,
+.section-header.animate {
+  transition: top 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.template-index .header-wrapper--overlay.header--visible {
+  transition: transform 1.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.3s ease, top 0.3s ease;
+}
+
+.template-index .section-header.scrolled-past-header .header-wrapper--overlay {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease, top 0.3s ease;
+}
+
+.template-index .section-header.shopify-section-header-hidden .header-wrapper--overlay {
+  transform: translateY(calc(-100% - 24px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.template-index .section-header:is(:focus-within, :has(details[open]), .menu-open) .header-wrapper--overlay {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .header--visible .header__inline-menu {
+    --nav-entry-x: 28px;
+    animation: auralink-nav-release 1.3s both;
+  }
+
+  .header--visible .header__icons {
+    --nav-entry-x: -28px;
+    animation: auralink-nav-release 1.3s 0.08s both;
+  }
+
+  .header--visible .header__heading-link {
+    --nav-entry-x: 0px;
+    animation: auralink-nav-release 1.3s 0.04s both;
+  }
+}
+
+@keyframes auralink-nav-release {
+  0%, 22% { opacity: 0; transform: translate(var(--nav-entry-x), -12px) scale(0.96); }
+  62% { opacity: 1; transform: translate(0, 3px) scale(1.015); }
+  82% { transform: translate(0, -1px) scale(0.995); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+:is(.text-animations--plain, .animations--disabled, .shopify-design-mode) .header--visible :is(.header__inline-menu, .header__icons, .header__heading-link) {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-header,
+  .section-header.animate,
+  .template-index .section-header.scrolled-past-header .header-wrapper--overlay,
+  .template-index .header-wrapper--overlay.header--visible {
+    transition: none;
+  }
+}

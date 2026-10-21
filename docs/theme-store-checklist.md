@@ -438,3 +438,10 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 
 - Controlled liquid text now prepares hidden instead of rendering completed text first. The pending desktop enhancement hides the heading while libraries prepare; completion/failure/media change/unload removes that state. The section entry callback guards against replaying the heading in the same timeline lifecycle.
 - Controlled-reveal test passed hidden preparation, playback, crisp completion, reset and filter/markup cleanup. JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes or new dependencies. Updated visual storefront/Theme Editor/Lighthouse checks remain pending.
+
+### Sticky tag separation and directional navbar — 2026-10-21
+
+- Hero tag reveal follows the user's three-stage image: one shared outline, touching individual pills, then an overshoot/settle to the existing 8px gap over 1.4s. Tags start after the existing text completion gate and retain the single completion callback. No duplicate text or SVG overlay introduced.
+- Navbar groups enter from compressed positions with a small bounce on initial header visibility. Existing 1.3s entrance retained; directional scroll movement uses 0.5s. Uses existing sticky-header scroll handling and merchant setting; fixed overlay now translates itself when the section gets the hidden class. Focus within/open details keep it visible. Reduced motion, plain animation settings and editor suppress entry effects.
+- Local browser harness using the actual existing StickyHeader class verified scroll down: hidden=true and negative navbar translation; scroll up: hidden=false and translation returning to zero. Tag group finishes with 8px gap and one reveal class. Controlled tag function test passed single start/completion and final sharp appearance. JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses).
+- No Liquid/schema/Shopify API changes, new scripts/dependencies or external assets. User image is the motion reference; exact Figma timing remains unavailable. Storefront/mobile/Theme Editor and Lighthouse checks remain pending.
