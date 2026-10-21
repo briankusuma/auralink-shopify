@@ -42,6 +42,23 @@
         "padding_bottom": 64
       }
     },
+    "auralink_impact": {
+      "type": "auralink-impact",
+      "settings": {
+        "color_scheme": "scheme-1",
+        "author_name": "Dr. Dayat Santoso",
+        "author_role": "CEO of NexaTech Innovations",
+        "quote_text": "“The integration of AI into smart home devices is revolutionizing how we interact with our living spaces. These technologies not only bring unprecedented convenience but also optimize energy use.”",
+        "metric_1_stat": "80M+",
+        "metric_1_label": "Product Launched over worldwide",
+        "metric_2_stat": "50+",
+        "metric_2_label": "Countries connected to our ecosystem",
+        "metric_3_stat": "$120M+",
+        "metric_3_label": "raised in Series B funding",
+        "padding_top": 40,
+        "padding_bottom": 56
+      }
+    },
     "auralink_slider": {
       "type": "auralink-slider",
       "blocks": {
@@ -99,23 +116,6 @@
         "subheading": "Transform your home with intelligent devices that learn, adapt, and respond",
         "padding_top": 48,
         "padding_bottom": 64
-      }
-    },
-    "auralink_impact": {
-      "type": "auralink-impact",
-      "settings": {
-        "color_scheme": "scheme-1",
-        "author_name": "Dr. Dayat Santoso",
-        "author_role": "CEO of NexaTech Innovations",
-        "quote_text": "“The integration of AI into smart home devices is revolutionizing how we interact with our living spaces. These technologies not only bring unprecedented convenience but also optimize energy use.”",
-        "metric_1_stat": "80M+",
-        "metric_1_label": "Product Launched over worldwide",
-        "metric_2_stat": "50+",
-        "metric_2_label": "Countries connected to our ecosystem",
-        "metric_3_stat": "$120M+",
-        "metric_3_label": "raised in Series B funding",
-        "padding_top": 40,
-        "padding_bottom": 56
       }
     },
     "auralink_testimonials_D7it8Y": {
@@ -243,8 +243,8 @@
   "order": [
     "auralink_hero",
     "auralink_bento",
-    "auralink_slider",
     "auralink_impact",
+    "auralink_slider",
     "auralink_testimonials_D7it8Y",
     "auralink_cta_HWPeAh",
     "featured_collection_hRfWkB"
