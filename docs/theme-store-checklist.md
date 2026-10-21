@@ -303,3 +303,8 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Local checks: JavaScript syntax, added geometry construction, and Theme Check passed (176 files, no offenses).
 - Still pending: storefront desktop/mobile visual comparison, keyboard/focus and touch interaction, Theme Editor reload, and Lighthouse with real content. Chrome automation encountered an unrelated extension-install permission dialog; no extension permissions were granted. These submission gates remain unchecked.
 - Official requirements page retrieved on 2026-10-21 for this change; this is not a full re-verification of every checklist item.
+
+### Radio framing follow-up — 2026-10-21
+
+- Increased the default camera distance using the supplied reference position (2.132, 2.426, 6.49), reducing the final radio framing by approximately 22%. The intro final pose and narrow-canvas resize use this same default.
+- JavaScript syntax and diff whitespace checks passed. Storefront visual confirmation remains pending; no additional submission gates marked complete.
