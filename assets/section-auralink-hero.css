@@ -43,6 +43,9 @@
 }
 
 .auralink-hero-lead {
+  --bubble-x: -500px;
+  --bubble-y: -500px;
+  --bubble-r: 0px;
   display: flex;
   flex-direction: column;
   gap: 36px;
@@ -312,7 +315,13 @@
   overflow: visible;
 }
 
-/* A single semantic text layer keeps the ripple free of overlay ghosting. */
+/* --------------------------------------------------------------------------
+   Organic Dynamic Morphing Liquid Blob Masking (Amoeba / Metaballs)
+   - Base static text (.liquid-text-base) is 100% unmasked & visible by default.
+   - When .is-liquid-active, clean feathered cutout punches hole under blob.
+   - Liquid overlay (.auralink-hero-liquid-overlay) renders inside 5 morphing lobes.
+   - Soft multi-stop radial gradient falloff guarantees seamless blending.
+   -------------------------------------------------------------------------- */
 .liquid-text-base {
   display: flex;
   flex-direction: column;
@@ -320,6 +329,59 @@
   position: relative;
   z-index: 1;
   width: 100%;
+}
+
+.auralink-hero-lead.is-liquid-active .liquid-text-base {
+  will-change: mask, -webkit-mask-image;
+  -webkit-mask-image: radial-gradient(
+    circle var(--base-cut-r, 0px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
+    transparent 0%,
+    transparent 58%,
+    rgba(0, 0, 0, 0.35) 78%,
+    rgba(0, 0, 0, 0.85) 92%,
+    rgba(0, 0, 0, 1) 100%
+  );
+  mask-image: radial-gradient(
+    circle var(--base-cut-r, 0px) at var(--bubble-x, -500px) var(--bubble-y, -500px),
+    transparent 0%,
+    transparent 58%,
+    rgba(0, 0, 0, 0.35) 78%,
+    rgba(0, 0, 0, 0.85) 92%,
+    rgba(0, 0, 0, 1) 100%
+  );
+}
+
+.auralink-hero-liquid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  will-change: mask, -webkit-mask-image, filter;
+  filter: url(#liquid-bubble-filter);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  -webkit-mask-image:
+    radial-gradient(circle var(--blob-r0, 0px) at var(--blob-x0, -500px) var(--blob-y0, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0.55) 70%, transparent 100%),
+    radial-gradient(circle var(--blob-r1, 0px) at var(--blob-x1, -500px) var(--blob-y1, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.5) 65%, transparent 100%),
+    radial-gradient(circle var(--blob-r2, 0px) at var(--blob-x2, -500px) var(--blob-y2, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.5) 65%, transparent 100%),
+    radial-gradient(circle var(--blob-r3, 0px) at var(--blob-x3, -500px) var(--blob-y3, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.5) 65%, transparent 100%),
+    radial-gradient(circle var(--blob-r4, 0px) at var(--blob-x4, -500px) var(--blob-y4, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.5) 65%, transparent 100%);
+  mask-image:
+    radial-gradient(circle var(--blob-r0, 0px) at var(--blob-x0, -500px) var(--blob-y0, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0.55) 70%, transparent 100%),
+    radial-gradient(circle var(--blob-r1, 0px) at var(--blob-x1, -500px) var(--blob-y1, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.5) 65%, transparent 100%),
+    radial-gradient(circle var(--blob-r2, 0px) at var(--blob-x2, -500px) var(--blob-y2, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.5) 65%, transparent 100%),
+    radial-gradient(circle var(--blob-r3, 0px) at var(--blob-x3, -500px) var(--blob-y3, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.5) 65%, transparent 100%),
+    radial-gradient(circle var(--blob-r4, 0px) at var(--blob-x4, -500px) var(--blob-y4, -500px), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 40%, rgba(0, 0, 0, 0.5) 65%, transparent 100%);
+}
+
+.auralink-hero-lead.is-liquid-active .auralink-hero-liquid-overlay {
+  opacity: 1;
 }
 
 /* CTA Icon rotation on hover */
@@ -363,7 +425,14 @@
 .no-js .liquid-text-base,
 .text-animations--plain .liquid-text-base,
 .animations--disabled .liquid-text-base {
-  filter: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.no-js .auralink-hero-liquid-overlay,
+.text-animations--plain .auralink-hero-liquid-overlay,
+.animations--disabled .auralink-hero-liquid-overlay {
+  display: none !important;
 }
 
 /* Respect reduced motion */
@@ -389,7 +458,12 @@
   }
 
   .liquid-text-base {
-    filter: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+
+  .auralink-hero-liquid-overlay {
+    display: none !important;
   }
 }
 
@@ -423,7 +497,8 @@
   }
 
   .auralink-hero-lead,
-  .liquid-text-base {
+  .liquid-text-base,
+  .auralink-hero-liquid-overlay {
     gap: 24px;
   }
 
