@@ -33230,7 +33230,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
       } else if (tSec < 1.55) {
         camera.position.copy(CAM_P2);
         controls.target.copy(TAR_P2);
-      } else if (tSec < 2.5) {
+      } else if (tSec < 3.15) {
         if (tSec >= 1.55 && !hasStartedGlide) {
           hasStartedGlide = true;
           if (heroMedia) {
@@ -33241,7 +33241,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
             document.dispatchEvent(new CustomEvent("auralink:radio:glide"));
           }
         }
-        const p = smoothCubic((tSec - 1.55) / 0.95);
+        const p = smoothCubic((tSec - 1.55) / 1.6);
         camera.position.lerpVectors(CAM_P2, CAM_P3, p);
         controls.target.lerpVectors(TAR_P2, TAR_P3, p);
         if (tSec >= 2 && !hasPoweredOn) {

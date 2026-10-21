@@ -78,7 +78,7 @@
 
   // SVG namespace & helpers from bleibtgleich.dev
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  const DUR_L = 1000; // 1.0s liquid reveal
+  const DUR_L = 1600; // Slow liquid reveal alongside the radio glide
   const STAGGER = 80; // 0.08s stagger between lines
   const MATRIX_VALUES = function (amp, off) {
     return '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ' + amp + ' ' + off;
@@ -319,7 +319,7 @@
       el.style.visibility = 'visible';
 
       const delay = startDelay + (idx * 100);
-      const duration = 1000;
+      const duration = 1400;
       let startTime = null;
 
       function renderFrame(now) {
@@ -632,6 +632,18 @@
       if (container.dataset.bleibtGooInitialized === 'true') return;
       container.dataset.bleibtGooInitialized = 'true';
 
+      function revealHeader() {
+        const header = document.querySelector('.header-wrapper--overlay');
+        if (header) header.classList.add('header--visible');
+      }
+      const loadingOverlay = document.getElementById('AuraLoadingScreen');
+      if (loadingOverlay && !loadingOverlay.classList.contains('loading-screen--done') && !window.auralinkLoadingDone) {
+        document.addEventListener('auralink:loading:done', revealHeader, { once: true });
+        setTimeout(revealHeader, 3200);
+      } else {
+        requestAnimationFrame(function () { requestAnimationFrame(revealHeader); });
+      }
+
       const leadEl = container.querySelector('.auralink-hero-lead');
       const titleEl = container.querySelector('.auralink-hero-title[data-reveal="text"]');
       const subtitleEl = container.querySelector('.auralink-hero-subtitle[data-reveal="text"]');
@@ -733,11 +745,8 @@
 
       if (hasRadio3D && !window.auralinkRadioDocked && !prefersReduced && !isDesignMode) {
         const onRadioGlide = function () {
-          const heroMedia = container.querySelector('.auralink-hero-media');
-          if (heroMedia) {
-            heroMedia.classList.remove('is-intro-center');
-            heroMedia.classList.add('is-docked');
-          }
+          revealHeader();
+          triggerHeroReveal();
         };
         document.addEventListener('auralink:radio:glide', onRadioGlide, { once: true });
 
@@ -752,7 +761,7 @@
           if (!revealTriggered) {
             showHeaderAndRevealHero();
           }
-        }, 4500);
+        }, 7000);
       } else {
         // Sync with theme loading screen if present
         const loadingScreen = document.getElementById('AuraLoadingScreen');
@@ -796,7 +805,7 @@
         if (!revealTriggered) {
           showHeaderAndRevealHero();
         }
-      }, 5000);
+      }, 8000);
     });
   }
 

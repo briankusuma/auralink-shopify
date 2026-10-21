@@ -325,3 +325,10 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 
 - Set the default final camera position to the user-specified (2.94, 2.9, 6.07), targeting (0.02, -0.16, 0). Existing intro framing and shadow reveal timing retained.
 - JavaScript syntax and diff whitespace checks passed; browser visual confirmation remains pending. No Shopify APIs, Liquid, or schema changed.
+
+### Navbar and hero reveal sequencing — 2026-10-21
+
+- Fixed header hidden-state selector specificity: it now excludes header--visible, and the transition is shared by both states. Navbar enters downward over 1.3s after the loading overlay completes, independently of radio docking.
+- Hero title/subtitle/CTA reveal now starts at radio:glide; existing docking fallback remains idempotent. Radio camera and CSS translation both run over 1.6s; text reveal runs over 1.6s, CTA/badges over 1.4s. Safety timeouts extended to accommodate the loading screen and slower intro.
+- Contact shadow continues to wait for docking and completion of all hero reveals. Existing reduced-motion handling retained.
+- JavaScript syntax and diff whitespace checks passed. No Liquid, schema, or Shopify APIs changed; desktop/mobile visual playback and Theme Editor verification remain pending.

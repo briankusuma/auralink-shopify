@@ -24,12 +24,16 @@
   transition: background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease, top 0.3s ease;
 }
 
-/* Cinematic entrance for Overlay Header on Index page */
-.template-index .header-wrapper--overlay:not(.shopify-section-header-sticky .header-wrapper--overlay):not(.scrolled-past-header .header-wrapper--overlay) {
+/* Keep the entrance transition on both states so the reveal can animate. */
+.template-index .header-wrapper--overlay {
+  transition: opacity 1.3s cubic-bezier(0.22, 1, 0.36, 1), transform 1.3s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Excluding the visible state prevents this selector from overriding it. */
+.template-index .header-wrapper--overlay:not(.header--visible):not(.shopify-section-header-sticky .header-wrapper--overlay):not(.scrolled-past-header .header-wrapper--overlay) {
   opacity: 0;
-  transform: translateY(-24px);
+  transform: translateY(-40px);
   pointer-events: none;
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, backdrop-filter 0.3s ease, box-shadow 0.3s ease;
 }
 
 .template-index .header-wrapper--overlay.header--visible,
