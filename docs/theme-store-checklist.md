@@ -365,3 +365,11 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Shopify asset_url and script inclusion verified in official docs; current Theme Store requirements and GSAP ScrollTrigger docs/license consulted.
 - Local browser harness verified fullscreen at scroll 0 (1470 x 801, radius 0) and scroll completion (1440px wrapper, 883px hero, radius 32). Reverse scrolling observed with gradual scrub interpolation. This is a local harness, not a development-store or Theme Editor test.
 - JavaScript syntax, diff whitespace, and Theme Check passed (176 files, no offenses). Performance cost: GSAP and ScrollTrigger add approximately 295KB uncompressed / 70KB gzip; production Lighthouse and mobile/keyboard checks remain pending. No submission gates marked complete based on harness alone.
+
+### Scroll responsiveness, intro speed, and single tag reveal — 2026-10-21
+
+- Corrected the timing interpretation: slow applies to the initial radio sequence (now 5.2s total; docking glide 2.6s), while scroll framing responds over 280–480px with 0.35s scrub smoothing.
+- Excluded the entire hero container from the global liquid text animator. Previously its standalone tag spans were independently initialized in addition to the hero fade. CTA/tags now wait for both actual text completion callbacks and reveal once; duplicate trigger calls remain guarded.
+- Pin spacing is explicit and the section reserves the maximum of fullscreen and final framed heights, including top/bottom gutters. The pin spacer therefore accounts for growth during scroll, preventing the following section from overlapping. Original min-height restored on cleanup.
+- Local browser harness with both text animation scripts: tags have zero global split-line wrappers, one Smart/Safe/Secure group appears, and at scroll 369px the wrapper is already approximately 1442px / radius 30px while scrub settles to 1440px / 32px. Following-section gap was non-negative (0px after unpin).
+- JavaScript syntax, diff whitespace, and Theme Check passed (176 files, no offenses). No Liquid, schema or Shopify APIs changed. Actual storefront, mobile, Theme Editor and Lighthouse checks remain pending.

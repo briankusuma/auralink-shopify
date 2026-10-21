@@ -33231,18 +33231,18 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
         const clamped = Math.max(0, Math.min(1, t));
         return clamped * clamped * (3 - 2 * clamped);
       };
-      if (tSec < 0.35) {
+      if (tSec < 0.65) {
         camera.position.copy(CAM_P1);
         controls.target.copy(TAR_P1);
-      } else if (tSec < 1.25) {
-        const p = smoothCubic((tSec - 0.35) / 0.9);
+      } else if (tSec < 2.15) {
+        const p = smoothCubic((tSec - 0.65) / 1.5);
         camera.position.lerpVectors(CAM_P1, CAM_P2, p);
         controls.target.lerpVectors(TAR_P1, TAR_P2, p);
-      } else if (tSec < 1.55) {
+      } else if (tSec < 2.6) {
         camera.position.copy(CAM_P2);
         controls.target.copy(TAR_P2);
-      } else if (tSec < 3.15) {
-        if (tSec >= 1.55 && !hasStartedGlide) {
+      } else if (tSec < 5.2) {
+        if (tSec >= 2.6 && !hasStartedGlide) {
           hasStartedGlide = true;
           if (heroMedia) {
             heroMedia.classList.remove("is-intro-center");
@@ -33252,10 +33252,10 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
             document.dispatchEvent(new CustomEvent("auralink:radio:glide"));
           }
         }
-        const p = smoothCubic((tSec - 1.55) / 1.6);
+        const p = smoothCubic((tSec - 2.6) / 2.6);
         camera.position.lerpVectors(CAM_P2, CAM_P3, p);
         controls.target.lerpVectors(TAR_P2, TAR_P3, p);
-        if (tSec >= 2 && !hasPoweredOn) {
+        if (tSec >= 3.05 && !hasPoweredOn) {
           hasPoweredOn = true;
           state.power = true;
           lcdMat.emissiveIntensity = 0.16;

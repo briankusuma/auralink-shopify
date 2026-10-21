@@ -26,6 +26,7 @@
         let timeline = null;
         let docked = Boolean(window.auralinkRadioDocked);
         let dimensions;
+        const originalMinHeight = section.style.minHeight;
 
         function measure() {
           // Measure the existing merchant layout before applying scroll framing.
@@ -44,11 +45,18 @@
             gutter: parseFloat(wrapperStyle.paddingLeft) || 0,
             radius: parseFloat(containerStyle.borderTopLeftRadius) || 0,
             height: container.getBoundingClientRect().height,
-            viewportHeight: document.documentElement.clientHeight
+            viewportHeight: document.documentElement.clientHeight,
+            bottom: parseFloat(wrapperStyle.paddingBottom) || 0
           };
           wrapper.style.maxWidth = maxWidth;
           if (wasCentered) media.classList.add('is-intro-center');
           if (wasFramed) wrapper.classList.add('has-scroll-framing');
+          // The pin spacer must reserve the largest animated layout, including
+          // gutters, so a growing hero cannot overlap the following section.
+          section.style.minHeight = Math.ceil(Math.max(
+            dimensions.viewportHeight + dimensions.bottom,
+            dimensions.height + dimensions.top + dimensions.bottom
+          )) + 'px';
         }
 
         measure();
@@ -68,9 +76,10 @@
             scrollTrigger: {
               trigger: section,
               start: 'top top',
-              end: function () { return '+=' + Math.max(900, dimensions.viewportHeight * 1.5); },
+              end: function () { return '+=' + Math.min(480, Math.max(280, dimensions.viewportHeight * 0.4)); },
               pin: section,
-              scrub: 2.5,
+              pinSpacing: true,
+              scrub: 0.35,
               invalidateOnRefresh: true,
               onRefreshInit: measure
             }
@@ -109,6 +118,7 @@
             timeline.revert();
           }
           wrapper.classList.remove('has-scroll-framing');
+          section.style.minHeight = originalMinHeight;
         };
       });
       wrapper._heroScrollDestroy = function () {

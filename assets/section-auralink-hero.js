@@ -649,11 +649,6 @@
       const subtitleEl = container.querySelector('.auralink-hero-subtitle[data-reveal="text"]');
       const fadeElements = Array.from(container.querySelectorAll('[data-reveal="fade"]'));
 
-      if (!titleEl) {
-        container.dataset.heroRevealComplete = 'true';
-        return;
-      }
-
       // Check prefers-reduced-motion or plain mode
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const isPlainMode =
@@ -697,32 +692,24 @@
         if (revealTriggered) return;
         revealTriggered = true;
 
-        let completedReveals = 0;
-        function completeReveal() {
-          completedReveals++;
-          if (completedReveals === 3) container.dataset.heroRevealComplete = 'true';
+        let completedTextReveals = 0;
+        let fadeStarted = false;
+        function completeTextReveal() {
+          if (syncOverlay) syncOverlay();
+          completedTextReveals++;
+          if (completedTextReveals !== 2 || fadeStarted) return;
+          fadeStarted = true;
+          // CTA and all three tags reveal once, after both text groups finish.
+          runFadeRevealAnimation(fadeElements, 80, function () {
+            container.dataset.heroRevealComplete = 'true';
+          });
         }
 
-        // Make elements visible & start gooey coalescence
         if (titleEl) titleEl.style.visibility = 'visible';
         if (subtitleEl) subtitleEl.style.visibility = 'visible';
-
-        // 1. Run title text reveal (initial blur 48 -> mercury drops merge & condense into letters)
-        runTextRevealAnimation(titleLines, 48, 80, function () {
-          if (syncOverlay) syncOverlay();
-          completeReveal();
-        });
-
-        // 2. Run subtitle text reveal (initial blur 24, staggered right after title)
+        runTextRevealAnimation(titleLines, 48, 80, completeTextReveal);
         const subDelay = Math.max(200, titleLines.length * STAGGER + 80);
-        runTextRevealAnimation(subtitleLines, 24, subDelay, function () {
-          if (syncOverlay) syncOverlay();
-          completeReveal();
-        });
-
-        // 3. Run fade reveal for CTA button & badges
-        const fadeDelay = subDelay + (subtitleLines.length * STAGGER) + 80;
-        runFadeRevealAnimation(fadeElements, fadeDelay, completeReveal);
+        runTextRevealAnimation(subtitleLines, 24, subDelay, completeTextReveal);
       }
 
       function showHeaderAndRevealHero() {
@@ -761,7 +748,7 @@
           if (!revealTriggered) {
             showHeaderAndRevealHero();
           }
-        }, 7000);
+        }, 10000);
       } else {
         // Sync with theme loading screen if present
         const loadingScreen = document.getElementById('AuraLoadingScreen');
@@ -805,7 +792,7 @@
         if (!revealTriggered) {
           showHeaderAndRevealHero();
         }
-      }, 8000);
+      }, 11000);
     });
   }
 
