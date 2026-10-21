@@ -332,3 +332,8 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Hero title/subtitle/CTA reveal now starts at radio:glide; existing docking fallback remains idempotent. Radio camera and CSS translation both run over 1.6s; text reveal runs over 1.6s, CTA/badges over 1.4s. Safety timeouts extended to accommodate the loading screen and slower intro.
 - Contact shadow continues to wait for docking and completion of all hero reveals. Existing reduced-motion handling retained.
 - JavaScript syntax and diff whitespace checks passed. No Liquid, schema, or Shopify APIs changed; desktop/mobile visual playback and Theme Editor verification remain pending.
+
+### Radio zoom adjustment — 2026-10-21
+
+- Updated the final default camera to the user-selected (2.96, 2.92, 6.12), keeping target (0.02, -0.16, 0). Intro fit, reveal sequence, and delayed shadow remain unchanged.
+- JavaScript syntax and diff whitespace checks passed; browser visual confirmation remains pending. No Liquid, schema, or Shopify APIs changed.
