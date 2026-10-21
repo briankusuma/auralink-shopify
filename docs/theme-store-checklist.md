@@ -349,3 +349,9 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - ResizeObserver now queues canvas dimensions. Projection, fitting, buffer resize, and redraw run in the same animation frame, preventing presentation of a cleared WebGL buffer during wrapper transitions. Removed the post-intro narrow-canvas camera reset that could jump during animated resizing.
 - Removed top padding for 3D hero wrappers and bottom margin from the home page overlay header; other hero bottom spacing remains unchanged.
 - JavaScript syntax, diff whitespace, and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes. Visual desktop/mobile playback, Theme Editor, and Lighthouse remain unverified.
+
+### Overhead opening and restored final top gutter — 2026-10-21
+
+- Opening camera is directly above the radio at (0, 6.5, 0), targeting the model origin. Added a stable fitting basis for the overhead singularity and bypassed OrbitControls updates during the cinematic phase so polar constraints do not tilt this view.
+- Removed the permanent zero-top-padding override. Only the centered intro starts flush; the wrapper restores the merchant-configured top padding alongside the width and radius transition over 1.6s.
+- JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). An enclosing-box projection check passed five aspect ratios for the overhead pose. Browser visual confirmation and Theme Editor playback remain pending.

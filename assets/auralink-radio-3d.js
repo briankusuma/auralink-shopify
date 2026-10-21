@@ -32171,8 +32171,8 @@ function initRadio3D(rootEl) {
     qTarY !== null ? parseFloat(qTarY) : -0.16,
     qTarZ !== null ? parseFloat(qTarZ) : 0
   );
-  const CAM_P1 = new Vector3(0, 4.3, 2.9);
-  const TAR_P1 = new Vector3(0, 0.1, 0);
+  const CAM_P1 = new Vector3(0, 6.5, 0);
+  const TAR_P1 = new Vector3(0, 0, 0);
   const CAM_P2 = new Vector3(0.02, 0.08, 4.9);
   const TAR_P2 = new Vector3(0.02, -0.05, 0);
   const CAM_P3 = DEFAULT_CAM_POS.clone();
@@ -32984,7 +32984,11 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   }
   function fitRadioInCanvas() {
     const backward = camera.position.clone().sub(controls.target).normalize();
-    const right = new Vector3().crossVectors(camera.up, backward).normalize();
+    const right = new Vector3().crossVectors(camera.up, backward);
+    // A directly overhead camera is parallel to world up: keep the top face
+    // aligned horizontally instead of producing a degenerate fitting basis.
+    if (right.lengthSq() < 1e-10) right.set(1, 0, 0);
+    else right.normalize();
     const up = new Vector3().crossVectors(backward, right).normalize();
     // Leave a little space around the silhouette throughout the camera move.
     const tanVertical = Math.tan(camera.fov * Math.PI / 360) / 1.12;
@@ -33307,7 +33311,9 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     buttonsGroup.position.z += (btnTargetZ - buttonsGroup.position.z) * 0.1;
     dialHolder.position.z += (dialTargetZ - dialHolder.position.z) * 0.1;
     state.speakerPulse *= 0.88;
-    controls.update();
+    // OrbitControls clamps the polar angle away from a true overhead view.
+    // Let the cinematic camera own the pose until the intro has finished.
+    if (!introActive) controls.update();
     if (wasIntroActive || canvasSize) fitRadioInCanvas();
     const heroRevealed = !heroContainer || heroContainer.dataset.heroRevealComplete === "true";
     if (!introActive && heroRevealed) {
