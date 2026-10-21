@@ -557,3 +557,8 @@
     border-radius: 0;
   }
 }
+
+/* A 3D hero starts flush with the top; preserve the existing bottom spacing. */
+.auralink-hero-wrapper:has([data-auralink-radio-3d]) {
+  padding-top: 0;
+}

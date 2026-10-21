@@ -629,3 +629,8 @@ header-drawer summary::before,
     height: 44px !important;
   }
 }
+
+/* An overlay header must not reserve a gap above the home page hero. */
+.template-index .section-header:has(.header-wrapper--overlay) {
+  margin-bottom: 0;
+}

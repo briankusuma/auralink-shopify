@@ -33207,11 +33207,18 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   }
   const clock = new Clock();
   let isLooping = false;
+  let pendingCanvasSize = null;
   function animate() {
     if (!isLooping) return;
     animId = requestAnimationFrame(animate);
     const elapsed = clock.getElapsedTime();
     const wasIntroActive = introActive;
+    const canvasSize = pendingCanvasSize;
+    pendingCanvasSize = null;
+    if (canvasSize) {
+      camera.aspect = canvasSize.width / canvasSize.height;
+      camera.updateProjectionMatrix();
+    }
     if (introActive && isIntroStarted && introStartTime !== null) {
       const now = performance.now();
       const progressMs = now - introStartTime;
@@ -33301,7 +33308,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     dialHolder.position.z += (dialTargetZ - dialHolder.position.z) * 0.1;
     state.speakerPulse *= 0.88;
     controls.update();
-    if (wasIntroActive) fitRadioInCanvas();
+    if (wasIntroActive || canvasSize) fitRadioInCanvas();
     const heroRevealed = !heroContainer || heroContainer.dataset.heroRevealComplete === "true";
     if (!introActive && heroRevealed) {
       if (shadowRevealStart === null) shadowRevealStart = performance.now();
@@ -33309,6 +33316,9 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
       shadowPlane.visible = true;
       shadowPlaneMat.opacity = 0.16 * progress * progress * (3 - 2 * progress);
     }
+    // Resizing clears the WebGL buffer. Resize and redraw in the same frame,
+    // rather than exposing a cleared canvas between ResizeObserver and RAF.
+    if (canvasSize) renderer.setSize(canvasSize.width, canvasSize.height, false);
     renderer.render(scene, camera);
   }
   function startLoop() {
@@ -33343,15 +33353,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
       const w = entry.contentRect.width || container.clientWidth;
       const h = entry.contentRect.height || container.clientHeight;
       if (w > 0 && h > 0) {
-        const aspect2 = w / h;
-        camera.aspect = aspect2;
-        if (aspect2 < 0.95 && !introActive) {
-          const zoomFactor = Math.max(1, 1.18 / aspect2);
-          camera.position.set(DEFAULT_CAM_POS.x * zoomFactor, DEFAULT_CAM_POS.y * zoomFactor, DEFAULT_CAM_POS.z * zoomFactor);
-        }
-        camera.updateProjectionMatrix();
-        fitRadioInCanvas();
-        renderer.setSize(w, h);
+        pendingCanvasSize = { width: w, height: h };
       }
     }
   });
