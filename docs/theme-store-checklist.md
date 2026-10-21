@@ -337,3 +337,9 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 
 - Updated the final default camera to the user-selected (2.96, 2.92, 6.12), keeping target (0.02, -0.16, 0). Intro fit, reveal sequence, and delayed shadow remain unchanged.
 - JavaScript syntax and diff whitespace checks passed; browser visual confirmation remains pending. No Liquid, schema, or Shopify APIs changed.
+
+### Full-width hero entrance — 2026-10-21
+
+- Hero wrapper uses the existing 3D radio is-intro-center state: initially full section width with zero horizontal gutters and zero container radius. On radio glide it transitions over 1.6s to the existing page-width, responsive gutters, and configured section radius.
+- CSS only; no template ID hardcoding, settings, or Shopify behavior added. Reduced motion, no-JS, Theme Editor and static-image heroes retain their normal framing.
+- Diff whitespace check and Theme Check passed (176 files, no offenses). Browser visual confirmation of the width/radius transition remains pending.

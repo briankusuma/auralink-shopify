@@ -532,3 +532,28 @@
   }
 }
 
+
+/* The existing radio glide state also controls the hero's outer framing. */
+@media (prefers-reduced-motion: no-preference) {
+  .auralink-hero-wrapper {
+    transition: max-width 1.6s cubic-bezier(0.16, 1, 0.3, 1),
+      padding-left 1.6s cubic-bezier(0.16, 1, 0.3, 1),
+      padding-right 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .auralink-hero-container {
+    transition: max-width 1.6s cubic-bezier(0.16, 1, 0.3, 1),
+      border-radius 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .auralink-hero-wrapper:has([data-auralink-radio-3d]):has(.auralink-hero-media.is-intro-center):not(.no-js *):not(.shopify-design-mode *) {
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .auralink-hero-wrapper:has([data-auralink-radio-3d]):has(.auralink-hero-media.is-intro-center):not(.no-js *):not(.shopify-design-mode *) .auralink-hero-container {
+    max-width: 100%;
+    border-radius: 0;
+  }
+}
