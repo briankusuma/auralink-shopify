@@ -493,3 +493,8 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 - Metrics now descend from y=-72px in left-to-right order with 0.32s timeline stagger. Text follows its own metric's start. Main panel background/radius and divider wait until all three metric movements and liquid text reveals finish.
 - Logos appear afterward inside one full rounded cream panel with transparent individual tiles. Individual tile surfaces form at the end while the shared panel fades away to expose the grid gaps. Increased pin span to three viewport heights (minimum 1800px) to give the additional stages room; reverse/media cleanup retained.
 - Actual script/local GSAP controlled test passed staggered downward positions, completed metrics/text before panel background, main panel before shared logo panel, shared panel before tile backgrounds, and reverse/resize/text cleanup. Syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes or dependencies. Native browser connection remains unavailable; storefront/mobile/Theme Editor/Lighthouse checks remain pending.
+
+### Impact explicit dimensions — 2026-10-22
+
+- Set logo tile height to 117px and main background panel padding-block to 100px through two section-scoped CSS properties. Applied to static, animated, tablet and mobile rules; existing horizontal responsive padding retained. Removed viewport-dependent overrides for these requested dimensions.
+- CSS-only change, no Liquid/schema/API changes or dependencies. Diff whitespace and Theme Check passed (176 files, no offenses). Visual viewport/pin fitting, mobile, Theme Editor and Lighthouse remain unverified because browser UI access is unavailable.
