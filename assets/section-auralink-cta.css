@@ -270,12 +270,13 @@
     display: flex;
     align-items: center;
     overflow: hidden;
-    background: #FFFFFF;
+    isolation: isolate;
+    background: var(--cta-scene-background, #F2FE63);
   }
 
   .is-cta-sequenced .auralink-cta-container {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
   }
 
@@ -283,13 +284,25 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: var(--cta-motion-lime);
+    background-color: var(--cta-motion-lime, #F2FE63);
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
   }
 
   .is-cta-sequenced .auralink-cta__media-col {
     clip-path: inset(-200% 0 0);
+    isolation: isolate;
+  }
+
+  .is-cta-sequenced .auralink-cta__media-col::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: var(--cta-tile-height, 422px);
+    border-radius: 32px;
+    background-color: var(--cta-motion-lime, #F2FE63);
+    z-index: -1;
+    pointer-events: none;
   }
 
   .is-cta-sequenced .auralink-cta__motion-hand {

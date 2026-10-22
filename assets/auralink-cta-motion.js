@@ -33,6 +33,7 @@
           else item.el.setAttribute('style', item.style);
         });
         card.inert = originalInert;
+        wrapper.style.removeProperty('--cta-scene-background');
         wrapper.classList.remove('is-cta-sequenced');
         section.classList.remove('is-cta-motion-section');
       }
@@ -58,11 +59,14 @@
           fullWidth: wrapper.clientWidth, fullHeight: wrapper.clientHeight,
           handHeight: media.offsetHeight
         };
+        media.style.setProperty('--cta-tile-height', height + 'px');
       }
 
       function render(value) {
         const shrink = smooth(phase(value, 0.04, 0.25));
         const place = smooth(phase(value, 0.68, 0.88));
+        // Keep the opening lime even before the decorative surface paints.
+        wrapper.style.setProperty('--cta-scene-background', shrink === 0 ? '#F2FE63' : '#FFFFFF');
         const tileX = mix(bounds.centerX, bounds.x, place);
         const tileY = mix(bounds.centerY, bounds.y, place);
         surface.style.width = mix(bounds.fullWidth, bounds.width, shrink) + 'px';
