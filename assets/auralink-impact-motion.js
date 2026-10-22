@@ -101,7 +101,7 @@
                 scrollTrigger: {
                   trigger: section, pin: section, pinSpacing: true,
                   start: 'top top',
-                  end: function () { return '+=' + Math.max(1500, document.documentElement.clientHeight * 2.4); },
+                  end: function () { return '+=' + Math.max(1800, document.documentElement.clientHeight * 3); },
                   scrub: 0.65, refreshPriority: -2,
                   invalidateOnRefresh: true, onRefreshInit: measure
                 }
@@ -113,9 +113,16 @@
               if (quote) gsap.set(quote, { autoAlpha: 0, y: 16 });
               if (quoteDivider) gsap.set(quoteDivider, { autoAlpha: 0, scaleY: 0, transformOrigin: 'center' });
               if (divider) gsap.set(divider, { autoAlpha: 0, scaleX: 0, transformOrigin: 'left' });
-              gsap.set(metrics, { autoAlpha: 0, y: 28 });
-              gsap.set(logos, { autoAlpha: 0, y: 20 });
+              gsap.set(metrics, { autoAlpha: 0, y: -72 });
+              gsap.set(logos, { autoAlpha: 0, y: 20, backgroundColor: 'rgba(245,243,240,0)', borderRadius: 24 });
               gsap.set(tiles, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
+              const metricStart = 2.6;
+              const metricStagger = 0.32;
+              // Wait for both the last descending card and its liquid text.
+              const panelStart = 2.7 + Math.max(0, metrics.length - 1) * metricStagger + 1.12;
+              const logoPanelStart = panelStart + 0.95;
+              const tileStart = logoPanelStart + 1.15;
+              const completeAt = tileStart + Math.max(1.2, 0.8 + Math.max(0, tiles.length - 1) * 0.04);
               timeline.addLabel('author', 0);
               timeline.to(author, { x: 0, duration: 1.15, lazy: false }, 0.4);
               if (quoteDivider) timeline.to(quoteDivider, { autoAlpha: 1, scaleY: 1, duration: 0.7 }, 0.7);
@@ -123,17 +130,21 @@
               timeline.addLabel('quote', 1.85);
               timeline.to(row, { y: 0, duration: 1, lazy: false }, 2.2);
               timeline.to(wrapper, { '--impact-scene-bg': '#FFFFFF', duration: 0.9 }, 2.2);
-              timeline.to(card, { backgroundColor: '#F5F3F0', borderRadius: 32, duration: 0.9 }, 2.2);
-              if (divider) timeline.to(divider, { autoAlpha: 1, scaleX: 1, duration: 0.7 }, 2.5);
-              timeline.to(metrics, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.75 }, 2.6);
-              timeline.to(logos, { autoAlpha: 1, y: 0, duration: 0.8 }, 2.8);
-              timeline.addLabel('metrics', 3.7);
-              timeline.to(tiles, { backgroundColor: '#F5F3F0', borderRadius: 24, stagger: 0.04, duration: 0.8 }, 4.1);
-              timeline.addLabel('complete', 5.2);
-              timeline.to({}, { duration: 0.4 }, 5.2);
-              controlledTexts.forEach(function (item, index) {
+              timeline.to(metrics, { autoAlpha: 1, y: 0, stagger: metricStagger, duration: 0.9 }, metricStart);
+              timeline.addLabel('metrics', panelStart - 0.12);
+              timeline.to(card, { backgroundColor: '#F5F3F0', borderRadius: 32, duration: 0.8 }, panelStart);
+              if (divider) timeline.to(divider, { autoAlpha: 1, scaleX: 1, duration: 0.6 }, panelStart);
+              timeline.addLabel('panel', logoPanelStart);
+              timeline.to(logos, { autoAlpha: 1, y: 0, backgroundColor: '#F5F3F0', duration: 0.75 }, logoPanelStart);
+              timeline.addLabel('logoPanel', tileStart - 0.2);
+              timeline.to(tiles, { backgroundColor: '#F5F3F0', borderRadius: 24, stagger: 0.04, duration: 0.8 }, tileStart);
+              timeline.to(logos, { backgroundColor: 'rgba(245,243,240,0)', duration: 0.8 }, tileStart + 0.4);
+              timeline.addLabel('complete', completeAt);
+              timeline.to({}, { duration: 0.4 }, completeAt);
+              controlledTexts.forEach(function (item) {
                 const state = { progress: 0 };
-                const at = item.el === quote ? 0.85 : 2.7 + index * 0.06;
+                const metricIndex = Array.from(metrics).findIndex(function (metric) { return metric.contains(item.el); });
+                const at = item.el === quote ? 0.85 : 2.7 + Math.max(0, metricIndex) * metricStagger;
                 timeline.to(state, {
                   progress: 1, duration: 1, ease: 'none',
                   onUpdate: function () { item.reveal.render(state.progress); }
