@@ -280,7 +280,10 @@
     width: 100%;
   }
 
-  .auralink-cta__motion-surface {
+  .auralink-cta__motion-surface,
+  .auralink-cta__motion-surface:empty {
+    /* Override base.css div:empty for this intentionally empty decorative layer. */
+    display: block;
     position: absolute;
     top: 0;
     left: 0;

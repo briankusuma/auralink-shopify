@@ -118,7 +118,8 @@
         // Critical paint properties also live on the generated layer itself.
         // Its color must remain visible when a storefront serves an older stylesheet.
         Object.assign(surface.style, {
-          position: 'absolute', top: '0px', left: '0px',
+          // base.css hides div:empty; this decorative overlay is intentionally empty.
+          display: 'block', position: 'absolute', top: '0px', left: '0px',
           background: '#F2FE63', zIndex: '1', opacity: '1',
           visibility: 'visible', pointerEvents: 'none'
         });
