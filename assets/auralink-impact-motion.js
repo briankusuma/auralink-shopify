@@ -196,7 +196,16 @@
               function startIntro() {
                 if (introStarted) return;
                 introStarted = true;
-                intro.play(0);
+                intro.play();
+              }
+              function reverseIntro() {
+                if (!introStarted) return;
+                // Rewind the later stages before giving the scene back to the intro.
+                releaseTween.pause(0);
+                timeline.progress(0);
+                introDone = false;
+                introStarted = false;
+                intro.reverse();
               }
               // Scroll records progress during the timed intro; it cannot skip it.
               const driver = gsap.to(playhead, {
@@ -207,10 +216,17 @@
                   end: function () { return '+=' + Math.max(1800, document.documentElement.clientHeight * 3); },
                   scrub: 0.65, refreshPriority: -2, invalidateOnRefresh: true,
                   onEnter: startIntro,
+                  onEnterBack: startIntro,
+                  onLeaveBack: reverseIntro,
+                  onUpdate: function (self) {
+                    // A small dead band avoids toggling while resting at the pin boundary.
+                    if (self.direction < 0 && self.progress <= 0.015) reverseIntro();
+                    else if (self.direction > 0 && self.progress > 0.025) startIntro();
+                  },
                   onRefreshInit: function () {
                     measure();
                     timeline.invalidate().render(timeline.time(), true, true);
-                    if (!introStarted) intro.invalidate().render(0, true, true);
+                    if (!introStarted && intro.time() === 0) intro.invalidate().render(0, true, true);
                   }
                 }
               });
