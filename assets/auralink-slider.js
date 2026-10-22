@@ -57,18 +57,14 @@ if (!customElements.get('auralink-slider')) {
     finishEntrance() {
       if (this.motionEvents) this.motionEvents.abort();
       cancelAnimationFrame(this.entranceFrame);
-      clearTimeout(this.entranceWatchdog);
-      (this.entranceAnimations || []).forEach((animation) => animation.cancel());
-      this.entranceAnimations = [];
-      if (this.entranceCover) this.entranceCover.remove();
-      this.entranceCover = null;
+      this.entranceFrame = null;
+      this.clearEntranceEffects();
       if (this.wrapper) this.wrapper.classList.remove('is-slider-entering');
       this.entrancePending = false;
       this.inert = false;
     }
 
     resetEntrance() {
-      this.entranceVersion = (this.entranceVersion || 0) + 1;
       this.finishEntrance();
       if (this.wrapper) this.wrapper.classList.remove('is-slider-sequenced');
       if (this.entranceSection) this.entranceSection.classList.remove('is-slider-pin');
@@ -76,107 +72,126 @@ if (!customElements.get('auralink-slider')) {
 
     prepareEntrance() {
       this.wrapper = this.closest('.auralink-slider-wrapper');
-      const active = this.slides[this.currentIndex];
-      const media = active.querySelector('.auralink-slider__media');
-      if (!this.wrapper || !media) return;
+      if (!this.wrapper) return;
       try {
         this.entranceSection = this.wrapper.closest('.shopify-section');
         if (!this.entranceSection) return;
-        // CSS keeps the scene in view; no dynamic script loading or pin wrappers.
         this.entranceSection.classList.add('is-slider-pin');
-        this.wrapper.classList.add('is-slider-sequenced', 'is-slider-entering');
-        this.entrancePending = true;
-        this.inert = true;
+        this.wrapper.classList.add('is-slider-sequenced');
+        this.entranceProgress = null;
+        this.entranceLastTime = null;
         this.entranceAnimations = [];
-        this.entranceStarted = false;
-        const cover = document.createElement('div');
-        cover.className = 'auralink-slider__entrance-cover';
-        cover.setAttribute('aria-hidden', 'true');
-        cover.appendChild(media.cloneNode(true));
-        // A cloned lazy image must load before its section reaches the viewport.
-        const image = cover.querySelector('img');
-        if (image) {
-          image.loading = 'eager';
-          const original = media.querySelector('img');
-          if (original.currentSrc) {
-            image.removeAttribute('srcset');
-            image.src = original.currentSrc;
-          }
-        }
-        this.wrapper.appendChild(cover);
-        this.entranceCover = cover;
         this.motionEvents = new AbortController();
         const signal = this.motionEvents.signal;
-        const version = this.entranceVersion;
-        const check = () => {
+        const tick = (now) => {
           this.entranceFrame = null;
-          if (!this.entrancePending) return;
-          const rect = this.entranceSection.getBoundingClientRect();
-          if (rect.bottom <= 0) { this.finishEntrance(); return; }
-          if (this.entranceStarted) return;
-          if (rect.top <= 1) {
-            this.entranceStarted = true;
-            // Bound image readiness: a failed or stalled image never locks navigation.
-            this.entranceWatchdog = setTimeout(() => this.finishEntrance(), 5500);
-            const ready = image && image.decode ? image.decode() : Promise.resolve();
-            ready.then(() => {
-              if (version === this.entranceVersion && this.entrancePending) this.playEntrance(active, media);
-            }).catch(() => {
-              if (version === this.entranceVersion) this.finishEntrance();
-            });
+          try {
+            const rect = this.entranceSection.getBoundingClientRect();
+            const span = Math.max(1, this.entranceSection.offsetHeight - this.wrapper.offsetHeight);
+            const target = Math.max(0, Math.min(1, -rect.top / span));
+            const elapsed = Math.min(64, Math.max(1, now - (this.entranceLastTime || now - 16)));
+            this.entranceLastTime = now;
+            const previous = this.entranceProgress;
+            let progress = previous === null ? target : previous + (target - previous) * (1 - Math.exp(-elapsed / 100));
+            if (Math.abs(progress - target) < 0.0005) progress = target;
+            this.entranceProgress = progress;
+            this.renderEntrance(progress);
+            if (progress !== target) this.entranceFrame = requestAnimationFrame(tick);
+          } catch (error) {
+            this.resetEntrance();
           }
         };
-        window.addEventListener('scroll', () => {
-          if (!this.entranceFrame) this.entranceFrame = requestAnimationFrame(check);
-        }, { passive: true, signal });
+        const schedule = () => {
+          if (!this.entranceFrame) this.entranceFrame = requestAnimationFrame(tick);
+        };
+        window.addEventListener('scroll', schedule, { passive: true, signal });
         window.addEventListener('resize', () => {
-          // Use the responsive carousel immediately rather than land on stale bounds.
-          if (this.entranceStarted) this.finishEntrance();
+          this.clearEntranceEffects();
+          this.entranceLastTime = null;
+          schedule();
         }, { passive: true, signal });
-        this.entranceFrame = requestAnimationFrame(check);
+        schedule();
       } catch (error) {
         this.resetEntrance();
       }
     }
 
-    playEntrance(active, media) {
-      try {
-        const cover = this.entranceCover;
-        const outer = this.wrapper.getBoundingClientRect();
-        const target = media.getBoundingClientRect();
-        const header = this.wrapper.querySelector('.auralink-slider__header');
-        const left = this.querySelector('[data-slot="left"]');
-        const right = this.querySelector('[data-slot="right"]');
-        const content = active.querySelectorAll('.auralink-slider__number, .auralink-slider__content, .auralink-slider__overlay');
-        const nav = this.querySelector('.auralink-slider__nav-container');
-        const animate = (el, frames, delay, duration) => {
-          if (!el) return null;
-          const animation = el.animate(frames, {
-            delay, duration, easing: 'cubic-bezier(0.65, 0, 0.25, 1)', fill: 'both'
-          });
-          this.entranceAnimations.push(animation);
-          return animation;
-        };
-        const shrink = animate(cover, [
-          { left: '0px', top: '0px', width: outer.width + 'px', height: outer.height + 'px', borderRadius: '0px' },
-          { left: (target.left - outer.left) + 'px', top: (target.top - outer.top) + 'px', width: target.width + 'px', height: target.height + 'px', borderRadius: '32px' }
-        ], 300, 1650);
-        // Keep the real image underneath; remove the cover only at the matching bounds.
-        shrink.finished.then(() => cover.remove()).catch(() => {});
-        const rise = [{ opacity: 0, translate: '0 36px' }, { opacity: 1, translate: '0 0' }];
-        animate(header, rise, 1650, 850);
-        animate(left, [{ opacity: 0, translate: '-120px 0' }, { opacity: 1, translate: '0 0' }], 1700, 1000);
-        animate(right, [{ opacity: 0, translate: '120px 0' }, { opacity: 1, translate: '0 0' }], 1800, 1000);
-        content.forEach((el, index) => animate(el, rise, 1950 + index * 60, 1000));
-        animate(nav, [{ opacity: 0 }, { opacity: 1 }], 2350, 1100);
-        // Native translate composes with the carousel's existing transform rules.
-        const version = this.entranceVersion;
-        Promise.all(this.entranceAnimations.map((animation) => animation.finished)).then(() => {
-          if (version === this.entranceVersion) this.finishEntrance();
-        }).catch(() => {});
-      } catch (error) {
-        this.finishEntrance();
+    clearEntranceEffects() {
+      if (this.coverEvents) this.coverEvents.abort();
+      (this.entranceAnimations || []).forEach((animation) => animation.cancel());
+      this.entranceAnimations = [];
+      if (this.entranceCover) this.entranceCover.remove();
+      this.entranceCover = null;
+    }
+
+    renderEntrance(progress) {
+      if (progress >= 1) {
+        // Release all effects so carousel slot changes retain their native CSS transforms.
+        this.clearEntranceEffects();
+        this.wrapper.classList.remove('is-slider-entering');
+        this.entrancePending = false;
+        this.inert = false;
+        return;
       }
+      if (!this.entranceAnimations.length) this.buildEntrance();
+      this.entrancePending = true;
+      this.inert = true;
+      const time = progress * 3450;
+      this.entranceAnimations.forEach((animation) => { animation.currentTime = time; });
+      // The clone is hidden only while it exactly overlaps the underlying card.
+      this.entranceCover.style.visibility = time >= 1950 ? 'hidden' : 'visible';
+    }
+
+    buildEntrance() {
+      const active = this.slides[this.currentIndex];
+      const media = active.querySelector('.auralink-slider__media');
+      if (!media) throw new Error('Slider media unavailable');
+      this.wrapper.classList.add('is-slider-entering');
+      const cover = document.createElement('div');
+      cover.className = 'auralink-slider__entrance-cover';
+      cover.setAttribute('aria-hidden', 'true');
+      cover.appendChild(media.cloneNode(true));
+      const image = cover.querySelector('img');
+      if (image) {
+        this.coverEvents = new AbortController();
+        image.loading = 'eager';
+        const original = media.querySelector('img');
+        if (original.currentSrc) {
+          image.removeAttribute('srcset');
+          image.src = original.currentSrc;
+        }
+        image.addEventListener('error', () => this.resetEntrance(), { once: true, signal: this.coverEvents.signal });
+      }
+      this.wrapper.appendChild(cover);
+      this.entranceCover = cover;
+      const outer = this.wrapper.getBoundingClientRect();
+      const nav = this.querySelector('.auralink-slider__nav-container');
+      // Navigation bounds always describe the final center slot, even mid-carousel transition.
+      const target = (nav || media).getBoundingClientRect();
+      const header = this.wrapper.querySelector('.auralink-slider__header');
+      const left = this.querySelector('[data-slot="left"]');
+      const right = this.querySelector('[data-slot="right"]');
+      const content = active.querySelectorAll('.auralink-slider__number, .auralink-slider__content, .auralink-slider__overlay');
+      const animate = (el, frames, delay, duration) => {
+        if (!el) return;
+        const animation = el.animate(frames, {
+          delay, duration, easing: 'cubic-bezier(0.65, 0, 0.25, 1)', fill: 'both'
+        });
+        animation.pause();
+        animation.currentTime = 0;
+        animation.finished.catch(() => {});
+        this.entranceAnimations.push(animation);
+      };
+      animate(cover, [
+        { left: '0px', top: '0px', width: outer.width + 'px', height: outer.height + 'px', borderRadius: '0px' },
+        { left: (target.left - outer.left) + 'px', top: (target.top - outer.top) + 'px', width: target.width + 'px', height: target.height + 'px', borderRadius: '32px' }
+      ], 300, 1650);
+      const rise = [{ opacity: 0, translate: '0 36px' }, { opacity: 1, translate: '0 0' }];
+      animate(header, rise, 1650, 850);
+      animate(left, [{ opacity: 0, translate: '-120px 0' }, { opacity: 1, translate: '0 0' }], 1700, 1000);
+      animate(right, [{ opacity: 0, translate: '120px 0' }, { opacity: 1, translate: '0 0' }], 1800, 1000);
+      content.forEach((el, index) => animate(el, rise, 1950 + index * 60, 1000));
+      animate(nav, [{ opacity: 0 }, { opacity: 1 }], 2350, 1100);
     }
 
     initEvents() {
