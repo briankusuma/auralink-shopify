@@ -6,6 +6,15 @@
     padding-top: {{ section.settings.padding_top | default: 48 }}px;
     padding-bottom: {{ section.settings.padding_bottom | default: 64 }}px;
   }
+
+  /* Keep the scene colors with the section as well as the animated asset. */
+  .section-{{ section.id }}-padding.is-cta-sequenced {
+    background: var(--cta-scene-background, #F2FE63);
+  }
+
+  .section-{{ section.id }}-padding .auralink-cta__motion-surface {
+    background-color: #F2FE63;
+  }
 {%- endstyle -%}
 
 <div class="auralink-cta-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">

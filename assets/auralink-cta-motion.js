@@ -19,7 +19,7 @@
       if (!section || !media || !card || !hand) return;
       const query = window.matchMedia('(min-width: 991px) and (min-height: 740px) and (prefers-reduced-motion: no-preference)');
       let events, frame, surface, bounds, progress, lastTime;
-      const originals = [media, card, hand].map((el) => ({ el, style: el.getAttribute('style') }));
+      const originals = [wrapper, media, card, hand].map((el) => ({ el, style: el.getAttribute('style') }));
       const originalInert = card.inert;
 
       function reset() {
@@ -33,7 +33,6 @@
           else item.el.setAttribute('style', item.style);
         });
         card.inert = originalInert;
-        wrapper.style.removeProperty('--cta-scene-background');
         wrapper.classList.remove('is-cta-sequenced');
         section.classList.remove('is-cta-motion-section');
       }
@@ -66,7 +65,9 @@
         const shrink = smooth(phase(value, 0.04, 0.25));
         const place = smooth(phase(value, 0.68, 0.88));
         // Keep the opening lime even before the decorative surface paints.
-        wrapper.style.setProperty('--cta-scene-background', shrink === 0 ? '#F2FE63' : '#FFFFFF');
+        const sceneColor = shrink === 0 ? '#F2FE63' : '#FFFFFF';
+        wrapper.style.setProperty('--cta-scene-background', sceneColor);
+        wrapper.style.background = sceneColor;
         const tileX = mix(bounds.centerX, bounds.x, place);
         const tileY = mix(bounds.centerY, bounds.y, place);
         surface.style.width = mix(bounds.fullWidth, bounds.width, shrink) + 'px';
@@ -116,6 +117,13 @@
         surface = document.createElement('div');
         surface.className = 'auralink-cta__motion-surface';
         surface.setAttribute('aria-hidden', 'true');
+        // Critical paint properties also live on the generated layer itself.
+        // Its color must remain visible when a storefront serves an older stylesheet.
+        Object.assign(surface.style, {
+          position: 'absolute', top: '0px', left: '0px',
+          background: '#F2FE63', zIndex: '1', opacity: '1',
+          visibility: 'visible', pointerEvents: 'none'
+        });
         wrapper.prepend(surface);
         events = new AbortController();
         const signal = events.signal;
