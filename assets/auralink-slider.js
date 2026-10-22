@@ -43,22 +43,8 @@ if (!customElements.get('auralink-slider')) {
       this.isAnimating = false;
     }
 
-    async loadMotionLibrary(url, key) {
-      if (window[key]) return;
-      await new Promise((resolve, reject) => {
-        const src = new URL(url, window.location.href).href;
-        let script = Array.from(document.scripts).find((item) => item.src === src);
-        const exists = Boolean(script);
-        if (!script) script = document.createElement('script');
-        script.addEventListener('load', resolve, { once: true });
-        script.addEventListener('error', reject, { once: true });
-        if (!exists) { script.src = src; document.head.appendChild(script); }
-      });
-      if (!window[key]) throw new Error('Slider animation library unavailable');
-    }
-
     initEntrance() {
-      if (window.Shopify && window.Shopify.designMode) return;
+      if ((window.Shopify && window.Shopify.designMode) || !this.animate) return;
       this.motionMedia = window.matchMedia('(min-width: 990px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)');
       this.onMotionChange = () => {
         this.resetEntrance();
@@ -68,109 +54,128 @@ if (!customElements.get('auralink-slider')) {
       this.onMotionChange();
     }
 
-    resetEntrance() {
-      // Invalidate pending image/library work after unload or breakpoint changes.
-      this.entranceVersion = (this.entranceVersion || 0) + 1;
-      if (this.entranceContext) this.entranceContext.revert();
-      this.entranceContext = null;
+    finishEntrance() {
+      if (this.motionEvents) this.motionEvents.abort();
+      cancelAnimationFrame(this.entranceFrame);
+      clearTimeout(this.entranceWatchdog);
+      (this.entranceAnimations || []).forEach((animation) => animation.cancel());
+      this.entranceAnimations = [];
       if (this.entranceCover) this.entranceCover.remove();
       this.entranceCover = null;
-      if (this.wrapper) this.wrapper.classList.remove('is-slider-sequenced', 'is-slider-entering');
+      if (this.wrapper) this.wrapper.classList.remove('is-slider-entering');
       this.entrancePending = false;
       this.inert = false;
     }
 
-    async prepareEntrance() {
-      const version = this.entranceVersion;
+    resetEntrance() {
+      this.entranceVersion = (this.entranceVersion || 0) + 1;
+      this.finishEntrance();
+      if (this.wrapper) this.wrapper.classList.remove('is-slider-sequenced');
+      if (this.entranceSection) this.entranceSection.classList.remove('is-slider-pin');
+    }
+
+    prepareEntrance() {
       this.wrapper = this.closest('.auralink-slider-wrapper');
       const active = this.slides[this.currentIndex];
       const media = active.querySelector('.auralink-slider__media');
       if (!this.wrapper || !media) return;
-      this.entrancePending = true;
-      this.inert = true;
       try {
-        await this.loadMotionLibrary(this.dataset.gsapUrl, 'gsap');
-        await this.loadMotionLibrary(this.dataset.scrolltriggerUrl, 'ScrollTrigger');
-        if (version !== this.entranceVersion || !this.isConnected) return;
-        const image = media.querySelector('img');
-        if (image && image.decode) await image.decode().catch(() => {});
-        if (version !== this.entranceVersion || !this.isConnected) return;
-        const gsap = window.gsap;
-        gsap.registerPlugin(window.ScrollTrigger);
+        this.entranceSection = this.wrapper.closest('.shopify-section');
+        if (!this.entranceSection) return;
+        // CSS keeps the scene in view; no dynamic script loading or pin wrappers.
+        this.entranceSection.classList.add('is-slider-pin');
         this.wrapper.classList.add('is-slider-sequenced', 'is-slider-entering');
+        this.entrancePending = true;
+        this.inert = true;
+        this.entranceAnimations = [];
+        this.entranceStarted = false;
         const cover = document.createElement('div');
         cover.className = 'auralink-slider__entrance-cover';
         cover.setAttribute('aria-hidden', 'true');
         cover.appendChild(media.cloneNode(true));
+        // A cloned lazy image must load before its section reaches the viewport.
+        const image = cover.querySelector('img');
+        if (image) {
+          image.loading = 'eager';
+          const original = media.querySelector('img');
+          if (original.currentSrc) {
+            image.removeAttribute('srcset');
+            image.src = original.currentSrc;
+          }
+        }
         this.wrapper.appendChild(cover);
         this.entranceCover = cover;
+        this.motionEvents = new AbortController();
+        const signal = this.motionEvents.signal;
+        const version = this.entranceVersion;
+        const check = () => {
+          this.entranceFrame = null;
+          if (!this.entrancePending) return;
+          const rect = this.entranceSection.getBoundingClientRect();
+          if (rect.bottom <= 0) { this.finishEntrance(); return; }
+          if (this.entranceStarted) return;
+          if (rect.top <= 1) {
+            this.entranceStarted = true;
+            // Bound image readiness: a failed or stalled image never locks navigation.
+            this.entranceWatchdog = setTimeout(() => this.finishEntrance(), 5500);
+            const ready = image && image.decode ? image.decode() : Promise.resolve();
+            ready.then(() => {
+              if (version === this.entranceVersion && this.entrancePending) this.playEntrance(active, media);
+            }).catch(() => {
+              if (version === this.entranceVersion) this.finishEntrance();
+            });
+          }
+        };
+        window.addEventListener('scroll', () => {
+          if (!this.entranceFrame) this.entranceFrame = requestAnimationFrame(check);
+        }, { passive: true, signal });
+        window.addEventListener('resize', () => {
+          // Use the responsive carousel immediately rather than land on stale bounds.
+          if (this.entranceStarted) this.finishEntrance();
+        }, { passive: true, signal });
+        this.entranceFrame = requestAnimationFrame(check);
+      } catch (error) {
+        this.resetEntrance();
+      }
+    }
+
+    playEntrance(active, media) {
+      try {
+        const cover = this.entranceCover;
+        const outer = this.wrapper.getBoundingClientRect();
+        const target = media.getBoundingClientRect();
         const header = this.wrapper.querySelector('.auralink-slider__header');
         const left = this.querySelector('[data-slot="left"]');
         const right = this.querySelector('[data-slot="right"]');
         const content = active.querySelectorAll('.auralink-slider__number, .auralink-slider__content, .auralink-slider__overlay');
         const nav = this.querySelector('.auralink-slider__nav-container');
-        const section = this.wrapper.closest('.shopify-section') || this.wrapper;
-        let destination;
-        const measure = () => {
-          const outer = this.wrapper.getBoundingClientRect();
-          const inner = media.getBoundingClientRect();
-          destination = { x: inner.left - outer.left, y: inner.top - outer.top, width: inner.width, height: inner.height };
+        const animate = (el, frames, delay, duration) => {
+          if (!el) return null;
+          const animation = el.animate(frames, {
+            delay, duration, easing: 'cubic-bezier(0.65, 0, 0.25, 1)', fill: 'both'
+          });
+          this.entranceAnimations.push(animation);
+          return animation;
         };
-        measure();
-        this.entranceContext = gsap.context(() => {
-          const hidden = [header, left, right, nav, ...content].filter(Boolean);
-          gsap.set(hidden, { autoAlpha: 0 });
-          const intro = gsap.timeline({
-            paused: true,
-            defaults: { ease: 'power3.inOut' },
-            onComplete: () => {
-              gsap.set(hidden, { clearProps: 'transform,opacity,visibility' });
-              this.wrapper.classList.remove('is-slider-entering');
-              this.entrancePending = false;
-              this.inert = false;
-            }
-          });
-          intro.fromTo(cover, {
-            x: 0, y: 0, width: () => this.wrapper.clientWidth,
-            height: () => this.wrapper.clientHeight, borderRadius: 0
-          }, {
-            x: () => destination.x, y: () => destination.y,
-            width: () => destination.width, height: () => destination.height,
-            borderRadius: 32, duration: 1.65
-          }, 0.3);
-          // The same image covers the real slide until both rectangles match exactly.
-          intro.set(cover, { autoAlpha: 0 }, 1.96);
-          if (header) intro.fromTo(header, { y: 40 }, { y: 0, autoAlpha: 1, duration: 0.85 }, 1.65);
-          if (left) intro.fromTo(left, { x: -120 }, { x: 0, autoAlpha: 1, duration: 1 }, 1.7);
-          if (right) intro.fromTo(right, { x: 120 }, { x: 0, autoAlpha: 1, duration: 1 }, 1.8);
-          intro.fromTo(content, { y: 28 }, { y: 0, autoAlpha: 1, duration: 0.85, stagger: 0.06 }, 1.95);
-          if (nav) intro.to(nav, { autoAlpha: 1, duration: 0.5 }, 2.35);
-          intro.call(() => {
-            if (window.AuraLinkLiquidReveal) {
-              if (header) window.AuraLinkLiquidReveal.replay(header);
-              window.AuraLinkLiquidReveal.replay(active);
-            }
-          }, null, 1.95);
-          // Let the shared one-second liquid reveal finish before enabling input.
-          intro.to({}, { duration: 0.6 }, 2.85);
-          window.ScrollTrigger.create({
-            trigger: section, pin: section, pinSpacing: true,
-            start: 'top top', end: () => '+=' + Math.round(this.wrapper.clientHeight * 0.65),
-            refreshPriority: -3,
-            onEnter: () => intro.play(),
-            onEnterBack: () => intro.play(),
-            onLeave: () => intro.progress(1),
-            onRefreshInit: () => {
-              if (!this.entrancePending) return;
-              measure();
-              intro.invalidate().render(intro.time(), true, true);
-            }
-          });
-        }, this.wrapper);
-        window.ScrollTrigger.sort();
-        window.ScrollTrigger.refresh();
+        const shrink = animate(cover, [
+          { left: '0px', top: '0px', width: outer.width + 'px', height: outer.height + 'px', borderRadius: '0px' },
+          { left: (target.left - outer.left) + 'px', top: (target.top - outer.top) + 'px', width: target.width + 'px', height: target.height + 'px', borderRadius: '32px' }
+        ], 300, 1650);
+        // Keep the real image underneath; remove the cover only at the matching bounds.
+        shrink.finished.then(() => cover.remove()).catch(() => {});
+        const rise = [{ opacity: 0, translate: '0 36px' }, { opacity: 1, translate: '0 0' }];
+        animate(header, rise, 1650, 850);
+        animate(left, [{ opacity: 0, translate: '-120px 0' }, { opacity: 1, translate: '0 0' }], 1700, 1000);
+        animate(right, [{ opacity: 0, translate: '120px 0' }, { opacity: 1, translate: '0 0' }], 1800, 1000);
+        content.forEach((el, index) => animate(el, rise, 1950 + index * 60, 1000));
+        animate(nav, [{ opacity: 0 }, { opacity: 1 }], 2350, 1100);
+        // Native translate composes with the carousel's existing transform rules.
+        const version = this.entranceVersion;
+        Promise.all(this.entranceAnimations.map((animation) => animation.finished)).then(() => {
+          if (version === this.entranceVersion) this.finishEntrance();
+        }).catch(() => {});
       } catch (error) {
-        if (version === this.entranceVersion) this.resetEntrance();
+        this.finishEntrance();
       }
     }
 

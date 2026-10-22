@@ -550,6 +550,8 @@
   overflow: hidden;
   pointer-events: none;
   background: #F0F0EE;
+  width: 100%;
+  height: 100%;
 }
 
 .auralink-slider__entrance-cover .auralink-slider__media {
@@ -557,7 +559,14 @@
 }
 
 @media (min-width: 990px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+  .is-slider-pin {
+    position: relative;
+    min-height: 165svh;
+  }
+
   .auralink-slider-wrapper.is-slider-sequenced {
+    position: sticky;
+    top: 0;
     height: 100svh;
     display: flex;
     flex-direction: column;
@@ -588,6 +597,16 @@
   .is-slider-entering .auralink-slider__number,
   .is-slider-entering .auralink-slider__overlay {
     transition: none;
+  }
+
+  .is-slider-entering .auralink-slider__header,
+  .is-slider-entering .auralink-slider__slide[data-slot="left"],
+  .is-slider-entering .auralink-slider__slide[data-slot="right"],
+  .is-slider-entering .auralink-slider__nav-container,
+  .is-slider-entering .auralink-slider__number,
+  .is-slider-entering .auralink-slider__content,
+  .is-slider-entering .auralink-slider__overlay {
+    opacity: 0;
   }
 }
 
