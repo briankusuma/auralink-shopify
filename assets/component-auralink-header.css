@@ -343,6 +343,56 @@
   height: 22px;
 }
 
+/* Keep both search glyphs in one fixed slot instead of swapping display/layout. */
+.header__search .header__icon--search > span {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.header__search .header__icon--search > span > .svg-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  width: 22px;
+  height: 22px;
+  pointer-events: none;
+  transform-origin: center;
+  transition: opacity 0.28s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.header__search .header__icon--search .svg-wrapper:not(.header__icon-close) {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+.header__search .header__icon--search .header__icon-close {
+  opacity: 0;
+  transform: rotate(-45deg) scale(0.8);
+}
+
+.header__search details[open] .header__icon--search .svg-wrapper:not(.header__icon-close) {
+  opacity: 0;
+  transform: rotate(45deg) scale(0.8);
+}
+
+.header__search details[open] .header__icon--search .header__icon-close {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+.header__search .header__icon--search:hover,
+.header__search .header__icon--search:hover .icon {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__search .header__icon--search > span > .svg-wrapper {
+    transition: none;
+  }
+}
+
 .header__icon--cart .svg-wrapper,
 .header__icon--cart svg,
 .header__icon--cart .icon {

@@ -1,4 +1,5 @@
 {{ 'section-auralink-impact.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'auralink-impact-motion.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
   .section-{{ section.id }}-padding {
@@ -7,7 +8,9 @@
   }
 {%- endstyle -%}
 
-<div class="auralink-impact-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+<div class="auralink-impact-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding"
+  data-gsap-url="{{ 'gsap.js' | asset_url }}"
+  data-scrolltrigger-url="{{ 'ScrollTrigger.js' | asset_url }}">
   <div class="auralink-impact-container">
     
     {% comment %} Top Card: Quote, Author & Impact Metrics {% endcomment %}

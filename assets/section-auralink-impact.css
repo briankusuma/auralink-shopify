@@ -8,6 +8,10 @@
   box-sizing: border-box;
 }
 
+.auralink-impact-wrapper [data-liquid-reveal="text"] {
+  visibility: inherit;
+}
+
 .auralink-impact-container {
   max-width: var(--page-width, 1408px);
   margin-left: auto;
@@ -259,6 +263,54 @@ max-width: 200px;
   }
   .auralink-impact-metric-item:hover .auralink-impact-metric__badge {
     transform: scale(1.08) rotate(4deg);
+  }
+}
+
+/* Keep one stable layout while the supplied desktop sequence unfolds. */
+@media (min-width: 1100px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+  .auralink-impact-wrapper.is-impact-sequenced {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    background: var(--impact-scene-bg, #F5F3F0);
+  }
+
+  .is-impact-sequenced .auralink-impact-container {
+    position: relative;
+    width: 100%;
+  }
+
+  .is-impact-sequenced .auralink-impact-card {
+    position: relative;
+    padding: clamp(24px, 6vh, 56px) clamp(24px, 4vw, 64px);
+  }
+
+  .is-impact-sequenced .auralink-impact-quote-row {
+    position: relative;
+  }
+
+  .is-impact-sequenced .auralink-impact-quote-text {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    font-size: clamp(26px, 2.5vw, 36px);
+  }
+
+  .is-impact-sequenced .auralink-impact-divider {
+    margin: clamp(20px, 4vh, 40px) 0;
+  }
+
+  .is-impact-sequenced .auralink-impact-metric__box {
+    width: clamp(80px, 12vh, 128px);
+    height: clamp(80px, 12vh, 128px);
+    min-width: clamp(80px, 12vh, 128px);
+  }
+
+  .is-impact-sequenced .auralink-impact-logo-card {
+    height: clamp(56px, 9vh, 96px);
+    transition: transform 0.3s ease;
   }
 }
 

@@ -286,7 +286,7 @@
     }
 
     // Strict exclusion: Hero lead has its own dedicated amoeba liquid ripple effect
-    if (el.closest('.auralink-hero-container, .auralink-bento-wrapper')) return;
+    if (el.closest('.auralink-hero-container, .auralink-bento-wrapper, .auralink-impact-wrapper')) return;
 
     // Strict exclusion: Header, footer, cart drawer, modals
     if (el.closest('header, footer, .header-wrapper, .footer, [id*="shopify-section-header"], [id*="shopify-section-footer"], .header-drawer, cart-drawer, .drawer, .modal, .popup')) {
@@ -389,7 +389,7 @@
     }
 
     // Exclude hero text lead (which has hover ripple)
-    if (el.closest('.auralink-hero-container, .auralink-bento-wrapper')) return false;
+    if (el.closest('.auralink-hero-container, .auralink-bento-wrapper, .auralink-impact-wrapper')) return false;
 
     // Exclude form controls, scripts, styles, SVGs, hidden elements
     if (el.closest('button, input, select, textarea, label, fieldset, svg, .svg-wrapper, .icon, [aria-hidden="true"], .visually-hidden, script, style, noscript')) {
