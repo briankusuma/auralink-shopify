@@ -109,7 +109,6 @@
               timeline.set(author, { x: function () { return positions.authorX; }, immediateRender: true, lazy: false }, 0);
               timeline.set(row, { y: function () { return positions.rowY; }, immediateRender: true, lazy: false }, 0);
               gsap.set(card, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
-              gsap.set(wrapper, { '--impact-scene-bg': '#F5F3F0' });
               if (quote) gsap.set(quote, { autoAlpha: 0, y: 16 });
               if (quoteDivider) gsap.set(quoteDivider, { autoAlpha: 0, scaleY: 0, transformOrigin: 'center' });
               if (divider) gsap.set(divider, { autoAlpha: 0, scaleX: 0, transformOrigin: 'left' });
@@ -129,7 +128,6 @@
               if (quote) timeline.to(quote, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.85);
               timeline.addLabel('quote', 1.85);
               timeline.to(row, { y: 0, duration: 1, lazy: false }, 2.2);
-              timeline.to(wrapper, { '--impact-scene-bg': '#FFFFFF', duration: 0.9 }, 2.2);
               timeline.to(metrics, { autoAlpha: 1, y: 0, stagger: metricStagger, duration: 0.9 }, metricStart);
               timeline.addLabel('metrics', panelStart - 0.12);
               timeline.to(card, { backgroundColor: '#F5F3F0', borderRadius: 32, duration: 0.8 }, panelStart);

@@ -275,7 +275,8 @@ max-width: 200px;
     min-height: 100svh;
     display: flex;
     align-items: center;
-    background: var(--impact-scene-bg, #F5F3F0);
+    background: rgb(var(--color-background, 255, 255, 255));
+    box-shadow: none;
   }
 
   .is-impact-sequenced .auralink-impact-container {
@@ -286,6 +287,7 @@ max-width: 200px;
   .is-impact-sequenced .auralink-impact-card {
     position: relative;
     padding: var(--impact-panel-padding-block) clamp(24px, 4vw, 64px);
+    box-shadow: none;
   }
 
   .is-impact-sequenced .auralink-impact-quote-row {

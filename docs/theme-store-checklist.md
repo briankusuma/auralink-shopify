@@ -498,3 +498,8 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 
 - Set logo tile height to 117px and main background panel padding-block to 100px through two section-scoped CSS properties. Applied to static, animated, tablet and mobile rules; existing horizontal responsive padding retained. Removed viewport-dependent overrides for these requested dimensions.
 - CSS-only change, no Liquid/schema/API changes or dependencies. Diff whitespace and Theme Check passed (176 files, no offenses). Visual viewport/pin fitting, mobile, Theme Editor and Lighthouse remain unverified because browser UI access is unavailable.
+
+### Clear impact background during upward text transition — 2026-10-22
+
+- Removed the full-scene cream-to-white background tween. The animated wrapper keeps the merchant color-scheme background throughout the author/quote move; wrapper/main panel cast no shadow. The main rounded panel still forms only after metric movement/text complete, followed by the shared logo panel and individual tiles.
+- Existing timeline/reverse/resize/cleanup test, JavaScript syntax, diff whitespace and Theme Check passed (176 files, no offenses). No Liquid/schema/API changes or dependencies. Visual storefront/viewport/Theme Editor/Lighthouse checks remain pending because browser access is unavailable.
