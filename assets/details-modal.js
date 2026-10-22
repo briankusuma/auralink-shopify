@@ -25,6 +25,10 @@ class DetailsModal extends HTMLElement {
   }
 
   open(event) {
+    if (this.classList.contains('header__search')) {
+      // Opening search ends the navbar entrance permanently for this header.
+      this.closest('.header-wrapper')?.classList.add('header--search-used');
+    }
     this.onBodyClickEvent = this.onBodyClickEvent || this.onBodyClick.bind(this);
     event.target.closest('details').setAttribute('open', true);
     document.body.addEventListener('click', this.onBodyClickEvent);
