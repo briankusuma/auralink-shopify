@@ -74,13 +74,14 @@
 
         // Quadratic path: lateral sweep, gentle overshoot, then a level resting pose.
         const rise = phase(value, 0.39, 0.69);
-        const t = 1 - Math.pow(1 - rise, 3);
+        const t = rise * rise * rise * (rise * (rise * 6 - 15) + 10);
         const inverse = 1 - t;
-        const x = (inverse * inverse * 0.34 + 2 * inverse * t * -0.12) * bounds.width;
+        // Overscan places the source image's cut wrist edge beyond the clipped portal.
+        const x = (inverse * inverse * 0.34 + 2 * inverse * t * -0.12 + 0.04) * bounds.width;
         const y = (inverse * inverse * 1.15 + 2 * inverse * t * -0.045) * bounds.handHeight;
-        const angle = inverse * inverse * -24 + 2 * inverse * t * 7;
+        const angle = inverse * inverse * -18 + 2 * inverse * t * 4;
         hand.style.opacity = String(smooth(phase(value, 0.39, 0.44)));
-        hand.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) rotate(' + angle + 'deg)';
+        hand.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) rotate(' + angle + 'deg) scale(1.12)';
         const reveal = smooth(phase(value, 0.91, 1));
         card.style.opacity = String(reveal);
         card.style.transform = 'translate3d(0,' + mix(32, 0, reveal) + 'px,0)';

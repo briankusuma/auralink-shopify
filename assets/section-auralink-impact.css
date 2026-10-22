@@ -17,6 +17,10 @@
   visibility: inherit;
 }
 
+.auralink-impact-motion-surface {
+  display: none;
+}
+
 .auralink-impact-container {
   max-width: var(--page-width, 1408px);
   margin-left: auto;
@@ -284,13 +288,26 @@ max-width: 200px;
     min-height: 100svh;
     display: flex;
     align-items: center;
-    background: var(--impact-scene-bg, #FFFFFF);
+    background: #FFFFFF;
+    isolation: isolate;
     box-shadow: none;
   }
 
   .is-impact-sequenced .auralink-impact-container {
     position: relative;
+    z-index: 1;
     width: 100%;
+  }
+
+  .is-impact-sequenced > .auralink-impact-motion-surface,
+  .is-impact-sequenced > .auralink-impact-motion-surface:empty {
+    /* Decorative empty divs must override the global div:empty display rule. */
+    display: block;
+    position: absolute;
+    inset: 0 auto auto 0;
+    z-index: 0;
+    background: #F5F3F0;
+    pointer-events: none;
   }
 
   .is-impact-sequenced .auralink-impact-card {

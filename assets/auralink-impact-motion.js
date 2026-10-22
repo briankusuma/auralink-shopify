@@ -29,6 +29,7 @@
       if (wrapper._impactMotionDestroy || (window.Shopify && window.Shopify.designMode)) return;
       const media = window.matchMedia('(min-width: 1100px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)');
       let context = null;
+      let surface = null;
       let pending = false;
       let destroyed = false;
       let textReveals = [];
@@ -37,6 +38,8 @@
       function reset() {
         if (context) context.revert();
         context = null;
+        if (surface) surface.removeAttribute('style');
+        surface = null;
         textReveals.forEach(function (reveal) { reveal.destroy(); });
         textReveals = [];
         counters.forEach(function (counter) { counter.el.textContent = counter.original; });
@@ -68,6 +71,9 @@
             const gsap = window.gsap;
             gsap.registerPlugin(window.ScrollTrigger);
             wrapper.classList.add('is-impact-sequenced');
+            surface = wrapper.querySelector('[data-impact-surface]');
+            if (!surface) { wrapper.classList.remove('is-impact-sequenced'); return; }
+            Object.assign(surface.style, { display: 'block', position: 'absolute', top: '0px', left: '0px', background: '#F5F3F0', pointerEvents: 'none' });
             const section = wrapper.closest('.shopify-section') || wrapper;
             let positions;
 
@@ -84,7 +90,10 @@
             function measure() {
               const authorOffset = layoutOffset(author);
               const rowOffset = layoutOffset(row);
+              const cardOffset = layoutOffset(card);
               positions = {
+                panelX: cardOffset.x, panelY: cardOffset.y,
+                panelWidth: card.offsetWidth, panelHeight: card.offsetHeight,
                 authorX: wrapper.clientWidth / 2 - authorOffset.x - author.offsetWidth / 2,
                 rowY: wrapper.clientHeight / 2 - rowOffset.y - row.offsetHeight / 2,
                 boxXs: Array.from(boxes).map(function (box) { return Math.max(0, (box.parentElement.offsetWidth - box.offsetWidth) / 2); })
@@ -113,7 +122,8 @@
               timeline.set(row, { y: function () { return positions.rowY; }, immediateRender: true, lazy: false }, 0);
               timeline.set(boxes, { x: function (index) { return positions.boxXs[index]; }, immediateRender: true, lazy: false }, 0);
               gsap.set(card, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
-              gsap.set(wrapper, { '--impact-scene-bg': '#FFFFFF' });
+              gsap.set(wrapper, { backgroundColor: '#FFFFFF' });
+              gsap.set(surface, { autoAlpha: 1, x: 0, y: 0, width: wrapper.clientWidth, height: wrapper.clientHeight, borderRadius: 0 });
               if (quote) gsap.set(quote, { autoAlpha: 0, y: 16 });
               if (quoteDivider) gsap.set(quoteDivider, { autoAlpha: 0, scaleY: 0, transformOrigin: 'center' });
               if (divider) gsap.set(divider, { autoAlpha: 0, scaleX: 0, transformOrigin: 'left' });
@@ -132,7 +142,6 @@
                 onComplete: function () { introDone = true; releaseTween.play(0); }
               });
               intro.set(author, { x: function () { return positions.authorX; }, immediateRender: true, lazy: false }, 0);
-              intro.to(wrapper, { '--impact-scene-bg': '#F5F3F0', duration: 0.45 }, 0.25);
               intro.to(author, { x: 0, duration: 1.35, lazy: false }, 0.25);
               // The photo settles before either divider or quote starts.
               if (quoteDivider) intro.to(quoteDivider, { autoAlpha: 1, scaleY: 1, duration: 0.55 }, 1.72);
@@ -147,11 +156,16 @@
               const completeAt = tileStart + Math.max(1.2, 0.8 + Math.max(0, tiles.length - 1) * 0.04);
               timeline.addLabel('quote', 0);
               timeline.to(row, { y: 0, duration: 1, lazy: false }, 2.2);
-              // Reveal the white surround only once every icon has landed.
-              timeline.set(wrapper, { '--impact-scene-bg': '#FFFFFF' }, iconsDone);
+              // One cream overlay contracts onto the panel; the section stays white.
+              timeline.fromTo(surface, {
+                x: 0, y: 0, width: function () { return wrapper.clientWidth; }, height: function () { return wrapper.clientHeight; }, borderRadius: 0
+              }, {
+                x: function () { return positions.panelX; }, y: function () { return positions.panelY; },
+                width: function () { return positions.panelWidth; }, height: function () { return positions.panelHeight; },
+                borderRadius: 32, duration: 1.3, immediateRender: false, lazy: false
+              }, panelStart);
               timeline.to(metrics, { autoAlpha: 1, y: 0, stagger: metricStagger, duration: 0.9 }, metricStart);
               timeline.addLabel('metrics', iconsDone);
-              timeline.to(card, { backgroundColor: '#F5F3F0', borderRadius: 32, duration: 0.8 }, panelStart);
               if (divider) timeline.to(divider, { autoAlpha: 1, scaleX: 1, duration: 0.6 }, panelStart);
               timeline.addLabel('panel', logoPanelStart);
               timeline.to(logos, { autoAlpha: 1, y: 0, backgroundColor: '#F5F3F0', duration: 0.75 }, logoPanelStart);
