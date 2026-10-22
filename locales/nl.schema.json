@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animaties",
       "settings": {
+        "text_animation": {
+          "label": "Tekstanimatie",
+          "info": "Kies tussen vloeiend verschijnende tekst tijdens het scrollen of gewone tekst zonder animatie.",
+          "options__1": {
+            "label": "Geanimeerd (vloeiend verschijnen)"
+          },
+          "options__2": {
+            "label": "Gewoon (zonder animatie)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Secties laten zien bij scrollen"
         },

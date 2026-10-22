@@ -57,6 +57,13 @@
             aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
             {{ block.shopify_attributes }}
           >
+            {%- liquid
+              assign slide_asset = ''
+              case block.settings.default_asset_image
+                when 'slider-product-1.png', 'slider-product-2.png', 'slider-product-3.png'
+                  assign slide_asset = block.settings.default_asset_image
+              endcase
+            -%}
             <div class="auralink-slider__media">
               {%- if slide_img != blank -%}
                 {{
@@ -69,9 +76,9 @@
                     class: 'auralink-slider__image',
                     alt: slide_title | escape
                 }}
-              {%- elsif block.settings.default_asset_image != blank -%}
+              {%- elsif slide_asset != blank -%}
                 <img
-                  src="{{ block.settings.default_asset_image | asset_url }}"
+                  src="{{ slide_asset | asset_url }}"
                   alt="{{ slide_title | escape }}"
                   class="auralink-slider__image"
                   loading="lazy"
@@ -215,9 +222,27 @@
           "label": "Custom image"
         },
         {
-          "type": "text",
+          "type": "select",
           "id": "default_asset_image",
-          "label": "Theme asset image (fallback)",
+          "label": "Theme image",
+          "options": [
+            {
+              "value": "none",
+              "label": "Automatic"
+            },
+            {
+              "value": "slider-product-1.png",
+              "label": "Lumi Glow"
+            },
+            {
+              "value": "slider-product-2.png",
+              "label": "Control Hub"
+            },
+            {
+              "value": "slider-product-3.png",
+              "label": "Smart device"
+            }
+          ],
           "default": "slider-product-1.png"
         },
         {

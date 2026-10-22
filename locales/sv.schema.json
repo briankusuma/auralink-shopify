@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animeringar",
       "settings": {
+        "text_animation": {
+          "label": "Textanimering",
+          "info": "Välj mellan text som visas med en flytande effekt vid rullning eller vanlig text utan animering.",
+          "options__1": {
+            "label": "Animerad (flytande visning)"
+          },
+          "options__2": {
+            "label": "Vanlig (utan animering)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Visa avsnitt under bläddring"
         },

@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animasjoner",
       "settings": {
+        "text_animation": {
+          "label": "Tekstanimasjon",
+          "info": "Velg mellom flytende tekstvisning ved rulling eller vanlig tekst uten animasjon.",
+          "options__1": {
+            "label": "Animert (flytende tekstvisning)"
+          },
+          "options__2": {
+            "label": "Vanlig (uten animasjon)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Vis melding ved rulling"
         },

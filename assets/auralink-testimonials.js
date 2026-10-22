@@ -152,15 +152,17 @@ if (!customElements.get('auralink-testimonials')) {
     }
 
     next() {
+      if (this.slides.length < 2) return;
       this.goTo((this.currentIndex + 1) % this.slides.length);
     }
 
     prev() {
+      if (this.slides.length < 2) return;
       this.goTo((this.currentIndex - 1 + this.slides.length) % this.slides.length);
     }
 
     goTo(index) {
-      if (index === this.currentIndex || index < 0 || index >= this.slides.length) return;
+      if (!Number.isInteger(index) || index === this.currentIndex || index < 0 || index >= this.slides.length) return;
       this.currentIndex = index;
 
       this.slides.forEach((slide, idx) => {

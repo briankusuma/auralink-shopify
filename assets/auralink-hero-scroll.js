@@ -5,10 +5,19 @@
   window.auralinkHeroScrollLoaded = true;
 
   function init(scope) {
-    if (!window.gsap || !window.ScrollTrigger || (window.Shopify && window.Shopify.designMode)) {
-      scope.querySelectorAll('.has-scroll-framing').forEach(function (wrapper) {
-        wrapper.classList.remove('has-scroll-framing');
-      });
+    const wrappers = scope.querySelectorAll('.auralink-hero-wrapper');
+    if (window.Shopify && window.Shopify.designMode) {
+      wrappers.forEach((wrapper) => wrapper.classList.remove('has-scroll-framing'));
+      return;
+    }
+    if (!window.gsap || !window.ScrollTrigger) {
+      const wrapper = Array.from(wrappers).find((item) => item.isConnected);
+      const service = window.AuraLinkSectionLayout;
+      if (!wrapper || !service) return;
+      service.load(wrapper.dataset.gsapUrl, () => Boolean(window.gsap))
+        .then(() => service.load(wrapper.dataset.scrolltriggerUrl, () => Boolean(window.ScrollTrigger)))
+        .then(() => { if (scope === document || scope.isConnected) init(scope); })
+        .catch(() => wrappers.forEach((item) => item.classList.remove('has-scroll-framing')));
       return;
     }
     const gsap = window.gsap;
@@ -27,8 +36,16 @@
 
       match.add('(min-width: 990px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)', function () {
         let timeline = null;
-        const header = document.querySelector('.header-wrapper--overlay');
-        let docked = Boolean(window.auralinkRadioDocked);
+        let header = null;
+        function syncHeader(progress) {
+          const first = document.querySelector('#MainContent > .shopify-section');
+          if (first !== section) return;
+          header = document.querySelector('.header-wrapper--overlay');
+          if (!header) return;
+          header.classList.add('hero-scroll-header');
+          header.style.setProperty('--hero-header-opacity', progress);
+        }
+        let docked = radio.dataset.radioDocked === 'true';
         let dimensions;
         const originalMinHeight = section.style.minHeight;
 
@@ -67,10 +84,7 @@
           '--hero-frame-radius': '0px'
         });
 
-        if (header) {
-          header.classList.add('hero-scroll-header');
-          gsap.set(header, { '--hero-header-opacity': 0 });
-        }
+        syncHeader(0);
 
         function startScroll() {
           if (timeline || !docked || container.dataset.heroRevealComplete !== 'true') return;
@@ -84,7 +98,8 @@
               pinSpacing: true,
               scrub: window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? true : 0.35,
               invalidateOnRefresh: true,
-              onRefreshInit: measure
+              onRefreshInit: measure,
+              onUpdate: function (self) { syncHeader(self.progress); }
             }
           });
           // Inset the clip instead of animating width/height/padding. This keeps
@@ -104,34 +119,34 @@
             duration: 1,
             ease: 'none'
           });
-          if (header) {
-            timeline.fromTo(header, { '--hero-header-opacity': 0 }, {
-              '--hero-header-opacity': 1,
-              duration: 1,
-              ease: 'none'
-            }, 0);
-          }
+          if (window.AuraLinkSectionLayout) window.AuraLinkSectionLayout.refresh();
         }
 
         function onDocked() {
           docked = true;
           startScroll();
         }
-        document.addEventListener('auralink:radio:docked', onDocked);
+        radio.addEventListener('auralink:radio:docked', onDocked);
         const revealObserver = new MutationObserver(startScroll);
         revealObserver.observe(container, { attributes: true, attributeFilter: ['data-hero-reveal-complete'] });
         startScroll();
 
+        function onLayout() { syncHeader(timeline ? timeline.progress() : 0); }
+        window.addEventListener('auralink:layout', onLayout);
         return function () {
+          window.removeEventListener('auralink:layout', onLayout);
           revealObserver.disconnect();
-          document.removeEventListener('auralink:radio:docked', onDocked);
+          radio.removeEventListener('auralink:radio:docked', onDocked);
           if (timeline) {
             timeline.scrollTrigger.kill();
             timeline.revert();
           }
           wrapper.classList.remove('has-scroll-framing');
           section.style.minHeight = originalMinHeight;
-          if (header) header.classList.remove('hero-scroll-header');
+          if (header && document.querySelector('#MainContent > .shopify-section') === section) {
+            header.classList.remove('hero-scroll-header');
+            header.style.removeProperty('--hero-header-opacity');
+          }
         };
       });
       wrapper._heroScrollDestroy = function () {

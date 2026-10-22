@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animationen",
       "settings": {
+        "text_animation": {
+          "label": "Textanimation",
+          "info": "Wählen Sie zwischen fließend eingeblendetem Text beim Scrollen und einfachem Text ohne Animation.",
+          "options__1": {
+            "label": "Animiert (fließendes Einblenden)"
+          },
+          "options__2": {
+            "label": "Einfach (ohne Animation)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Beim Scrollen Abschnitte einblenden"
         },

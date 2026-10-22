@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animace",
       "settings": {
+        "text_animation": {
+          "label": "Animace textu",
+          "info": "Vyberte animované odhalování textu při posouvání nebo prostý text bez animace.",
+          "options__1": {
+            "label": "Animovaný text (tekuté odhalení)"
+          },
+          "options__2": {
+            "label": "Prostý text (bez animace)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Zobrazit sekce při skrolování"
         },

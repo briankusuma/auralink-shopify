@@ -353,6 +353,16 @@
     "animations": {
       "name": "アニメーション",
       "settings": {
+        "text_animation": {
+          "label": "テキストアニメーション",
+          "info": "スクロール時にテキストが滑らかに現れるアニメーション、またはアニメーションなしの通常表示を選択します。",
+          "options__1": {
+            "label": "アニメーションあり（滑らかに表示）"
+          },
+          "options__2": {
+            "label": "通常表示（アニメーションなし）"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "スクロールでセクションを表示する"
         },

@@ -25,6 +25,8 @@
 
 (function () {
   'use strict';
+  if (window.auralinkHeroRevealLoaded) return;
+  window.auralinkHeroRevealLoaded = true;
 
   // Exact cubic-bezier(0.25, 1, 0.5, 1) solver (matches bleibtgleich.dev easeOut)
   function createBezier(x1, y1, x2, y2) {
@@ -188,6 +190,7 @@
       let startTime = null;
 
       function renderFrame(now) {
+        if (!lineEl.isConnected) return;
         if (!startTime) startTime = now;
         const elapsed = now - startTime;
 
@@ -330,6 +333,7 @@
       let startTime = null;
 
       function renderFrame(now) {
+        if (!el.isConnected) return;
         if (!startTime) startTime = now;
         const elapsed = now - startTime;
 
@@ -375,7 +379,8 @@
 
   // Split text into line elements (preserving words & <br>)
   function splitTextLines(el) {
-    if (!el || el.dataset.splitDone === 'true') {
+    if (!el) return [];
+    if (el.dataset.splitDone === 'true') {
       return Array.from(el.querySelectorAll('.split-line-h1, .split-line'));
     }
     el.dataset.splitDone = 'true';
@@ -428,7 +433,7 @@
   // - Base static text is 100% visible & unmasked by default (never disappears).
   // =========================================================================
   function setupSeamlessLiquidRipple(leadEl, titleEl, subtitleEl) {
-    if (!leadEl || leadEl.dataset.seamlessLiquidInit === 'true') return null;
+    if (!leadEl || !titleEl || leadEl.dataset.seamlessLiquidInit === 'true') return null;
     leadEl.dataset.seamlessLiquidInit = 'true';
 
     getGooDefsSvg(); // Ensure SVG filters exist in DOM
@@ -640,23 +645,61 @@
     leadEl.addEventListener('pointermove', onPointerMove);
     leadEl.addEventListener('pointerleave', onPointerLeave);
 
+    syncOverlayContent.destroy = function () {
+      cancelAnimationFrame(rafId);
+      leadEl.removeEventListener('pointerenter', onPointerEnter);
+      leadEl.removeEventListener('pointermove', onPointerMove);
+      leadEl.removeEventListener('pointerleave', onPointerLeave);
+      overlayEl.remove();
+      delete leadEl.dataset.seamlessLiquidInit;
+    };
     return syncOverlayContent;
   }
 
   // =========================================================================
   // Master Hero Section Orchestration
   // =========================================================================
-  function initHeroGooeySection() {
-    const heroContainers = document.querySelectorAll('.auralink-hero-container');
+  function initHeroGooeySection(scope) {
+    scope = scope && scope.querySelectorAll ? scope : document;
+    const heroContainers = scope.querySelectorAll('.auralink-hero-container');
     if (!heroContainers.length) return;
 
     heroContainers.forEach(function (container) {
       if (container.dataset.bleibtGooInitialized === 'true') return;
       container.dataset.bleibtGooInitialized = 'true';
+      const events = new AbortController();
+      const signal = events.signal;
+      const timers = new Set();
+      let observer;
+      let syncOverlay = null;
+      const radio = container.querySelector('[data-auralink-radio-3d]');
+      function delay(callback, ms) {
+        const id = setTimeout(function () {
+          timers.delete(id);
+          if (container.isConnected && !signal.aborted) callback();
+        }, ms);
+        timers.add(id);
+      }
+      container._heroRevealDestroy = function () {
+        events.abort();
+        timers.forEach(clearTimeout);
+        if (observer) observer.disconnect();
+        if (syncOverlay && syncOverlay.destroy) syncOverlay.destroy();
+        container.querySelectorAll('[data-filter-id]').forEach(function (el) {
+          const filter = document.getElementById(el.dataset.filterId);
+          if (filter) filter.remove();
+        });
+        delete container._heroRevealDestroy;
+        delete container.dataset.bleibtGooInitialized;
+      };
+      function ownsHeader() {
+        const first = document.querySelector('#MainContent > .shopify-section');
+        return first && first.contains(container);
+      }
 
       function revealHeader() {
         const header = document.querySelector('.header-wrapper--overlay');
-        if (header) header.classList.add('header--visible');
+        if (header && ownsHeader()) header.classList.add('header--visible');
       }
       const leadEl = container.querySelector('.auralink-hero-lead');
       const titleEl = container.querySelector('.auralink-hero-title[data-reveal="text"]');
@@ -672,7 +715,7 @@
           (window.AuraLinkSettings.textAnimation === 'plain' ||
             window.AuraLinkSettings.animationsRevealOnScroll === false));
 
-      if (prefersReducedMotion || isPlainMode) {
+      if (prefersReducedMotion || isPlainMode || (window.Shopify && window.Shopify.designMode)) {
         revealHeader();
         container.dataset.heroRevealComplete = 'true';
         container.querySelectorAll('[data-reveal]').forEach(function (el) {
@@ -696,7 +739,6 @@
       });
 
       // Initialize seamless feathered radial falloff mask ripple on cursor hover
-      let syncOverlay = null;
       if (leadEl) {
         syncOverlay = setupSeamlessLiquidRipple(leadEl, titleEl, subtitleEl);
       }
@@ -728,44 +770,48 @@
       }
 
       function showHeaderAndRevealHero() {
-        const headerOverlay = document.querySelector('.header-wrapper--overlay');
-        if (headerOverlay) {
-          headerOverlay.classList.add('header--visible');
-        }
+        revealHeader();
         const heroMedia = container.querySelector('.auralink-hero-media');
         if (heroMedia) {
           heroMedia.classList.remove('is-intro-center');
           heroMedia.classList.add('is-docked');
         }
-        setTimeout(triggerHeroReveal, 160);
+        delay(triggerHeroReveal, 160);
       }
 
       // Check if 3D Radio is present on page and has cinematic intro active
-      const hasRadio3D = Boolean(document.querySelector('[data-auralink-radio-3d]'));
+      const hasRadio3D = Boolean(radio);
       const prefersReduced = Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
       const isDesignMode = Boolean(window.Shopify && window.Shopify.designMode);
 
-      if (hasRadio3D && !window.auralinkRadioDocked && !prefersReduced && !isDesignMode) {
-        document.addEventListener('auralink:radio:standing', revealHeader, { once: true });
+      if (hasRadio3D && radio.dataset.radioDocked !== 'true' && !prefersReduced && !isDesignMode) {
+        radio.addEventListener('auralink:radio:standing', revealHeader, { once: true, signal });
         if (container.querySelector('[data-radio-standing="true"]')) revealHeader();
         const onRadioGlide = function () {
           revealHeader();
           triggerHeroReveal();
         };
-        document.addEventListener('auralink:radio:glide', onRadioGlide, { once: true });
+        radio.addEventListener('auralink:radio:glide', onRadioGlide, { once: true, signal });
 
         const onRadioDocked = function () {
-          document.removeEventListener('auralink:radio:docked', onRadioDocked);
+          radio.removeEventListener('auralink:radio:docked', onRadioDocked);
           showHeaderAndRevealHero();
         };
-        document.addEventListener('auralink:radio:docked', onRadioDocked);
+        radio.addEventListener('auralink:radio:docked', onRadioDocked, { signal });
 
-        // Safety fallback timeout: never block content if 3D scene takes too long
-        setTimeout(function () {
-          if (!revealTriggered) {
-            showHeaderAndRevealHero();
-          }
-        }, 10000);
+        // Start the failure deadline when this hero enters view, not while a
+        // duplicated/lower hero is still waiting offscreen for its own radio.
+        function armFallback() {
+          delay(function () { if (!revealTriggered) showHeaderAndRevealHero(); }, 10000);
+        }
+        if ('IntersectionObserver' in window) {
+          observer = new IntersectionObserver(function (entries) {
+            if (!entries[0].isIntersecting) return;
+            observer.disconnect();
+            armFallback();
+          }, { threshold: 0.01 });
+          observer.observe(container);
+        } else armFallback();
       } else {
         // Sync with theme loading screen if present
         const loadingScreen = document.getElementById('AuraLoadingScreen');
@@ -778,17 +824,17 @@
         if (isLoadingActive) {
           const onLoadingDone = function () {
             document.removeEventListener('auralink:loading:done', onLoadingDone);
-            setTimeout(showHeaderAndRevealHero, 80);
+            delay(showHeaderAndRevealHero, 80);
           };
-          document.addEventListener('auralink:loading:done', onLoadingDone);
+          document.addEventListener('auralink:loading:done', onLoadingDone, { signal });
 
           // Fallback safety timeout
-          setTimeout(function () {
+          delay(function () {
             if (!revealTriggered) showHeaderAndRevealHero();
           }, 3200);
         } else {
           if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver(
+            observer = new IntersectionObserver(
               function (entries) {
                 if (entries[0].isIntersecting) {
                   observer.disconnect();
@@ -803,13 +849,6 @@
           }
         }
       }
-
-      // Absolute guarantee: never leave text or header hidden under any circumstance
-      setTimeout(function () {
-        if (!revealTriggered) {
-          showHeaderAndRevealHero();
-        }
-      }, 11000);
     });
   }
 
@@ -819,12 +858,10 @@
     initHeroGooeySection();
   }
 
-  // Shopify Theme Editor design mode support
-  if (window.Shopify && window.Shopify.designMode) {
-    document.addEventListener('shopify:section:load', function (e) {
-      if (e.target.classList.contains('section-auralink-hero')) {
-        initHeroGooeySection();
-      }
+  document.addEventListener('shopify:section:load', function (event) { initHeroGooeySection(event.target); });
+  document.addEventListener('shopify:section:unload', function (event) {
+    event.target.querySelectorAll('.auralink-hero-container').forEach(function (container) {
+      if (container._heroRevealDestroy) container._heroRevealDestroy();
     });
-  }
+  });
 })();

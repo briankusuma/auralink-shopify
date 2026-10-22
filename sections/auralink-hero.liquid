@@ -1,7 +1,5 @@
 {{ 'section-auralink-hero.css' | asset_url | stylesheet_tag }}
 {%- if section.settings.enable_3d_device -%}
-  <script src="{{ 'gsap.js' | asset_url }}" defer="defer"></script>
-  <script src="{{ 'ScrollTrigger.js' | asset_url }}" defer="defer"></script>
   <script src="{{ 'auralink-hero-scroll.js' | asset_url }}" defer="defer"></script>
 {%- endif -%}
 <script src="{{ 'section-auralink-hero.js' | asset_url }}" defer="defer"></script>
@@ -23,7 +21,9 @@
   }
 {%- endstyle -%}
 
-<div class="auralink-hero-wrapper section-{{ section.id }}-padding{% if section.settings.enable_3d_device %} has-scroll-framing{% endif %}">
+<div class="auralink-hero-wrapper section-{{ section.id }}-padding{% if section.settings.enable_3d_device %} has-scroll-framing{% endif %}"
+  data-gsap-url="{{ 'gsap.js' | asset_url }}"
+  data-scrolltrigger-url="{{ 'ScrollTrigger.js' | asset_url }}">
   <div 
     id="AuraLinkHero-{{ section.id }}" 
     class="auralink-hero-container color-{{ section.settings.color_scheme }} gradient"

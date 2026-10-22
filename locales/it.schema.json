@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animazioni",
       "settings": {
+        "text_animation": {
+          "label": "Animazione del testo",
+          "info": "Scegli tra una comparsa fluida del testo durante lo scorrimento o testo semplice senza animazione.",
+          "options__1": {
+            "label": "Animato (comparsa fluida)"
+          },
+          "options__2": {
+            "label": "Semplice (senza animazione)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Mostra sezioni durante lo scorrimento"
         },

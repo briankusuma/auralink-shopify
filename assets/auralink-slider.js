@@ -140,6 +140,10 @@ if (!customElements.get('auralink-slider')) {
           this.entranceLastTime = null;
           schedule();
         }, { passive: true, signal });
+        window.addEventListener('auralink:layout', () => {
+          this.clearEntranceEffects();
+          schedule();
+        }, { signal });
         schedule();
       } catch (error) {
         this.resetEntrance();
@@ -347,7 +351,7 @@ if (!customElements.get('auralink-slider')) {
     }
 
     goTo(index) {
-      if (this.entrancePending || index === this.currentIndex || index < 0 || index >= this.slides.length) return;
+      if (!Number.isInteger(index) || this.entrancePending || index === this.currentIndex || index < 0 || index >= this.slides.length) return;
       const direction = index > this.currentIndex ? 1 : -1;
       this.currentIndex = index;
       this.updateSlots(direction);

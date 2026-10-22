@@ -353,6 +353,16 @@
     "animations": {
       "name": "動畫",
       "settings": {
+        "text_animation": {
+          "label": "文字動畫",
+          "info": "選擇捲動時以流動效果呈現文字，或顯示無動畫的一般文字。",
+          "options__1": {
+            "label": "動畫（流動呈現）"
+          },
+          "options__2": {
+            "label": "一般（無動畫）"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "捲動時顯示區段"
         },

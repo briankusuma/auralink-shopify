@@ -6,6 +6,7 @@
   const libraryLoads = new Map();
 
   function loadLibrary(url, ready) {
+    if (window.AuraLinkSectionLayout) return window.AuraLinkSectionLayout.load(url, ready);
     if (ready()) return Promise.resolve();
     const absoluteUrl = new URL(url, window.location.href).href;
     if (libraryLoads.has(absoluteUrl)) return libraryLoads.get(absoluteUrl);
@@ -120,17 +121,17 @@
                 defaults: { ease: 'power2.inOut' }
               });
               timeline.set(row, { y: function () { return positions.rowY; }, immediateRender: true, lazy: false }, 0);
-              timeline.set(boxes, { x: function (index) { return positions.boxXs[index]; }, immediateRender: true, lazy: false }, 0);
+              if (boxes.length) timeline.set(boxes, { x: function (index) { return positions.boxXs[index]; }, immediateRender: true, lazy: false }, 0);
               gsap.set(card, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
               gsap.set(wrapper, { backgroundColor: '#FFFFFF' });
               gsap.set(surface, { autoAlpha: 1, x: 0, y: 0, width: wrapper.clientWidth, height: wrapper.clientHeight, borderRadius: 0 });
               if (quote) gsap.set(quote, { autoAlpha: 0, y: 16 });
               if (quoteDivider) gsap.set(quoteDivider, { autoAlpha: 0, scaleY: 0, transformOrigin: 'center' });
               if (divider) gsap.set(divider, { autoAlpha: 0, scaleX: 0, transformOrigin: 'left' });
-              gsap.set(metrics, { autoAlpha: 0, y: -72 });
-              gsap.set(contents, { autoAlpha: 0, y: 12 });
+              if (metrics.length) gsap.set(metrics, { autoAlpha: 0, y: -72 });
+              if (contents.length) gsap.set(contents, { autoAlpha: 0, y: 12 });
               gsap.set(logos, { autoAlpha: 0, y: 20, backgroundColor: 'rgba(245,243,240,0)', borderRadius: 24 });
-              gsap.set(tiles, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
+              if (tiles.length) gsap.set(tiles, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
               function applyScroll() {
                 if (introDone) timeline.progress(playhead.progress * release.progress);
               }
@@ -164,16 +165,16 @@
                 width: function () { return positions.panelWidth; }, height: function () { return positions.panelHeight; },
                 borderRadius: 32, duration: 1.3, immediateRender: false, lazy: false
               }, panelStart);
-              timeline.to(metrics, { autoAlpha: 1, y: 0, stagger: metricStagger, duration: 0.9 }, metricStart);
+              if (metrics.length) timeline.to(metrics, { autoAlpha: 1, y: 0, stagger: metricStagger, duration: 0.9 }, metricStart);
               timeline.addLabel('metrics', iconsDone);
               if (divider) timeline.to(divider, { autoAlpha: 1, scaleX: 1, duration: 0.6 }, panelStart);
               timeline.addLabel('panel', logoPanelStart);
               timeline.to(logos, { autoAlpha: 1, y: 0, backgroundColor: '#F5F3F0', duration: 0.75 }, logoPanelStart);
               timeline.addLabel('logoPanel', textStart - 0.01);
               timeline.addLabel('metricText', textStart);
-              timeline.to(boxes, { x: 0, duration: 0.7 }, textStart);
-              timeline.to(contents, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.8 }, textStart);
-              timeline.to(tiles, { backgroundColor: '#F5F3F0', borderRadius: 24, stagger: 0.04, duration: 0.8 }, tileStart);
+              if (boxes.length) timeline.to(boxes, { x: 0, duration: 0.7 }, textStart);
+              if (contents.length) timeline.to(contents, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.8 }, textStart);
+              if (tiles.length) timeline.to(tiles, { backgroundColor: '#F5F3F0', borderRadius: 24, stagger: 0.04, duration: 0.8 }, tileStart);
               timeline.to(logos, { backgroundColor: 'rgba(245,243,240,0)', duration: 0.8 }, tileStart + 0.4);
               timeline.addLabel('complete', completeAt);
               timeline.to({}, { duration: 0.4 }, completeAt);
@@ -231,7 +232,6 @@
                   scrub: window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? true : 0.65,
                   // The driver has fixed endpoints. Invalidating it would capture
                   // its current progress as a new start and prevent a full rewind.
-                  refreshPriority: -2,
                   onEnter: startIntro,
                   onEnterBack: startIntro,
                   onLeaveBack: reverseIntro,

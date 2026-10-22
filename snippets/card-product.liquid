@@ -600,20 +600,16 @@
   {%- liquid
     assign fallback_placeholder_idx = placeholder_index | default: 1 | minus: 1 | modulo: 6 | plus: 1
     assign fallback_placeholder_name = 'product-img-' | append: fallback_placeholder_idx | append: '.png'
+    assign fallback_prices = '$129.00|$49.00|$189.00|$219.00|$79.00|$59.00' | split: '|'
+    assign fallback_titles = 'AuraLink Core Controller|Smart Power Adapter Hub|AuraLink Ambient Sound Radio|Smart Console & Thermostat Hub|Dual Wireless Charging Stand|Smart Inductive Charging Pad' | split: '|'
+    assign fallback_badges = 'Controller|Power Hub|Smart Audio|Climate|Wireless Dock|Charging Pad' | split: '|'
+    assign fallback_placeholder_offset = fallback_placeholder_idx | minus: 1
   -%}
   <div class="card-wrapper product-card-wrapper underline-links-hover">
     <div class="card card--card">
       <div class="card__inner ratio" style="--ratio-percent: 85%;">
         <span class="auralink-card__badge">
-          {%- case fallback_placeholder_idx -%}
-            {%- when 1 -%}Controller
-            {%- when 2 -%}Power Hub
-            {%- when 3 -%}Smart Audio
-            {%- when 4 -%}Climate
-            {%- when 5 -%}Wireless Dock
-            {%- when 6 -%}Charging Pad
-            {%- else -%}AuraLink
-          {%- endcase -%}
+          {{- fallback_badges[fallback_placeholder_offset] | default: 'AuraLink' -}}
         </span>
         <div class="card__media">
           <div class="media media--transparent">
@@ -633,28 +629,12 @@
           <span class="auralink-card__vendor">AuraLink Ecosystem</span>
           <h3 class="card__heading text-card">
             <a role="link" aria-disabled="true" class="full-unstyled-link">
-              {%- case fallback_placeholder_idx -%}
-                {%- when 1 -%}AuraLink Core Controller
-                {%- when 2 -%}Smart Power Adapter Hub
-                {%- when 3 -%}AuraLink Ambient Sound Radio
-                {%- when 4 -%}Smart Console & Thermostat Hub
-                {%- when 5 -%}Dual Wireless Charging Stand
-                {%- when 6 -%}Smart Inductive Charging Pad
-                {%- else -%}AuraLink Smart Device
-              {%- endcase -%}
+              {{- fallback_titles[fallback_placeholder_offset] | default: 'AuraLink Smart Device' -}}
             </a>
           </h3>
           <div class="auralink-card__bottom-row">
             <span class="auralink-card__price">
-              {%- case fallback_placeholder_idx -%}
-                {%- when 1 -%}$129.00
-                {%- when 2 -%}$49.00
-                {%- when 3 -%}$189.00
-                {%- when 4 -%}$219.00
-                {%- when 5 -%}$79.00
-                {%- when 6 -%}$59.00
-                {%- else -%}$99.00
-              {%- endcase -%}
+              {{- fallback_prices[fallback_placeholder_offset] | default: '$99.00' -}}
             </span>
             <span class="auralink-card__action-btn" aria-hidden="true">
               {% render 'icon-arrow-top-right' %}

@@ -32145,6 +32145,9 @@ function initRadio3D(rootEl) {
   } catch (e) {
     return null;
   }
+  let destroyed = false;
+  const lifecycle = new AbortController();
+  let introTimer = null;
   let animId = null;
   let isVisible = true;
   const scene = new Scene();
@@ -32182,6 +32185,7 @@ function initRadio3D(rootEl) {
   const skipIntro = Boolean(prefersReduced || isDesignMode || urlParams && urlParams.get("skipIntro") === "true");
   let introActive = !skipIntro;
   let isIntroStarted = false;
+  let introReady = skipIntro;
   let introStartTime = null;
   let hasPoweredOn = skipIntro;
   let hasStartedGlide = skipIntro;
@@ -32230,8 +32234,8 @@ function initRadio3D(rootEl) {
     controls.target.copy(DEFAULT_TARGET);
     controls.enabled = true;
     if (typeof window !== "undefined") {
-      window.auralinkRadioDocked = true;
-      document.dispatchEvent(new CustomEvent("auralink:radio:docked"));
+      rootEl.dataset.radioDocked = "true";
+      rootEl.dispatchEvent(new CustomEvent("auralink:radio:docked", { bubbles: true }));
     }
   } else {
     controls.target.copy(TAR_P1);
@@ -33199,7 +33203,9 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   updateVolumeUI();
   knobRotatable.rotation.z = state.knobAngle;
   function startIntroTimeline() {
-    if (isIntroStarted || skipIntro) return;
+    if (destroyed || isIntroStarted || skipIntro || !introReady) return;
+    const rect = rootEl.getBoundingClientRect();
+    if (rect.bottom <= 0 || rect.top >= window.innerHeight) return;
     isIntroStarted = true;
     introStartTime = performance.now();
   }
@@ -33211,11 +33217,13 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     if (isLoadingActive) {
       const onLoadingDone = () => {
         document.removeEventListener("auralink:loading:done", onLoadingDone);
+        introReady = true;
         startIntroTimeline();
       };
-      document.addEventListener("auralink:loading:done", onLoadingDone);
-      setTimeout(startIntroTimeline, 3200);
+      document.addEventListener("auralink:loading:done", onLoadingDone, { signal: lifecycle.signal });
+      introTimer = setTimeout(() => { introReady = true; startIntroTimeline(); }, 3200);
     } else {
+      introReady = true;
       startIntroTimeline();
     }
   }
@@ -33244,7 +33252,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
       if (tSec >= 0.65 && !hasStartedStanding) {
         hasStartedStanding = true;
         rootEl.dataset.radioStanding = "true";
-        document.dispatchEvent(new CustomEvent("auralink:radio:standing"));
+        rootEl.dispatchEvent(new CustomEvent("auralink:radio:standing", { bubbles: true }));
       }
       if (tSec < 0.65) {
         camera.position.copy(CAM_P1);
@@ -33264,7 +33272,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
             heroMedia.classList.add("is-docked");
           }
           if (typeof document !== "undefined") {
-            document.dispatchEvent(new CustomEvent("auralink:radio:glide"));
+            rootEl.dispatchEvent(new CustomEvent("auralink:radio:glide", { bubbles: true }));
           }
         }
         const p = smoothCubic((tSec - 2.6) / 2.6);
@@ -33300,8 +33308,8 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
           }
         }
         if (typeof window !== "undefined") {
-          window.auralinkRadioDocked = true;
-          document.dispatchEvent(new CustomEvent("auralink:radio:docked"));
+          rootEl.dataset.radioDocked = "true";
+          rootEl.dispatchEvent(new CustomEvent("auralink:radio:docked", { bubbles: true }));
         }
       }
     }
@@ -33383,6 +33391,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   const intersectionObserver = new IntersectionObserver((entries) => {
     for (const entry of entries) {
       if (entry.isIntersecting) {
+        startIntroTimeline();
         startLoop();
       } else {
         stopLoop();
@@ -33391,9 +33400,13 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   }, { threshold: 0.01 });
   intersectionObserver.observe(rootEl);
   requestAnimationFrame(() => {
-    rootEl.classList.add("is-ready");
+    if (!destroyed) rootEl.classList.add("is-ready");
   });
   function destroy() {
+    if (destroyed) return;
+    destroyed = true;
+    lifecycle.abort();
+    clearTimeout(introTimer);
     stopLoop();
     renderer.domElement.removeEventListener("wheel", onZoomWheel, { capture: true });
     stopRadioSynth();
@@ -33434,12 +33447,18 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   rootEl._radioDestroy = destroy;
   return destroy;
 }
+function mountRadio(el) {
+  try {
+    el._radioInitialized = Boolean(initRadio3D(el));
+  } catch (error) {
+    el._radioInitialized = false;
+    el.classList.remove("is-ready");
+  }
+}
+window.auralinkRadioModuleLoaded = true;
 function initAllRadios() {
   document.querySelectorAll("[data-auralink-radio-3d]").forEach((el) => {
-    if (!el._radioInitialized) {
-      el._radioInitialized = true;
-      initRadio3D(el);
-    }
+    if (!el._radioInitialized) mountRadio(el);
   });
 }
 if (document.readyState === "loading") {
@@ -33448,18 +33467,19 @@ if (document.readyState === "loading") {
   initAllRadios();
 }
 document.addEventListener("shopify:section:load", (e) => {
-  const el = e.target.querySelector("[data-auralink-radio-3d]");
-  if (el && !el._radioInitialized) {
-    el._radioInitialized = true;
-    initRadio3D(el);
-  }
+  e.target.querySelectorAll("[data-auralink-radio-3d]").forEach((el) => {
+    if (!el._radioInitialized) mountRadio(el);
+  });
 });
 document.addEventListener("shopify:section:unload", (e) => {
-  const el = e.target.querySelector("[data-auralink-radio-3d]");
-  if (el && typeof el._radioDestroy === "function") {
-    el._radioDestroy();
+  e.target.querySelectorAll("[data-auralink-radio-3d]").forEach((el) => {
+    if (typeof el._radioDestroy === "function") el._radioDestroy();
+    delete el._radioDestroy;
     el._radioInitialized = false;
-  }
+    delete el.dataset.radioDocked;
+    delete el.dataset.radioStanding;
+    el.classList.remove("is-ready");
+  });
 });
 export {
   initRadio3D

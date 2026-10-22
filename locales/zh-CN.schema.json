@@ -353,6 +353,16 @@
     "animations": {
       "name": "动画",
       "settings": {
+        "text_animation": {
+          "label": "文字动画",
+          "info": "选择滚动时以流动效果呈现文字，或显示无动画的普通文字。",
+          "options__1": {
+            "label": "动画（流动呈现）"
+          },
+          "options__2": {
+            "label": "普通（无动画）"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "在滚动时显示分区"
         },

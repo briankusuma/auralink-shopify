@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animations",
       "settings": {
+        "text_animation": {
+          "label": "Animation du texte",
+          "info": "Choisissez entre une apparition fluide du texte au défilement et du texte simple sans animation.",
+          "options__1": {
+            "label": "Animé (apparition fluide)"
+          },
+          "options__2": {
+            "label": "Simple (sans animation)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Afficher les sections lors du défilement"
         },

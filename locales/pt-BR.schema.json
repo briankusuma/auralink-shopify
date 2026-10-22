@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animações",
       "settings": {
+        "text_animation": {
+          "label": "Animação do texto",
+          "info": "Escolha entre uma revelação fluida do texto ao rolar a página ou texto simples sem animação.",
+          "options__1": {
+            "label": "Animado (revelação fluida)"
+          },
+          "options__2": {
+            "label": "Simples (sem animação)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Revelar seções durante a rolagem"
         },

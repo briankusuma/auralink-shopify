@@ -9,6 +9,14 @@ let next=0,prev=0;slider.next=()=>next++;slider.prev=()=>prev++;
 slider.handleTouchStart({touches:[{clientX:0,clientY:0}]});slider.handleTouchMove({touches:[{clientX:70,clientY:160}]});slider.handleTouchEnd({});assert.equal(next+prev,0);
 slider.handleTouchStart({touches:[{clientX:120,clientY:0}]});slider.handleTouchMove({touches:[{clientX:0,clientY:10}]});slider.handleTouchEnd({});assert.equal(next,1);
 slider.disconnectedCallback();assert.equal(observers[0].disconnected,true);assert.equal(frames.size,0);
+// Merchant can remove every slide, leave one, or reconnect after reordering.
+for (const count of [0, 1]) {
+ const item=new Slider();const items=Array.from({length:count},()=>Object.assign(new Element(),{offsetHeight:650}));
+ item.querySelector=()=>null;item.querySelectorAll=()=>items;
+ item.connectedCallback();drain();item.next();item.prev();item.goTo(NaN);item.goTo(-1);item.goTo(50);
+ assert.equal(item.currentIndex,0);item.disconnectedCallback();
+ if(count){item.connectedCallback();drain();assert.equal(item.currentIndex,0);item.disconnectedCallback();}
+}
 // Testimonials keep native vertical scrolling and stop offscreen/hidden timers.
 let timerId=0;const timers=new Map();let view;
 window.matchMedia=()=>({matches:false});document.hidden=false;
@@ -22,4 +30,9 @@ touch('touchstart',120,0);touch('touchmove',0,8);touch('touchend',0,8);assert.eq
 view.fn([{isIntersecting:false}]);assert.equal(timers.size,0);view.fn([{isIntersecting:true}]);assert.equal(timers.size,1);
 document.hidden=true;document.dispatchEvent(new Event('visibilitychange'));assert.equal(timers.size,0);document.hidden=false;document.dispatchEvent(new Event('visibilitychange'));assert.equal(timers.size,1);
 testimonials.disconnectedCallback();assert.equal(timers.size,0);assert.equal(view.disconnected,true);const index=testimonials.currentIndex;touch('touchstart',120,0);touch('touchmove',0,0);touch('touchend',0,0);assert.equal(testimonials.currentIndex,index);
+for (const count of [0,1]) {
+ const item=new Testimonials();const items=Array.from({length:count},()=>new Element());
+ item.querySelectorAll=()=>items;item.connectedCallback();item.next();item.prev();item.goTo(NaN);
+ assert.equal(item.currentIndex,0);item.disconnectedCallback();assert.equal(timers.size,0);
+}
 console.log('PASS mobile components: natural 760/980px card heights, desktop reset, vertical-vs-horizontal swipes, inactive-slide focus guards, offscreen/hidden autoplay suspension and disconnect cleanup.');

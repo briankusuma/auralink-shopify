@@ -71,6 +71,13 @@
 
                 <div class="auralink-testimonials__author-row">
                   <div class="auralink-testimonials__author-info">
+                    {%- liquid
+                      assign avatar_asset = ''
+                      case block.settings.default_avatar
+                        when 'testimonial-avatar-1.png', 'testimonial-avatar-2.jpg', 'testimonial-avatar-3.jpg', 'testimonial-avatar-4.jpg'
+                          assign avatar_asset = block.settings.default_avatar
+                      endcase
+                    -%}
                     {%- if avatar_img != blank -%}
                       {{
                         avatar_img
@@ -82,9 +89,9 @@
                           height: 120,
                           alt: block.settings.author_name | escape
                       }}
-                    {%- elsif block.settings.default_avatar != blank -%}
+                    {%- elsif avatar_asset != blank -%}
                       <img
-                        src="{{ block.settings.default_avatar | asset_url }}"
+                        src="{{ avatar_asset | asset_url }}"
                         alt="{{ block.settings.author_name | escape }}"
                         class="auralink-testimonials__avatar"
                         loading="lazy"
@@ -251,9 +258,31 @@
           "label": "Author avatar"
         },
         {
-          "type": "text",
+          "type": "select",
           "id": "default_avatar",
-          "label": "Default avatar asset",
+          "label": "Theme portrait",
+          "options": [
+            {
+              "value": "none",
+              "label": "None"
+            },
+            {
+              "value": "testimonial-avatar-1.png",
+              "label": "Torik"
+            },
+            {
+              "value": "testimonial-avatar-2.jpg",
+              "label": "Elena"
+            },
+            {
+              "value": "testimonial-avatar-3.jpg",
+              "label": "Marcus"
+            },
+            {
+              "value": "testimonial-avatar-4.jpg",
+              "label": "Sarah"
+            }
+          ],
           "default": "testimonial-avatar-1.png"
         },
         {

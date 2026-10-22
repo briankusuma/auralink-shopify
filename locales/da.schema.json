@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animationer",
       "settings": {
+        "text_animation": {
+          "label": "Tekstanimation",
+          "info": "Vælg mellem flydende tekstvisning ved rulning eller almindelig tekst uden animation.",
+          "options__1": {
+            "label": "Animeret (flydende tekstvisning)"
+          },
+          "options__2": {
+            "label": "Almindelig tekst (uden animation)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Afslør afsnit ved rulning"
         },

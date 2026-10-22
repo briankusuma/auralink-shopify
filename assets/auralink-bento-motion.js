@@ -7,6 +7,7 @@
   const libraryLoads = new Map();
 
   function loadLibrary(url, ready) {
+    if (window.AuraLinkSectionLayout) return window.AuraLinkSectionLayout.load(url, ready);
     if (ready()) return Promise.resolve();
     const absoluteUrl = new URL(url, window.location.href).href;
     if (libraryLoads.has(absoluteUrl)) return libraryLoads.get(absoluteUrl);
@@ -90,7 +91,8 @@
             }
             measure();
             context = gsap.context(function () {
-              const timeline = gsap.timeline({
+              let timeline;
+              timeline = gsap.timeline({
                 defaults: { ease: 'power2.inOut' },
                 scrollTrigger: {
                   trigger: section,
@@ -99,24 +101,31 @@
                   start: 'top top',
                   end: function () { return '+=' + Math.max(1200, document.documentElement.clientHeight * 2.2); },
                   scrub: window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? true : 0.6,
-                  refreshPriority: -1,
-                  invalidateOnRefresh: true,
                   onEnter: function () {
                     if (headingPlayed) return;
                     headingPlayed = true;
                     headingReveals.forEach(function (reveal) { reveal.play(); });
                   },
-                  onRefreshInit: measure
+                  onRefreshInit: function () {
+                    measure();
+                    if (!timeline) return;
+                    const time = timeline.time();
+                    timeline.render(0, true, true);
+                    timeline.invalidate().render(0, true, true);
+                    timeline.render(time, true, true);
+                  }
                 }
               });
               gsap.set(stat, { autoAlpha: 0, y: 24, x: function () { return positions.statCenter; } });
               gsap.set(stacked, { autoAlpha: 0, y: 20, x: function () { return positions.stackedPair; } });
               gsap.set(large, { autoAlpha: 0, x: -32 });
-              gsap.set(statDetails, { autoAlpha: 0, y: 14 });
-              gsap.set(stackedCards, { autoAlpha: 0, y: 18 });
-              gsap.set(stackedDetails, { autoAlpha: 0, y: 12 });
+              if (statDetails.length) gsap.set(statDetails, { autoAlpha: 0, y: 14 });
+              if (stackedCards.length) gsap.set(stackedCards, { autoAlpha: 0, y: 18 });
+              if (stackedDetails.length) gsap.set(stackedDetails, { autoAlpha: 0, y: 12 });
               if (glass) gsap.set(glass, { autoAlpha: 0, y: 24 });
               if (glassText) gsap.set(glassText, { autoAlpha: 0, y: 10 });
+              timeline.set(stat, { x: function () { return positions.statCenter; }, immediateRender: true, lazy: false }, 0);
+              timeline.set(stacked, { x: function () { return positions.stackedPair; }, immediateRender: true, lazy: false }, 0);
               timeline.addLabel('heading', 0);
               if (header) {
                 timeline.set(header, {
@@ -125,7 +134,7 @@
                 timeline.to(header, { y: 0, duration: 0.9, lazy: false }, 0.25);
               }
               timeline.to(stat, { autoAlpha: 1, y: 0, duration: 0.7 }, 1.05);
-              timeline.to(statDetails, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.5, ease: 'power2.out' }, 1.25);
+              if (statDetails.length) timeline.to(statDetails, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.5, ease: 'power2.out' }, 1.25);
               if (percentage) {
                 const count = { value: 0 };
                 let previousValue = -1;
@@ -143,8 +152,8 @@
               timeline.addLabel('stat', 1.8);
               timeline.to(stat, { x: function () { return positions.statPair; }, duration: 0.9 }, 2.1);
               timeline.to(stacked, { autoAlpha: 1, y: 0, duration: 0.9 }, 2.1);
-              timeline.to(stackedCards, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.6, ease: 'power2.out' }, 2.18);
-              timeline.to(stackedDetails, { autoAlpha: 1, y: 0, stagger: 0.1, duration: 0.5, ease: 'power2.out' }, 2.4);
+              if (stackedCards.length) timeline.to(stackedCards, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.6, ease: 'power2.out' }, 2.18);
+              if (stackedDetails.length) timeline.to(stackedDetails, { autoAlpha: 1, y: 0, stagger: 0.1, duration: 0.5, ease: 'power2.out' }, 2.4);
               timeline.addLabel('pair', 3.05);
               timeline.to([stat, stacked], { x: 0, duration: 1 }, 3.4);
               timeline.to(large, { autoAlpha: 1, x: 0, duration: 1 }, 3.4);

@@ -147,6 +147,7 @@
         image.addEventListener('error', reset, { once: true, signal });
         window.addEventListener('scroll', schedule, { passive: true, signal });
         window.addEventListener('resize', update, { passive: true, signal });
+        window.addEventListener('auralink:layout', function () { measure(); schedule(); }, { signal });
         schedule();
       }
       query.addEventListener('change', update);

@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animacje",
       "settings": {
+        "text_animation": {
+          "label": "Animacja tekstu",
+          "info": "Wybierz płynne odsłanianie tekstu podczas przewijania lub zwykły tekst bez animacji.",
+          "options__1": {
+            "label": "Animowany (płynne odsłanianie)"
+          },
+          "options__2": {
+            "label": "Zwykły (bez animacji)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Pokaż sekcje podczas przewijania"
         },

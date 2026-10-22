@@ -1,4 +1,3 @@
 MatchingTranslations:
-  enabled: false
-TemplateLength:
-  enabled: false
+  enabled: true
+# TemplateLength was removed: Shopify documents it as deprecated in Theme Check v2.

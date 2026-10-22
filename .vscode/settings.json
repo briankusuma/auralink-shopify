@@ -1,0 +1,7 @@
+{
+  // Sissel Liquid 4.0.1 requires "name" on every block, including @app.
+  // Shopify's schema forbids that property on @app. Use the installed official
+  // Shopify Liquid extension for schema validation; its ValidSchema stays enabled.
+  // This affects only Sissel's duplicate schema validator, not Theme Check.
+  "liquid.validate.schema": false
+}

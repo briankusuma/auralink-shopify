@@ -52,7 +52,8 @@
     clearTimeout(layoutTimer);
     layoutTimer = setTimeout(function () {
       bindScrollTrigger();
-      if (scrollTrigger) scrollTrigger.refresh();
+      if (window.AuraLinkSectionLayout) window.AuraLinkSectionLayout.refresh();
+      else if (scrollTrigger) scrollTrigger.refresh();
       scheduleResize();
     }, 120);
   }

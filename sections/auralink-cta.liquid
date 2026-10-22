@@ -17,13 +17,20 @@
   }
 {%- endstyle -%}
 
+{%- liquid
+  assign cta_asset = ''
+  case section.settings.default_image
+    when 'cta-card-composite.png'
+      assign cta_asset = section.settings.default_image
+  endcase
+-%}
 <div class="auralink-cta-wrapper color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
   <div class="auralink-cta-container{% if section.settings.layout == 'text_left' %} auralink-cta-container--text-left{% else %} auralink-cta-container--text-right{% endif %}">
     
     {% comment %} Left Column: Hand Holding Smart Device Image {% endcomment %}
     <div class="auralink-cta__media-col">
       <div class="auralink-cta__image-wrap">
-        {%- if section.settings.image == blank and section.settings.default_image == 'cta-card-composite.png' -%}
+        {%- if section.settings.image == blank and cta_asset == 'cta-card-composite.png' -%}
           <img
             src="{{ 'cta-hand-device.png' | asset_url }}"
             class="auralink-cta__motion-hand"
@@ -44,9 +51,9 @@
               widths: '400, 600, 800, 960',
               alt: section.settings.heading | escape
           }}
-        {%- elsif section.settings.default_image != blank -%}
+        {%- elsif cta_asset != blank -%}
           <img
-            src="{{ section.settings.default_image | asset_url }}"
+            src="{{ cta_asset | asset_url }}"
             alt="{{ section.settings.heading | escape }}"
             class="auralink-cta__image"
             loading="lazy"
@@ -126,9 +133,19 @@
       "label": "Device Image"
     },
     {
-      "type": "text",
+      "type": "select",
       "id": "default_image",
-      "label": "Default Asset Image",
+      "label": "Theme image",
+      "options": [
+        {
+          "value": "none",
+          "label": "None"
+        },
+        {
+          "value": "cta-card-composite.png",
+          "label": "Hand with device"
+        }
+      ],
       "default": "cta-card-composite.png"
     },
     {

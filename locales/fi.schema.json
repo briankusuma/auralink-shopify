@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animaatiot",
       "settings": {
+        "text_animation": {
+          "label": "Tekstianimaatio",
+          "info": "Valitse vieritettäessä sulavasti paljastuva teksti tai tavallinen teksti ilman animaatiota.",
+          "options__1": {
+            "label": "Animoitu (sulava paljastus)"
+          },
+          "options__2": {
+            "label": "Tavallinen (ei animaatiota)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Näytä osiot vierittämällä"
         },

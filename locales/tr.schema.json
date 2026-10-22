@@ -353,6 +353,16 @@
     "animations": {
       "name": "Animasyonlar",
       "settings": {
+        "text_animation": {
+          "label": "Metin animasyonu",
+          "info": "Kaydırma sırasında akıcı bir efektle beliren metin veya animasyonsuz düz metin arasında seçim yapın.",
+          "options__1": {
+            "label": "Animasyonlu (akıcı belirme)"
+          },
+          "options__2": {
+            "label": "Düz (animasyonsuz)"
+          }
+        },
         "animations_reveal_on_scroll": {
           "label": "Kaydırırken bölümleri göster"
         },
