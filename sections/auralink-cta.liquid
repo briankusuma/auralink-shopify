@@ -1,4 +1,5 @@
 {{ 'section-auralink-cta.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'auralink-cta-motion.js' | asset_url }}" defer="defer"></script>
 
 {%- style -%}
   .section-{{ section.id }}-padding {
@@ -13,6 +14,17 @@
     {% comment %} Left Column: Hand Holding Smart Device Image {% endcomment %}
     <div class="auralink-cta__media-col">
       <div class="auralink-cta__image-wrap">
+        {%- if section.settings.image == blank and section.settings.default_image == 'cta-card-composite.png' -%}
+          <img
+            src="{{ 'cta-hand-device.png' | asset_url }}"
+            class="auralink-cta__motion-hand"
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            width="619"
+            height="800"
+          >
+        {%- endif -%}
         {%- if section.settings.image != blank -%}
           {{
             section.settings.image

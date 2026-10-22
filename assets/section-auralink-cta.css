@@ -249,3 +249,67 @@
     height: 32px;
   }
 }
+
+.auralink-cta__motion-hand {
+  display: none;
+}
+
+@media (min-width: 991px) and (min-height: 740px) and (prefers-reduced-motion: no-preference) {
+  .is-cta-motion-section {
+    position: relative;
+    min-height: 260svh;
+  }
+
+  .auralink-cta-wrapper.is-cta-sequenced {
+    --cta-motion-lime: #F2FE63;
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    padding-block: 32px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: #FFFFFF;
+  }
+
+  .is-cta-sequenced .auralink-cta-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  .auralink-cta__motion-surface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: var(--cta-motion-lime);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .is-cta-sequenced .auralink-cta__media-col {
+    clip-path: inset(-200% 0 0);
+  }
+
+  .is-cta-sequenced .auralink-cta__motion-hand {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    left: 0;
+    bottom: 0;
+    transform-origin: 65% 90%;
+  }
+
+  .is-cta-sequenced .auralink-cta__motion-hand ~ .auralink-cta__image {
+    visibility: hidden;
+  }
+
+  .is-cta-sequenced .auralink-cta__card,
+  .is-cta-sequenced .auralink-cta__btn,
+  .is-cta-sequenced .auralink-cta__badge {
+    box-shadow: none;
+  }
+}
