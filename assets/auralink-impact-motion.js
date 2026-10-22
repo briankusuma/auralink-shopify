@@ -32,12 +32,15 @@
       let pending = false;
       let destroyed = false;
       let textReveals = [];
+      let counters = [];
 
       function reset() {
         if (context) context.revert();
         context = null;
         textReveals.forEach(function (reveal) { reveal.destroy(); });
         textReveals = [];
+        counters.forEach(function (counter) { counter.el.textContent = counter.original; });
+        counters = [];
         wrapper.classList.remove('is-impact-sequenced');
       }
 
@@ -57,6 +60,8 @@
             const quoteDivider = wrapper.querySelector('.auralink-impact-quote-divider');
             const divider = wrapper.querySelector('.auralink-impact-divider');
             const metrics = wrapper.querySelectorAll('.auralink-impact-metric-item');
+            const boxes = wrapper.querySelectorAll('.auralink-impact-metric__box');
+            const contents = wrapper.querySelectorAll('.auralink-impact-metric__content');
             const logos = wrapper.querySelector('.auralink-impact-logos');
             const tiles = wrapper.querySelectorAll('.auralink-impact-logo-card');
             if (!card || !row || !author || !logos) return;
@@ -81,14 +86,15 @@
               const rowOffset = layoutOffset(row);
               positions = {
                 authorX: wrapper.clientWidth / 2 - authorOffset.x - author.offsetWidth / 2,
-                rowY: wrapper.clientHeight / 2 - rowOffset.y - row.offsetHeight / 2
+                rowY: wrapper.clientHeight / 2 - rowOffset.y - row.offsetHeight / 2,
+                boxXs: Array.from(boxes).map(function (box) { return Math.max(0, (box.parentElement.offsetWidth - box.offsetWidth) / 2); })
               };
             }
 
             context = gsap.context(function () {}, wrapper);
             context.add(function () {
               const controlledTexts = [];
-              wrapper.querySelectorAll('.auralink-impact-quote-text, .auralink-impact-metric__stat, .auralink-impact-metric__label').forEach(function (el) {
+              wrapper.querySelectorAll('.auralink-impact-quote-text, .auralink-impact-metric__label').forEach(function (el) {
                 const engine = window.AuraLinkLiquidReveal;
                 const reveal = engine && engine.createControlled ? engine.createControlled(el) : null;
                 if (!reveal) return;
@@ -108,19 +114,23 @@
               });
               timeline.set(author, { x: function () { return positions.authorX; }, immediateRender: true, lazy: false }, 0);
               timeline.set(row, { y: function () { return positions.rowY; }, immediateRender: true, lazy: false }, 0);
+              timeline.set(boxes, { x: function (index) { return positions.boxXs[index]; }, immediateRender: true, lazy: false }, 0);
               gsap.set(card, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
+              gsap.set(wrapper, { '--impact-scene-bg': '#F5F3F0' });
               if (quote) gsap.set(quote, { autoAlpha: 0, y: 16 });
               if (quoteDivider) gsap.set(quoteDivider, { autoAlpha: 0, scaleY: 0, transformOrigin: 'center' });
               if (divider) gsap.set(divider, { autoAlpha: 0, scaleX: 0, transformOrigin: 'left' });
               gsap.set(metrics, { autoAlpha: 0, y: -72 });
+              gsap.set(contents, { autoAlpha: 0, y: 12 });
               gsap.set(logos, { autoAlpha: 0, y: 20, backgroundColor: 'rgba(245,243,240,0)', borderRadius: 24 });
               gsap.set(tiles, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
               const metricStart = 2.6;
               const metricStagger = 0.32;
-              // Wait for both the last descending card and its liquid text.
-              const panelStart = 2.7 + Math.max(0, metrics.length - 1) * metricStagger + 1.12;
+              const iconsDone = metricStart + 0.9 + Math.max(0, metrics.length - 1) * metricStagger;
+              const textStart = iconsDone + 0.16;
+              const panelStart = metricStart;
               const logoPanelStart = panelStart + 0.95;
-              const tileStart = logoPanelStart + 1.15;
+              const tileStart = textStart + 0.9;
               const completeAt = tileStart + Math.max(1.2, 0.8 + Math.max(0, tiles.length - 1) * 0.04);
               timeline.addLabel('author', 0);
               timeline.to(author, { x: 0, duration: 1.15, lazy: false }, 0.4);
@@ -128,13 +138,18 @@
               if (quote) timeline.to(quote, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.85);
               timeline.addLabel('quote', 1.85);
               timeline.to(row, { y: 0, duration: 1, lazy: false }, 2.2);
+              // Deliberate hard color cut, synchronized with the icon/panel stage.
+              timeline.set(wrapper, { '--impact-scene-bg': '#FFFFFF' }, metricStart);
               timeline.to(metrics, { autoAlpha: 1, y: 0, stagger: metricStagger, duration: 0.9 }, metricStart);
-              timeline.addLabel('metrics', panelStart - 0.12);
+              timeline.addLabel('metrics', iconsDone);
               timeline.to(card, { backgroundColor: '#F5F3F0', borderRadius: 32, duration: 0.8 }, panelStart);
               if (divider) timeline.to(divider, { autoAlpha: 1, scaleX: 1, duration: 0.6 }, panelStart);
               timeline.addLabel('panel', logoPanelStart);
               timeline.to(logos, { autoAlpha: 1, y: 0, backgroundColor: '#F5F3F0', duration: 0.75 }, logoPanelStart);
-              timeline.addLabel('logoPanel', tileStart - 0.2);
+              timeline.addLabel('logoPanel', textStart - 0.01);
+              timeline.addLabel('metricText', textStart);
+              timeline.to(boxes, { x: 0, duration: 0.7 }, textStart);
+              timeline.to(contents, { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.8 }, textStart);
               timeline.to(tiles, { backgroundColor: '#F5F3F0', borderRadius: 24, stagger: 0.04, duration: 0.8 }, tileStart);
               timeline.to(logos, { backgroundColor: 'rgba(245,243,240,0)', duration: 0.8 }, tileStart + 0.4);
               timeline.addLabel('complete', completeAt);
@@ -142,11 +157,31 @@
               controlledTexts.forEach(function (item) {
                 const state = { progress: 0 };
                 const metricIndex = Array.from(metrics).findIndex(function (metric) { return metric.contains(item.el); });
-                const at = item.el === quote ? 0.85 : 2.7 + Math.max(0, metricIndex) * metricStagger;
+                const at = item.el === quote ? 0.85 : textStart + Math.max(0, metricIndex) * 0.12;
                 timeline.to(state, {
                   progress: 1, duration: 1, ease: 'none',
                   onUpdate: function () { item.reveal.render(state.progress); }
                 }, at);
+              });
+              metrics.forEach(function (metric, index) {
+                const el = metric.querySelector('.auralink-impact-metric__stat');
+                if (!el) return;
+                const original = el.textContent;
+                const match = original.trim().match(/^([^\d]*)(\d+(?:\.\d+)?)(.*)$/);
+                if (!match) return;
+                const precision = (match[2].split('.')[1] || '').length;
+                const count = { value: 0 };
+                let previous = '';
+                counters.push({ el: el, original: original });
+                gsap.set(el, { minWidth: el.offsetWidth });
+                function renderCount() {
+                  const value = match[1] + count.value.toFixed(precision) + match[3];
+                  if (value === previous) return;
+                  el.textContent = value;
+                  previous = value;
+                }
+                renderCount();
+                timeline.to(count, { value: Number(match[2]), duration: 1, ease: 'power1.out', onUpdate: renderCount }, textStart + index * 0.12);
               });
             });
             window.ScrollTrigger.sort();
