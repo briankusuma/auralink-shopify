@@ -102,17 +102,14 @@
                 controlledTexts.push({ el: el, reveal: reveal });
               });
               measure();
+              let introStarted = false;
+              let introDone = false;
+              const playhead = { progress: 0 };
+              const release = { progress: 0 };
               const timeline = gsap.timeline({
-                defaults: { ease: 'power2.inOut' },
-                scrollTrigger: {
-                  trigger: section, pin: section, pinSpacing: true,
-                  start: 'top top',
-                  end: function () { return '+=' + Math.max(1800, document.documentElement.clientHeight * 3); },
-                  scrub: 0.65, refreshPriority: -2,
-                  invalidateOnRefresh: true, onRefreshInit: measure
-                }
+                paused: true,
+                defaults: { ease: 'power2.inOut' }
               });
-              timeline.set(author, { x: function () { return positions.authorX; }, immediateRender: true, lazy: false }, 0);
               timeline.set(row, { y: function () { return positions.rowY; }, immediateRender: true, lazy: false }, 0);
               timeline.set(boxes, { x: function (index) { return positions.boxXs[index]; }, immediateRender: true, lazy: false }, 0);
               gsap.set(card, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
@@ -124,6 +121,22 @@
               gsap.set(contents, { autoAlpha: 0, y: 12 });
               gsap.set(logos, { autoAlpha: 0, y: 20, backgroundColor: 'rgba(245,243,240,0)', borderRadius: 24 });
               gsap.set(tiles, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
+              function applyScroll() {
+                if (introDone) timeline.progress(playhead.progress * release.progress);
+              }
+              const releaseTween = gsap.to(release, {
+                progress: 1, duration: 0.6, ease: 'power2.out', paused: true, onUpdate: applyScroll
+              });
+              const intro = gsap.timeline({
+                paused: true, defaults: { ease: 'power2.inOut' },
+                onComplete: function () { introDone = true; releaseTween.play(0); }
+              });
+              intro.set(author, { x: function () { return positions.authorX; }, immediateRender: true, lazy: false }, 0);
+              intro.to(wrapper, { '--impact-scene-bg': '#F5F3F0', duration: 0.45 }, 0.25);
+              intro.to(author, { x: 0, duration: 1.35, lazy: false }, 0.25);
+              // The photo settles before either divider or quote starts.
+              if (quoteDivider) intro.to(quoteDivider, { autoAlpha: 1, scaleY: 1, duration: 0.55 }, 1.72);
+              if (quote) intro.to(quote, { autoAlpha: 1, y: 0, duration: 0.6 }, 1.86);
               const metricStart = 2.6;
               const metricStagger = 0.32;
               const iconsDone = metricStart + 0.9 + Math.max(0, metrics.length - 1) * metricStagger;
@@ -132,12 +145,7 @@
               const logoPanelStart = panelStart + 0.95;
               const tileStart = textStart + 0.9;
               const completeAt = tileStart + Math.max(1.2, 0.8 + Math.max(0, tiles.length - 1) * 0.04);
-              timeline.addLabel('author', 0);
-              timeline.set(wrapper, { '--impact-scene-bg': '#F5F3F0' }, 0.4);
-              timeline.to(author, { x: 0, duration: 1.15, lazy: false }, 0.4);
-              if (quoteDivider) timeline.to(quoteDivider, { autoAlpha: 1, scaleY: 1, duration: 0.7 }, 0.4);
-              if (quote) timeline.to(quote, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.4);
-              timeline.addLabel('quote', 1.85);
+              timeline.addLabel('quote', 0);
               timeline.to(row, { y: 0, duration: 1, lazy: false }, 2.2);
               // Reveal the white surround only once every icon has landed.
               timeline.set(wrapper, { '--impact-scene-bg': '#FFFFFF' }, iconsDone);
@@ -158,8 +166,9 @@
               controlledTexts.forEach(function (item) {
                 const state = { progress: 0 };
                 const metricIndex = Array.from(metrics).findIndex(function (metric) { return metric.contains(item.el); });
-                const at = item.el === quote ? 0.4 : textStart + Math.max(0, metricIndex) * 0.12;
-                timeline.to(state, {
+                const isQuote = item.el === quote;
+                const at = isQuote ? 1.86 : textStart + Math.max(0, metricIndex) * 0.12;
+                (isQuote ? intro : timeline).to(state, {
                   progress: 1, duration: 1, ease: 'none',
                   onUpdate: function () { item.reveal.render(state.progress); }
                 }, at);
@@ -184,6 +193,28 @@
                 renderCount();
                 timeline.to(count, { value: Number(match[2]), duration: 1, ease: 'power1.out', onUpdate: renderCount }, textStart + index * 0.12);
               });
+              function startIntro() {
+                if (introStarted) return;
+                introStarted = true;
+                intro.play(0);
+              }
+              // Scroll records progress during the timed intro; it cannot skip it.
+              const driver = gsap.to(playhead, {
+                progress: 1, ease: 'none', onUpdate: applyScroll,
+                scrollTrigger: {
+                  trigger: section, pin: section, pinSpacing: true,
+                  start: 'top top',
+                  end: function () { return '+=' + Math.max(1800, document.documentElement.clientHeight * 3); },
+                  scrub: 0.65, refreshPriority: -2, invalidateOnRefresh: true,
+                  onEnter: startIntro,
+                  onRefreshInit: function () {
+                    measure();
+                    timeline.invalidate().render(timeline.time(), true, true);
+                    if (!introStarted) intro.invalidate().render(0, true, true);
+                  }
+                }
+              });
+              if (driver.scrollTrigger && (driver.scrollTrigger.isActive || driver.scrollTrigger.progress > 0)) startIntro();
             });
             window.ScrollTrigger.sort();
             window.ScrollTrigger.refresh();
