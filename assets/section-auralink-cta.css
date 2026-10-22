@@ -9,6 +9,10 @@
   color: var(--color-foreground, #000000);
 }
 
+.auralink-cta-wrapper [data-liquid-reveal="text"] {
+  visibility: inherit;
+}
+
 .auralink-cta-container {
   max-width: var(--page-width, 1408px);
   margin: 0 auto;

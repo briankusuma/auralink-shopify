@@ -19,6 +19,7 @@
       if (!section || !media || !card || !hand) return;
       const query = window.matchMedia('(min-width: 991px) and (min-height: 740px) and (prefers-reduced-motion: no-preference)');
       let events, frame, surface, bounds, progress, lastTime;
+      let textReveals = [];
       const originals = [wrapper, media, card, hand].map((el) => ({ el, style: el.getAttribute('style') }));
       const originalInert = card.inert;
 
@@ -28,6 +29,8 @@
         frame = null;
         if (surface) surface.remove();
         surface = null;
+        textReveals.forEach((reveal) => reveal.destroy());
+        textReveals = [];
         originals.forEach(function (item) {
           if (item.style === null) item.el.removeAttribute('style');
           else item.el.setAttribute('style', item.style);
@@ -82,10 +85,11 @@
         const angle = inverse * inverse * -18 + 2 * inverse * t * 4;
         hand.style.opacity = String(smooth(phase(value, 0.39, 0.44)));
         hand.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) rotate(' + angle + 'deg) scale(1.12)';
-        const reveal = smooth(phase(value, 0.91, 1));
+        const reveal = smooth(phase(value, 0.91, 0.95));
         card.style.opacity = String(reveal);
         card.style.transform = 'translate3d(0,' + mix(32, 0, reveal) + 'px,0)';
-        card.inert = reveal < 1;
+        textReveals.forEach((text, index) => text.render(phase(value, 0.94 + Math.min(index, 3) * 0.005, 1)));
+        card.inert = value < 1;
       }
 
       function tick(now) {
@@ -113,6 +117,13 @@
         section.classList.add('is-cta-motion-section');
         // If an unusually long card cannot fit, retain the normal accessible layout.
         if (Math.max(media.offsetHeight, card.offsetHeight) > wrapper.clientHeight - 64) { reset(); return; }
+        const engine = window.AuraLinkLiquidReveal;
+        if (engine && engine.createControlled) {
+          card.querySelectorAll('[data-liquid-reveal="text"]').forEach((el) => {
+            const reveal = engine.createControlled(el);
+            if (reveal) textReveals.push(reveal);
+          });
+        }
         surface = document.createElement('div');
         surface.className = 'auralink-cta__motion-surface';
         surface.setAttribute('aria-hidden', 'true');

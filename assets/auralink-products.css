@@ -241,12 +241,65 @@
 
 /* Card Bottom Row: Price & Arrow Button */
 .auralink-card__bottom-row {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  border-top: 1px solid transparent;
+}
+
+.auralink-card__bottom-row::before,
+.auralink-card__bottom-row::after {
+  content: '';
+  position: absolute;
+  inset: -1px 0 auto;
+  height: 1px;
+  pointer-events: none;
+  transform-origin: left center;
+}
+
+.auralink-card__bottom-row::before {
+  background: rgba(0, 0, 0, 0.05);
+  transform: scaleX(1);
+  transition: transform 0.7s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.auralink-card__bottom-row::after {
+  background: var(--auralink-color-accent, #F2FE63);
+  transform: scaleX(0);
+}
+
+@keyframes auralink-card-divider-sweep {
+  0% { transform: scaleX(0); transform-origin: left center; }
+  55%, 65% { transform: scaleX(1); transform-origin: left center; }
+  66% { transform: scaleX(1); transform-origin: right center; }
+  100% { transform: scaleX(0); transform-origin: right center; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .product-card-wrapper:focus-within .auralink-card__bottom-row::before {
+    transform: scaleX(0);
+  }
+
+  .product-card-wrapper:focus-within .auralink-card__bottom-row::after {
+    animation: auralink-card-divider-sweep 1.8s cubic-bezier(0.45, 0, 0.2, 1) 0.7s both;
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .product-card-wrapper:hover .auralink-card__bottom-row::before {
+    transform: scaleX(0);
+  }
+
+  .product-card-wrapper:hover .auralink-card__bottom-row::after {
+    animation: auralink-card-divider-sweep 1.8s cubic-bezier(0.45, 0, 0.2, 1) 0.7s both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auralink-card__bottom-row::before { transition: none; }
 }
 
 .auralink-card__price {

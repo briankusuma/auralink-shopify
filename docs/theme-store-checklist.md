@@ -587,3 +587,14 @@ Any single missed requirement leads to rejection. Mark an item only after it is 
 
 - Matched the pasted wrapper section-template--27437339738214__auralink_impact-padding to sections/auralink-impact.liquid. Place data-impact-surface directly under that wrapper in Liquid and bind the existing animation to that exact child. White wrapper/full #F5F3F0 overlay/measured-card contraction remains; no CTA changes in this correction. Static/reduced-motion/editor styling hides the decorative child; cleanup restores its styles instead of removing server markup. Scoped :empty override retained.
 - Actual-script regression passed with the section-provided surface, full/intermediate/final geometry, reverse, counters, resize and cleanup. Syntax/diff whitespace passed; Theme Check passed: 176 files, no offenses. Pasted markup lacked both the active motion class and overlay, so local correctness is not proof the live preview has loaded the latest assets. Browser/editor/Lighthouse checks remain pending.
+
+### CTA shared liquid text reveal synchronized with card — 2026-10-22
+
+- CTA title/subtitle now use AuraLinkLiquidReveal.createControlled, matching the shared engine used by impact/bento. Excluded CTA from the automatic observer/discovery so text cannot finish while the card is hidden or reveal twice. Card surface appears at progress .91–.95; shared liquid text renders at .94–1 with a small subtitle offset. Reverse resets the same reveal, and controls unlock after the text completes.
+- Reset/resize/unload destroy controlled filters and restore markup. Static/editor/reduced-motion fallback text remains visible through scoped visibility inheritance. No dependency, Liquid/API/schema or asset change.
+- Actual-script tests passed hidden text before the card, intermediate shared reveal progress with subtitle stagger, completed text, reversed zero progress, filter cleanup and existing overlay/hand stages. JavaScript syntax/diff whitespace pass; Theme Check passed: 176 files, no offenses. Browser visual/editor/keyboard/Lighthouse checks remain pending.
+
+### Product-card divider hover sweep — 2026-10-22
+
+- Replaced the static bottom-row border with two decorative pseudo-lines without changing spacing: gray divider contracts over 700ms, then the accent line grows from zero to full width and retracts over 1.8s. Resting divider restores on exit; completed hover leaves the line hidden. Native CSS only, no settings/markup/dependencies. Same sequence on keyboard focus-within; hover only on hover-capable devices, reduced motion keeps the static divider. User screenshot/instructions are the source; no geometry/layout change.
+- Diff whitespace passed; relevant selectors/keyframe order reviewed. Theme Check passed: 176 files, no offenses. Rendered hover/focus/mobile and Lighthouse remain unverified because browser access is unavailable.
