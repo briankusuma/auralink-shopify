@@ -229,7 +229,9 @@
                   start: 'top top',
                   end: function () { return '+=' + Math.max(1800, document.documentElement.clientHeight * 3); },
                   scrub: window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? true : 0.65,
-                  refreshPriority: -2, invalidateOnRefresh: true,
+                  // The driver has fixed endpoints. Invalidating it would capture
+                  // its current progress as a new start and prevent a full rewind.
+                  refreshPriority: -2,
                   onEnter: startIntro,
                   onEnterBack: startIntro,
                   onLeaveBack: reverseIntro,
@@ -240,8 +242,16 @@
                   },
                   onRefreshInit: function () {
                     measure();
-                    timeline.invalidate().render(timeline.time(), true, true);
-                    if (!introStarted && intro.time() === 0) intro.invalidate().render(0, true, true);
+                    // Rewind before invalidating: otherwise GSAP captures the current
+                    // translated positions as new starting values on refresh.
+                    const time = timeline.time();
+                    timeline.render(0, true, true);
+                    timeline.invalidate().render(0, true, true);
+                    timeline.render(time, true, true);
+                    const introTime = intro.time();
+                    intro.render(0, true, true);
+                    intro.invalidate().render(0, true, true);
+                    intro.render(introTime, true, true);
                   }
                 }
               });
