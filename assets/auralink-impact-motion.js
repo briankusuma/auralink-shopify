@@ -116,7 +116,7 @@
               timeline.set(row, { y: function () { return positions.rowY; }, immediateRender: true, lazy: false }, 0);
               timeline.set(boxes, { x: function (index) { return positions.boxXs[index]; }, immediateRender: true, lazy: false }, 0);
               gsap.set(card, { backgroundColor: 'rgba(245,243,240,0)', borderRadius: 0 });
-              gsap.set(wrapper, { '--impact-scene-bg': '#F5F3F0' });
+              gsap.set(wrapper, { '--impact-scene-bg': '#FFFFFF' });
               if (quote) gsap.set(quote, { autoAlpha: 0, y: 16 });
               if (quoteDivider) gsap.set(quoteDivider, { autoAlpha: 0, scaleY: 0, transformOrigin: 'center' });
               if (divider) gsap.set(divider, { autoAlpha: 0, scaleX: 0, transformOrigin: 'left' });
@@ -133,13 +133,14 @@
               const tileStart = textStart + 0.9;
               const completeAt = tileStart + Math.max(1.2, 0.8 + Math.max(0, tiles.length - 1) * 0.04);
               timeline.addLabel('author', 0);
+              timeline.set(wrapper, { '--impact-scene-bg': '#F5F3F0' }, 0.4);
               timeline.to(author, { x: 0, duration: 1.15, lazy: false }, 0.4);
-              if (quoteDivider) timeline.to(quoteDivider, { autoAlpha: 1, scaleY: 1, duration: 0.7 }, 0.7);
-              if (quote) timeline.to(quote, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.85);
+              if (quoteDivider) timeline.to(quoteDivider, { autoAlpha: 1, scaleY: 1, duration: 0.7 }, 0.4);
+              if (quote) timeline.to(quote, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.4);
               timeline.addLabel('quote', 1.85);
               timeline.to(row, { y: 0, duration: 1, lazy: false }, 2.2);
-              // Deliberate hard color cut, synchronized with the icon/panel stage.
-              timeline.set(wrapper, { '--impact-scene-bg': '#FFFFFF' }, metricStart);
+              // Reveal the white surround only once every icon has landed.
+              timeline.set(wrapper, { '--impact-scene-bg': '#FFFFFF' }, iconsDone);
               timeline.to(metrics, { autoAlpha: 1, y: 0, stagger: metricStagger, duration: 0.9 }, metricStart);
               timeline.addLabel('metrics', iconsDone);
               timeline.to(card, { backgroundColor: '#F5F3F0', borderRadius: 32, duration: 0.8 }, panelStart);
@@ -157,7 +158,7 @@
               controlledTexts.forEach(function (item) {
                 const state = { progress: 0 };
                 const metricIndex = Array.from(metrics).findIndex(function (metric) { return metric.contains(item.el); });
-                const at = item.el === quote ? 0.85 : textStart + Math.max(0, metricIndex) * 0.12;
+                const at = item.el === quote ? 0.4 : textStart + Math.max(0, metricIndex) * 0.12;
                 timeline.to(state, {
                   progress: 1, duration: 1, ease: 'none',
                   onUpdate: function () { item.reveal.render(state.progress); }

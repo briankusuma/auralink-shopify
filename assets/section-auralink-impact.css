@@ -284,7 +284,7 @@ max-width: 200px;
     min-height: 100svh;
     display: flex;
     align-items: center;
-    background: var(--impact-scene-bg, #F5F3F0);
+    background: var(--impact-scene-bg, #FFFFFF);
     box-shadow: none;
   }
 
