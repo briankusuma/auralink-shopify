@@ -99,7 +99,8 @@
           const target = clamp(-section.getBoundingClientRect().top / span);
           const elapsed = Math.min(64, Math.max(1, now - (lastTime || now - 16)));
           lastTime = now;
-          progress = progress === null ? target : mix(progress, target, 1 - Math.exp(-elapsed / 110));
+          const follow = window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? 1 : 1 - Math.exp(-elapsed / 110);
+          progress = progress === null ? target : mix(progress, target, follow);
           if (Math.abs(progress - target) < 0.0005) progress = target;
           render(progress);
           if (progress !== target) frame = requestAnimationFrame(tick);

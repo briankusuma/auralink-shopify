@@ -20,17 +20,29 @@ if (!customElements.get('auralink-testimonials')) {
     connectedCallback() {
       this.slides = Array.from(this.querySelectorAll('.auralink-testimonials__slide'));
       this.dots = Array.from(this.querySelectorAll('.auralink-testimonials__dot'));
+      const active = this.slides.findIndex((slide) => slide.classList.contains('is-active'));
+      this.currentIndex = active >= 0 ? active : 0;
+      this.slides.forEach((slide, index) => { slide.inert = index !== this.currentIndex; });
 
       if (this.slides.length <= 1) return;
 
       this.initEvents();
+      this.isInView = true;
+      this.viewObserver = new IntersectionObserver((entries) => {
+        this.isInView = entries[0].isIntersecting;
+        if (this.isInView) this.startAutoplay();
+        else this.clearAutoplay();
+      });
+      this.viewObserver.observe(this);
       this.startAutoplay();
     }
 
     initEvents() {
+      this.eventController = new AbortController();
+      const listen = (target, type, handler, options = {}) => target.addEventListener(type, handler, { ...options, signal: this.eventController.signal });
       // Dot indicators
       this.dots.forEach((dot, index) => {
-        dot.addEventListener('click', (e) => {
+        listen(dot, 'click', (e) => {
           e.preventDefault();
           this.goTo(index);
           this.restartAutoplay();
@@ -38,15 +50,15 @@ if (!customElements.get('auralink-testimonials')) {
       });
 
       // Pause on hover
-      this.addEventListener('mouseenter', () => this.pause());
-      this.addEventListener('mouseleave', () => this.resume());
+      listen(this, 'mouseenter', () => this.pause());
+      listen(this, 'mouseleave', () => this.resume());
 
       // Pause on focus
-      this.addEventListener('focusin', () => this.pause());
-      this.addEventListener('focusout', () => this.resume());
+      listen(this, 'focusin', () => this.pause());
+      listen(this, 'focusout', () => this.resume());
 
       // Keyboard navigation
-      this.addEventListener('keydown', (e) => {
+      listen(this, 'keydown', (e) => {
         if (e.key === 'ArrowLeft') {
           e.preventDefault();
           this.prev();
@@ -59,24 +71,27 @@ if (!customElements.get('auralink-testimonials')) {
       });
 
       // Touch swipe
-      this.addEventListener('touchstart', (e) => {
+      listen(this, 'touchstart', (e) => {
         if (e.touches.length !== 1) return;
+        this.startY = e.touches[0].clientY;
+        this.currentY = this.startY;
         this.startX = e.touches[0].clientX;
         this.currentX = this.startX;
         this.isSwiping = true;
         this.pause();
       }, { passive: true });
 
-      this.addEventListener('touchmove', (e) => {
+      listen(this, 'touchmove', (e) => {
         if (!this.isSwiping) return;
         this.currentX = e.touches[0].clientX;
+        this.currentY = e.touches[0].clientY;
       }, { passive: true });
 
-      this.addEventListener('touchend', () => {
+      listen(this, 'touchend', () => {
         if (!this.isSwiping) return;
         this.isSwiping = false;
         const diff = this.currentX - this.startX;
-        if (Math.abs(diff) > 40) {
+        if (Math.abs(diff) > 40 && Math.abs(diff) > Math.abs(this.currentY - this.startY) * 1.2) {
           if (diff < 0) {
             this.next();
           } else {
@@ -86,8 +101,14 @@ if (!customElements.get('auralink-testimonials')) {
         this.resume();
       });
 
+      listen(this, 'touchcancel', () => { this.isSwiping = false; this.resume(); });
+      listen(document, 'visibilitychange', () => {
+        if (document.hidden) this.clearAutoplay();
+        else this.startAutoplay();
+      });
+
       // Shopify Theme Editor Integration
-      document.addEventListener('shopify:block:select', (e) => {
+      listen(document, 'shopify:block:select', (e) => {
         const selectedIndex = this.slides.findIndex((s) => s.id === `Testimonial-${e.detail.sectionId}-${e.detail.blockId}`);
         if (selectedIndex >= 0) {
           this.goTo(selectedIndex);
@@ -95,14 +116,14 @@ if (!customElements.get('auralink-testimonials')) {
         }
       });
 
-      document.addEventListener('shopify:block:deselect', () => {
+      listen(document, 'shopify:block:deselect', () => {
         this.resume();
       });
     }
 
     startAutoplay() {
       this.clearAutoplay();
-      if (this.autoplaySpeed <= 0) return;
+      if (this.autoplaySpeed <= 0 || this.isInView === false || document.hidden || (window.Shopify && window.Shopify.designMode) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       this.timer = setInterval(() => {
         if (!this.isPaused) {
           this.next();
@@ -139,12 +160,13 @@ if (!customElements.get('auralink-testimonials')) {
     }
 
     goTo(index) {
-      if (index < 0 || index >= this.slides.length) return;
+      if (index === this.currentIndex || index < 0 || index >= this.slides.length) return;
       this.currentIndex = index;
 
       this.slides.forEach((slide, idx) => {
         const isActive = idx === this.currentIndex;
         slide.classList.toggle('is-active', isActive);
+        slide.inert = !isActive;
         slide.setAttribute('aria-hidden', (!isActive).toString());
       });
 
@@ -157,15 +179,15 @@ if (!customElements.get('auralink-testimonials')) {
       // Replay 1.0s liquid text reveal animation on the incoming active slide
       const activeSlide = this.slides[this.currentIndex];
       if (activeSlide) {
-        if (window.AuraLinkLiquidReveal && typeof window.AuraLinkLiquidReveal.replay === 'function') {
-          window.AuraLinkLiquidReveal.replay(activeSlide);
-        }
+        // The shared engine handles this event once; do not also replay directly.
         activeSlide.dispatchEvent(new CustomEvent('auralink:slide:active', { bubbles: true }));
       }
     }
 
     disconnectedCallback() {
       this.clearAutoplay();
+      if (this.eventController) this.eventController.abort();
+      if (this.viewObserver) this.viewObserver.disconnect();
     }
   }
 

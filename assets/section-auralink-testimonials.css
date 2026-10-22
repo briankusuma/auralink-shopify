@@ -136,6 +136,7 @@
    Right Column: Autoslider Card & Dots
    -------------------------------------------------------------------------- */
 .auralink-testimonials__right {
+  min-width: 0;
   width: 632px;
   flex: 1;
   max-width: 632px;
@@ -257,6 +258,8 @@
 }
 
 .auralink-testimonials__author-meta {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -313,7 +316,9 @@
   font-weight: 500;
   letter-spacing: -0.01em;
   color: #000000;
-  white-space: nowrap;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Pagination Dots */
@@ -326,12 +331,12 @@
 }
 
 .auralink-testimonials__dot {
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: none;
   padding: 0;
-  background-color: #EEEEEE;
+  background: radial-gradient(circle, #EEEEEE 0 7px, transparent 7px);
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
@@ -341,7 +346,7 @@
 }
 
 .auralink-testimonials__dot.is-active {
-  background-color: #000000;
+  background: radial-gradient(circle, #000000 0 7px, transparent 7px);
 }
 
 /* --------------------------------------------------------------------------
@@ -390,5 +395,28 @@
 
   .auralink-testimonials__quote-title {
     font-size: 20px;
+  }
+}
+
+.auralink-testimonials-component {
+  touch-action: pan-y;
+}
+
+.auralink-testimonials__cta {
+  max-width: 100%;
+  white-space: normal;
+}
+
+.auralink-testimonials__cta-icon {
+  flex-shrink: 0;
+}
+
+.auralink-testimonials__author-info {
+  min-width: 0;
+}
+
+@media screen and (max-width: 600px) {
+  .auralink-testimonials__author-info {
+    flex-wrap: wrap;
   }
 }

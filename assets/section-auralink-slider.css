@@ -621,3 +621,46 @@
     transition: none;
   }
 }
+
+/* Let mobile product text determine card height instead of cropping it at 540px. */
+@media screen and (max-width: 768px) {
+  .auralink-slider__stage,
+  .auralink-slider__nav-container {
+    height: var(--slide-stage-height, var(--slide-active-h));
+  }
+
+  .auralink-slider__stage {
+    touch-action: pan-y;
+  }
+
+  .auralink-slider__slide[data-slot="center"] {
+    height: auto;
+    min-height: var(--slide-active-h);
+  }
+
+  .auralink-slider__content {
+    position: relative;
+    margin-top: 260px;
+    min-width: 0;
+  }
+
+  .auralink-slider__slide[data-slot="right"] {
+    top: calc(var(--slide-stage-height, var(--slide-active-h)) - var(--slide-side-h));
+  }
+
+  .auralink-slider__cta,
+  .auralink-slider__tag {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .auralink-slider__cta-arrow {
+    flex-shrink: 0;
+  }
+}
+
+.auralink-slider__product-title,
+.auralink-slider__model {
+  overflow-wrap: anywhere;
+}

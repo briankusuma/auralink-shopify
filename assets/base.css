@@ -3696,3 +3696,30 @@ details-disclosure > details {
   filter: none !important;
   transform: none !important;
 }
+
+/* Flex section groups must grow with their content; do not clip the document scroller. */
+.content-for-layout,
+.content-for-layout > .shopify-section,
+.shopify-section-group-footer-group {
+  min-width: 0;
+}
+
+.content-for-layout > .shopify-section,
+.shopify-section-group-footer-group {
+  flex-shrink: 0;
+}
+
+/* Reusable rich-text/app blocks can contain long links and wide media. */
+.rte {
+  overflow-wrap: anywhere;
+}
+
+.rte :is(img, video, iframe),
+.shopify-app-block {
+  max-width: 100%;
+}
+
+.content-for-layout :is(h1, h2, h3, h4, h5, h6, p),
+.auralink-footer-card {
+  overflow-wrap: anywhere;
+}

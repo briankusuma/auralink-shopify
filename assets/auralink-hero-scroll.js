@@ -21,8 +21,11 @@
       const media = wrapper.querySelector('.auralink-hero-media');
       const section = wrapper.closest('.shopify-section') || wrapper.parentElement;
       const match = gsap.matchMedia();
+      // Liquid may provide the initial framing class; unmatched mobile/short views
+      // must return to normal flow even when the media callback never runs.
+      wrapper.classList.remove('has-scroll-framing');
 
-      match.add('(prefers-reduced-motion: no-preference)', function () {
+      match.add('(min-width: 990px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)', function () {
         let timeline = null;
         const header = document.querySelector('.header-wrapper--overlay');
         let docked = Boolean(window.auralinkRadioDocked);
@@ -79,7 +82,7 @@
               end: function () { return '+=' + Math.min(480, Math.max(280, dimensions.viewportHeight * 0.4)); },
               pin: section,
               pinSpacing: true,
-              scrub: 0.35,
+              scrub: window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? true : 0.35,
               invalidateOnRefresh: true,
               onRefreshInit: measure
             }

@@ -32207,14 +32207,15 @@ function initRadio3D(rootEl) {
     powerPreference: "high-performance"
   });
   renderer.setSize(container.clientWidth || 600, container.clientHeight || 500);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 2, 2));
+  const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarsePointer ? 1.25 : 1.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = PCFShadowMap;
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.88;
   renderer.domElement.tabIndex = 0;
   renderer.domElement.setAttribute("role", "group");
-  renderer.domElement.setAttribute("aria-label", "Interactive radio. P: power and sound. S: station. B: bass. Up and down arrows: volume. Left and right arrows: rotate.");
+  renderer.domElement.setAttribute("aria-label", "Interactive radio. P: power and sound. S: station. B: bass. Up and down arrows: volume. Left and right arrows: rotate. Alt and mouse wheel: zoom.");
   container.appendChild(renderer.domElement);
   const pmremGenerator = new PMREMGenerator(renderer);
   const environmentRoom = new RoomEnvironment();
@@ -33364,10 +33365,11 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
     controls.autoRotateSpeed = 2;
 
   }
-  controls.enableZoom = true;
-  if (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) {
-    controls.enableZoom = false;
+  controls.enableZoom = false;
+  function onZoomWheel(event) {
+    controls.enableZoom = !coarsePointer && event.altKey && !(hoveredObj && hoveredObj.userData.type === "knob");
   }
+  renderer.domElement.addEventListener("wheel", onZoomWheel, { capture: true, passive: true });
   const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const w = entry.contentRect.width || container.clientWidth;
@@ -33393,6 +33395,7 @@ const DEFAULT_TARGET = new THREE.Vector3(${tx}, ${ty}, ${tz});
   });
   function destroy() {
     stopLoop();
+    renderer.domElement.removeEventListener("wheel", onZoomWheel, { capture: true });
     stopRadioSynth();
     if (audioCtx) {
       try {

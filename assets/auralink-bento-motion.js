@@ -98,7 +98,7 @@
                   pinSpacing: true,
                   start: 'top top',
                   end: function () { return '+=' + Math.max(1200, document.documentElement.clientHeight * 2.2); },
-                  scrub: 0.6,
+                  scrub: window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? true : 0.6,
                   refreshPriority: -1,
                   invalidateOnRefresh: true,
                   onEnter: function () {

@@ -43,6 +43,7 @@
 
 /* Brand Column */
 .auralink-footer__brand-col {
+  min-width: 0;
   flex: 0 0 380px;
   max-width: 380px;
   display: flex;
@@ -97,6 +98,7 @@
 
 /* Social links in brand column if enabled */
 .auralink-footer__social-list {
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -131,6 +133,7 @@
 
 /* Navigation Columns Grid */
 .auralink-footer__nav-grid {
+  min-width: 0;
   flex: 1;
   display: grid;
   grid-template-columns: repeat(4, minmax(116px, 1fr));
@@ -139,6 +142,8 @@
 }
 
 .auralink-footer__nav-col {
+  min-width: 0;
+  overflow-wrap: anywhere;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -165,6 +170,7 @@
 }
 
 .auralink-footer__menu-link {
+  min-height: 24px;
   font-family: 'Inter', var(--font-body-family), sans-serif;
   font-size: 18px;
   font-weight: 400;
@@ -226,6 +232,9 @@
 
 .auralink-footer__bottom-left,
 .auralink-footer__bottom-right {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   display: flex;
   align-items: center;
   gap: 24px;
@@ -330,13 +339,13 @@
 
   .auralink-footer__nav-grid {
     width: 100%;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 @media screen and (max-width: 860px) {
   .auralink-footer__nav-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 36px 20px;
   }
 
@@ -356,7 +365,7 @@
   }
 
   .auralink-footer__nav-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 28px 16px;
   }
 

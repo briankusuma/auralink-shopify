@@ -447,6 +447,7 @@ max-width: 200px;
     flex: auto;
     width: 100%;
     max-width: none;
+    min-width: 0;
   }
   .auralink-impact-author__img {
     width: 64px;
@@ -500,5 +501,28 @@ max-width: 200px;
     max-width: 130px;
     max-height: 28px;
     min-height: 20px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .auralink-impact-metric-item {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+
+  .auralink-impact-metric__content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .auralink-impact-logo-card {
+    min-width: 0;
+    padding-inline: 12px;
+  }
+
+  .auralink-impact-logo-card :is(img, svg),
+  .auralink-impact-logo-img {
+    max-width: 100%;
+    min-height: 0;
   }
 }

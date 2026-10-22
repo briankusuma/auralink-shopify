@@ -23,6 +23,8 @@ if (!customElements.get('auralink-slider')) {
       this.nextBtn = this.querySelector('.auralink-slider__nav-btn--next');
 
       if (this.slides.length === 0) return;
+      if (this.prevBtn) this.prevBtn.disabled = this.slides.length < 2;
+      if (this.nextBtn) this.nextBtn.disabled = this.slides.length < 2;
 
       // Find initial active index
       const initialActiveIndex = this.slides.findIndex(
@@ -32,6 +34,7 @@ if (!customElements.get('auralink-slider')) {
 
       this.initEvents();
       this.updateSlots(0, true);
+      this.initSizing();
       this.initEntrance();
     }
 
@@ -39,8 +42,34 @@ if (!customElements.get('auralink-slider')) {
       if (this.events) this.events.abort();
       if (this.motionMedia) this.motionMedia.removeEventListener('change', this.onMotionChange);
       this.resetEntrance();
+      if (this.sizeObserver) this.sizeObserver.disconnect();
+      cancelAnimationFrame(this.sizingFrame);
       clearTimeout(this.navigationTimer);
       this.isAnimating = false;
+    }
+
+    initSizing() {
+      this.sizingMedia = window.matchMedia('(max-width: 768px)');
+      this.sizeObserver = new ResizeObserver(() => this.updateStageHeight());
+      this.slides.forEach((slide) => this.sizeObserver.observe(slide));
+      window.addEventListener('resize', () => this.updateStageHeight(), { passive: true, signal: this.events.signal });
+      this.updateStageHeight();
+    }
+
+    updateStageHeight() {
+      if (!this.sizingMedia || this.sizingFrame) return;
+      this.sizingFrame = requestAnimationFrame(() => {
+        this.sizingFrame = null;
+        if (!this.isConnected) return;
+        if (!this.sizingMedia.matches) {
+          this.style.removeProperty('--slide-stage-height');
+          return;
+        }
+        const height = Math.ceil(this.slides[this.currentIndex].offsetHeight);
+        if (height > 0 && this.style.getPropertyValue('--slide-stage-height') !== height + 'px') {
+          this.style.setProperty('--slide-stage-height', height + 'px');
+        }
+      });
     }
 
     initEntrance() {
@@ -92,7 +121,8 @@ if (!customElements.get('auralink-slider')) {
             const elapsed = Math.min(64, Math.max(1, now - (this.entranceLastTime || now - 16)));
             this.entranceLastTime = now;
             const previous = this.entranceProgress;
-            let progress = previous === null ? target : previous + (target - previous) * (1 - Math.exp(-elapsed / 100));
+            const follow = window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? 1 : 1 - Math.exp(-elapsed / 100);
+            let progress = previous === null ? target : previous + (target - previous) * follow;
             if (Math.abs(progress - target) < 0.0005) progress = target;
             this.entranceProgress = progress;
             this.renderEntrance(progress);
@@ -249,6 +279,7 @@ if (!customElements.get('auralink-slider')) {
         this.stage.addEventListener('touchstart', (e) => this.handleTouchStart(e), { ...options, passive: true });
         this.stage.addEventListener('touchmove', (e) => this.handleTouchMove(e), { ...options, passive: true });
         this.stage.addEventListener('touchend', (e) => this.handleTouchEnd(e), options);
+        this.stage.addEventListener('touchcancel', () => { this.isSwiping = false; }, options);
       }
 
       // Shopify Theme Editor integration
@@ -264,6 +295,7 @@ if (!customElements.get('auralink-slider')) {
       if (this.entrancePending || e.touches.length !== 1) return;
       this.startX = e.touches[0].clientX;
       this.startY = e.touches[0].clientY;
+      this.currentY = this.startY;
       this.currentX = this.startX;
       this.isSwiping = true;
     }
@@ -271,6 +303,7 @@ if (!customElements.get('auralink-slider')) {
     handleTouchMove(e) {
       if (!this.isSwiping) return;
       this.currentX = e.touches[0].clientX;
+      this.currentY = e.touches[0].clientY;
     }
 
     handleTouchEnd(e) {
@@ -278,7 +311,7 @@ if (!customElements.get('auralink-slider')) {
       this.isSwiping = false;
 
       const diffX = this.currentX - this.startX;
-      if (Math.abs(diffX) > this.touchThreshold) {
+      if (Math.abs(diffX) > this.touchThreshold && Math.abs(diffX) > Math.abs(this.currentY - this.startY) * 1.2) {
         if (diffX < 0) {
           this.next();
         } else {
@@ -288,7 +321,7 @@ if (!customElements.get('auralink-slider')) {
     }
 
     next() {
-      if (this.isAnimating || this.entrancePending) return;
+      if (this.isAnimating || this.entrancePending || this.slides.length < 2) return;
       this.isAnimating = true;
 
       const total = this.slides.length;
@@ -301,7 +334,7 @@ if (!customElements.get('auralink-slider')) {
     }
 
     prev() {
-      if (this.isAnimating || this.entrancePending) return;
+      if (this.isAnimating || this.entrancePending || this.slides.length < 2) return;
       this.isAnimating = true;
 
       const total = this.slides.length;
@@ -392,12 +425,11 @@ if (!customElements.get('auralink-slider')) {
       if (!immediate) {
         const activeSlide = this.slides[current];
         if (activeSlide) {
-          if (window.AuraLinkLiquidReveal && typeof window.AuraLinkLiquidReveal.replay === 'function') {
-            window.AuraLinkLiquidReveal.replay(activeSlide);
-          }
+          // The shared engine handles this event once; do not also replay directly.
           activeSlide.dispatchEvent(new CustomEvent('auralink:slide:active', { bubbles: true }));
         }
       }
+      this.updateStageHeight();
     }
   }
 
