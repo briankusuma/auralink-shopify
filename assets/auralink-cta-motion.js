@@ -62,12 +62,8 @@
       }
 
       function render(value) {
-        const shrink = smooth(phase(value, 0.04, 0.25));
-        const place = smooth(phase(value, 0.68, 0.88));
-        // Keep the opening lime even before the decorative surface paints.
-        const sceneColor = shrink === 0 ? '#F2FE63' : '#FFFFFF';
-        wrapper.style.setProperty('--cta-scene-background', sceneColor);
-        wrapper.style.background = sceneColor;
+        const shrink = smooth(phase(value, 0.04, 0.32));
+        const place = smooth(phase(value, 0.73, 0.90));
         const tileX = mix(bounds.centerX, bounds.x, place);
         const tileY = mix(bounds.centerY, bounds.y, place);
         surface.style.width = mix(bounds.fullWidth, bounds.width, shrink) + 'px';
@@ -77,15 +73,15 @@
         media.style.transform = 'translate3d(' + (tileX - bounds.x) + 'px,' + (tileY - bounds.y) + 'px,0)';
 
         // Quadratic path: lateral sweep, gentle overshoot, then a level resting pose.
-        const rise = phase(value, 0.32, 0.63);
+        const rise = phase(value, 0.39, 0.69);
         const t = 1 - Math.pow(1 - rise, 3);
         const inverse = 1 - t;
         const x = (inverse * inverse * 0.34 + 2 * inverse * t * -0.12) * bounds.width;
         const y = (inverse * inverse * 1.15 + 2 * inverse * t * -0.045) * bounds.handHeight;
         const angle = inverse * inverse * -24 + 2 * inverse * t * 7;
-        hand.style.opacity = String(smooth(phase(value, 0.32, 0.38)));
+        hand.style.opacity = String(smooth(phase(value, 0.39, 0.44)));
         hand.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) rotate(' + angle + 'deg)';
-        const reveal = smooth(phase(value, 0.89, 1));
+        const reveal = smooth(phase(value, 0.91, 1));
         card.style.opacity = String(reveal);
         card.style.transform = 'translate3d(0,' + mix(32, 0, reveal) + 'px,0)';
         card.inert = reveal < 1;
@@ -111,6 +107,8 @@
         reset();
         if (!query.matches) return;
         wrapper.classList.add('is-cta-sequenced');
+        // The section never changes color; only the single lime overlay shrinks.
+        wrapper.style.background = '#FFFFFF';
         section.classList.add('is-cta-motion-section');
         // If an unusually long card cannot fit, retain the normal accessible layout.
         if (Math.max(media.offsetHeight, card.offsetHeight) > wrapper.clientHeight - 64) { reset(); return; }
