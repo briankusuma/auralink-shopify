@@ -526,3 +526,79 @@
     left: 12px;
   }
 }
+
+/* One continuous image-to-card entrance; geometry stays stable underneath. */
+.auralink-slider__slide,
+.auralink-slider__cta,
+.auralink-slider__cta:hover,
+.auralink-slider__nav-btn,
+.auralink-slider__nav-btn:hover {
+  box-shadow: none;
+}
+
+.auralink-slider__number,
+.auralink-slider__model,
+.auralink-slider__product-title,
+.auralink-slider__desc {
+  text-shadow: none;
+}
+
+.auralink-slider__entrance-cover {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 20;
+  overflow: hidden;
+  pointer-events: none;
+  background: #F0F0EE;
+}
+
+.auralink-slider__entrance-cover .auralink-slider__media {
+  position: relative;
+}
+
+@media (min-width: 990px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+  .auralink-slider-wrapper.is-slider-sequenced {
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    padding-block: 32px;
+  }
+
+  .is-slider-sequenced,
+  .is-slider-sequenced .auralink-slider-component {
+    --slide-active-w: min(1064px, 76vw, calc((100svh - 260px) * 1064 / 569));
+    --slide-active-h: calc(var(--slide-active-w) * 569 / 1064);
+    --slide-side-w: calc(var(--slide-active-w) * 734 / 1064);
+    --slide-side-h: calc(var(--slide-side-w) * 393 / 734);
+  }
+
+  .is-slider-sequenced .auralink-slider__header {
+    width: var(--slide-active-w);
+    padding-inline: 0;
+  }
+
+  .is-slider-sequenced .auralink-slider__slide {
+    transition-property: left, top, width, height, opacity;
+    filter: none;
+  }
+
+  .is-slider-entering .auralink-slider__content,
+  .is-slider-entering .auralink-slider__number,
+  .is-slider-entering .auralink-slider__overlay {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auralink-slider__slide,
+  .auralink-slider__content,
+  .auralink-slider__number,
+  .auralink-slider__overlay,
+  .auralink-slider__cta,
+  .auralink-slider__cta-arrow,
+  .auralink-slider__nav-btn {
+    transition: none;
+  }
+}
