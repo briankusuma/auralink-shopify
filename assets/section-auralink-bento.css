@@ -280,20 +280,6 @@
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Keep card bounds still: GSAP owns their entrance transforms. Hover zooms
-   only the image, keeping hit areas and text positions stable. */
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .auralink-bento-card__bg-img {
-    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  .auralink-bento-card:hover .auralink-bento-card__bg-img {
-    transform: scale(1.05);
-  }
-  .auralink-bento-card--stat:hover .auralink-bento-card__bg-img {
-    transform: scale(1.22);
-  }
-}
-
 /* Tablet Breakpoint (750px - 989px) */
 @media screen and (max-width: 989px) {
   .auralink-bento-grid {
