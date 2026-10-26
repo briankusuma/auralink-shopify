@@ -46,22 +46,28 @@
     trigger = window.ScrollTrigger;
     trigger.addEventListener('refreshInit', sortTriggers);
   }
+  function flush() {
+    bind();
+    const smooth = window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.instance;
+    if ((trigger && trigger.isScrolling && trigger.isScrolling()) || (smooth && smooth.isScrolling)) {
+      timer = setTimeout(flush, 160);
+      return;
+    }
+    if (trigger) trigger.refresh();
+    window.dispatchEvent(new CustomEvent('auralink:layout'));
+    if (window.AuraLinkSmoothScroll) window.AuraLinkSmoothScroll.resize();
+    // A hero only owns the overlay navbar when it is the first page section.
+    const first = document.querySelector('#MainContent > .shopify-section');
+    const header = document.querySelector('.header-wrapper--overlay');
+    if (header && (!first || !first.querySelector('.auralink-hero-container'))) {
+      header.classList.add('header--visible');
+      header.classList.remove('hero-scroll-header');
+      header.style.removeProperty('--hero-header-opacity');
+    }
+  }
   function refresh() {
     clearTimeout(timer);
-    timer = setTimeout(() => {
-      bind();
-      if (trigger) trigger.refresh();
-      window.dispatchEvent(new CustomEvent('auralink:layout'));
-      if (window.AuraLinkSmoothScroll) window.AuraLinkSmoothScroll.resize();
-      // A hero only owns the overlay navbar when it is the first page section.
-      const first = document.querySelector('#MainContent > .shopify-section');
-      const header = document.querySelector('.header-wrapper--overlay');
-      if (header && (!first || !first.querySelector('.auralink-hero-container'))) {
-        header.classList.add('header--visible');
-        header.classList.remove('hero-scroll-header');
-        header.style.removeProperty('--hero-header-opacity');
-      }
-    }, 120);
+    timer = setTimeout(flush, 120);
   }
   window.AuraLinkSectionLayout = { refresh, sort: sortTriggers, load };
   // Shopify inserts section HTML without re-running page-load scripts. Bootstrap

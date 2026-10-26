@@ -257,8 +257,11 @@
               });
               if (driver.scrollTrigger && (driver.scrollTrigger.isActive || driver.scrollTrigger.progress > 0)) startIntro();
             });
-            window.ScrollTrigger.sort();
-            window.ScrollTrigger.refresh();
+            if (window.AuraLinkSectionLayout) window.AuraLinkSectionLayout.refresh();
+            else {
+              window.ScrollTrigger.sort();
+              window.ScrollTrigger.refresh();
+            }
           }).catch(reset).finally(function () { pending = false; });
       }
 

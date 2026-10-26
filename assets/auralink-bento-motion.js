@@ -182,8 +182,11 @@
                 if (statNumber) statNumber.textContent = statText;
               };
             }, wrapper);
-            window.ScrollTrigger.sort();
-            window.ScrollTrigger.refresh();
+            if (window.AuraLinkSectionLayout) window.AuraLinkSectionLayout.refresh();
+            else {
+              window.ScrollTrigger.sort();
+              window.ScrollTrigger.refresh();
+            }
           }).catch(function () {
             // Failed enhancement leaves the existing readable, static grid.
             if (context) context.revert();

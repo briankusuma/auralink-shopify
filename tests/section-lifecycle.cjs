@@ -15,9 +15,10 @@ const nodes = Object.fromEntries(order.map((id) => [id, {
   compareDocumentPosition(other) { return order.indexOf(this.id) < order.indexOf(other.id) ? 4 : this === other ? 0 : 2; }
 }]));
 let triggers = order.map((id) => ({ trigger: nodes[id], vars: {} }));
-let refreshes = 0; const callbacks = {};
+let refreshes = 0; let scrolling = false; const callbacks = {};
 window.ScrollTrigger = {
   getAll: () => triggers,
+  isScrolling: () => scrolling,
   sort() { triggers.sort((a,b) => (b.vars.refreshPriority || 0) - (a.vars.refreshPriority || 0)); },
   addEventListener(name, fn) { callbacks[name] = fn; },
   removeEventListener(name) { delete callbacks[name]; },
@@ -32,6 +33,11 @@ document.head = { appendChild: (script) => scripts.push(script) };
 const context = { window, document, CustomEvent: Event, URL, Map, Promise, setTimeout, clearTimeout, customElements: { get() {} } };
 vm.runInNewContext(fs.readFileSync('assets/auralink-section-lifecycle.js', 'utf8'), context);
 flush(); assert.equal(refreshes, 1);
+// Coalesce many layout changes and defer expensive refresh until scroll stops.
+scrolling=true;
+for(let i=0;i<8;i++) window.AuraLinkSectionLayout.refresh();
+flush();assert.equal(refreshes,1);assert.equal(timers.size,1);
+flush();assert.equal(refreshes,1);scrolling=false;flush();assert.equal(refreshes,2);
 const sectionEvent = (name, scripts = []) => {
   const event = new Event(name);
   Object.defineProperty(event, 'target', { value: { querySelectorAll: () => scripts } });
