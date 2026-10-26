@@ -77,7 +77,6 @@
               return reveal;
             }
             const headingReveals = header ? Array.from(header.querySelectorAll('[data-liquid-reveal="text"]')).map(prepareText).filter(Boolean) : [];
-            let headingPlayed = false;
             let positions;
             function measure() {
               const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
@@ -101,11 +100,6 @@
                   start: 'top top',
                   end: function () { return '+=' + Math.max(1200, document.documentElement.clientHeight * 2.2); },
                   scrub: window.AuraLinkSmoothScroll && window.AuraLinkSmoothScroll.active ? true : 0.6,
-                  onEnter: function () {
-                    if (headingPlayed) return;
-                    headingPlayed = true;
-                    headingReveals.forEach(function (reveal) { reveal.play(); });
-                  },
                   onRefreshInit: function () {
                     measure();
                     if (!timeline) return;
@@ -127,6 +121,16 @@
               timeline.set(stat, { x: function () { return positions.statCenter; }, immediateRender: true, lazy: false }, 0);
               timeline.set(stacked, { x: function () { return positions.stackedPair; }, immediateRender: true, lazy: false }, 0);
               timeline.addLabel('heading', 0);
+              // The shared liquid effect follows the same reversible playhead
+              // as the heading position, rather than a one-time RAF reveal.
+              headingReveals.forEach(function (reveal, index) {
+                const state = { progress: 0 };
+                reveal.render(0);
+                timeline.to(state, {
+                  progress: 1, duration: 0.85, ease: 'none',
+                  onUpdate: function () { reveal.render(state.progress); }
+                }, index * 0.08);
+              });
               if (header) {
                 timeline.set(header, {
                   y: function () { return positions.headingCenter; }, immediateRender: true, lazy: false

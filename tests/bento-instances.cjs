@@ -5,7 +5,8 @@ const timelines = [], triggers = [];
 function node(extra = {}) { return Object.assign({ x:0,y:0,autoAlpha:1,offsetWidth:100,offsetHeight:100,offsetLeft:0,offsetTop:0 }, extra); }
 function fixture(hasHeading, complete = true) {
   const classes = new Set(), media = { matches:true, addEventListener(){}, removeEventListener(){} };
-  const header = node({ offsetHeight:80, querySelectorAll:()=>[] });
+  const headingTexts=[node({revealProgress:0}),node({revealProgress:0})];
+  const header = node({ offsetHeight:80, querySelectorAll:()=>headingTexts });
   const grid = node({ clientWidth:1000 }), statNumber = node({ textContent:'99%' });
   const stat = node({ offsetLeft:800, offsetWidth:200, querySelector:()=>statNumber, querySelectorAll:()=>[] });
   const stacked = node({ offsetLeft:560, offsetWidth:200, querySelectorAll:()=>[] });
@@ -13,20 +14,34 @@ function fixture(hasHeading, complete = true) {
   const container = node({ offsetTop:40 });
   const selectors = { '.auralink-bento-header':hasHeading?header:null, '.auralink-bento-grid':grid, '.auralink-bento-card--stat':stat, '.auralink-bento-col--stacked':stacked, '.auralink-bento-card--large':complete?large:null, '.auralink-bento-container':container };
   const wrapper = node({ clientHeight:800,isConnected:true,dataset:{}, classList:{add:c=>classes.add(c),remove:c=>classes.delete(c)},querySelector:s=>selectors[s],querySelectorAll:()=>[],closest(){return this;} });
-  return {wrapper,media,header,stat,stacked,large,statNumber,classes};
+  return {wrapper,media,header,headingTexts,stat,stacked,large,statNumber,classes};
 }
 const a=fixture(true), b=fixture(false), incomplete=fixture(false,false);
 const wrappers=[a.wrapper,b.wrapper,incomplete.wrapper]; let mediaIndex=0;
 const gsap={registerPlugin(){},set:(...args)=>actual.set(...args),context:(...args)=>actual.context(...args),timeline(config){
   const {scrollTrigger,...rest}=config; const timeline=actual.timeline({...rest,paused:true});timelines.push(timeline);triggers.push(scrollTrigger);return timeline;
 }};
-const window={gsap,ScrollTrigger:{sort(){},refresh(){triggers.forEach(t=>t.onRefreshInit())}},matchMedia:()=>[a,b,incomplete][mediaIndex++].media};
+const window={gsap,AuraLinkLiquidReveal:{createControlled(el){return {
+ render(progress){el.revealProgress=progress;},
+ play(){throw new Error('Bento headings must not start a separate one-shot animation');},
+ destroy(){el.revealDestroyed=true;}
+};}},ScrollTrigger:{sort(){},refresh(){triggers.forEach(t=>t.onRefreshInit())}},matchMedia:()=>[a,b,incomplete][mediaIndex++].media};
 const document={readyState:'complete',documentElement:{clientHeight:800},querySelectorAll:()=>wrappers,addEventListener(){}};
 vm.runInNewContext(fs.readFileSync('assets/auralink-bento-motion.js','utf8'),{window,document,URL,Map,Promise,getComputedStyle:()=>({columnGap:'20px'})});
 (async()=>{
  await new Promise(setImmediate);
  assert.equal(timelines.length,2, 'Incomplete content must fall back without a trigger');
  assert.equal(incomplete.classes.size,0);
+ const headingTimeline=timelines[0];
+ for(let cycle=0;cycle<3;cycle++) {
+   headingTimeline.time(0);assert.ok(a.headingTexts.every(el=>el.revealProgress===0));
+   headingTimeline.time(.4);const halfway=a.headingTexts.map(el=>el.revealProgress);
+   assert.ok(halfway[0]>halfway[1] && halfway.every(p=>p>0 && p<1));
+   headingTimeline.time(1);assert.ok(a.headingTexts.every(el=>el.revealProgress===1));
+   headingTimeline.time(.4);assert.deepEqual(a.headingTexts.map(el=>el.revealProgress),halfway);
+   triggers[0].onRefreshInit();assert.deepEqual(a.headingTexts.map(el=>el.revealProgress),halfway);
+   headingTimeline.time(0);assert.ok(a.headingTexts.every(el=>el.revealProgress===0));
+ }
  for(const [index,item] of [a,b].entries()) {
    const timeline=timelines[index];
    const snapshot=()=>JSON.stringify([item.stat.x,item.stat.y,item.stat.autoAlpha,item.stacked.x,item.stacked.y,item.stacked.autoAlpha,item.large.x,item.large.autoAlpha,item.header.y]);
@@ -38,7 +53,7 @@ vm.runInNewContext(fs.readFileSync('assets/auralink-bento-motion.js','utf8'),{wi
    timeline.time(0);assert.equal(item.stat.autoAlpha,0);assert.equal(item.statNumber.textContent,'0%');
  }
  const before=timelines[1].time();a.wrapper._bentoMotionDestroy();assert.equal(timelines[1].time(),before);
- assert.equal(a.statNumber.textContent,'99%');assert.equal(a.classes.size,0);
+ assert.equal(a.statNumber.textContent,'99%');assert.equal(a.classes.size,0);assert.ok(a.headingTexts.every(el=>el.revealDestroyed));
  b.wrapper._bentoMotionDestroy();incomplete.wrapper._bentoMotionDestroy();actual.ticker.sleep();
- console.log('PASS bento instances: independent duplicate timelines, absent heading/card fallback, repeated refresh, reverse, counter and isolated cleanup.');
+ console.log('PASS bento instances: independent duplicate timelines, absent heading/card fallback, repeated refresh, reversible heading/subtitle liquid reveal, counter and isolated cleanup.');
 })().catch(error=>{actual.ticker.sleep();console.error(error);process.exitCode=1;});
